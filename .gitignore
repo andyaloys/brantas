@@ -1,0 +1,19 @@
+# Node / Angular
+node_modules/
+**/node_modules/
+.angular/cache
+**/.angular/cache
+dist/
+**/dist/
+
+# IDE / Editor
+.vscode/
+**/.vscode/
+.idea/
+**/.idea/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db

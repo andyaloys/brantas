@@ -1,0 +1,113 @@
+/* DASHBOARD MODULE SPECIFIC STYLES - LIGHT THEME */
+
+.pipeline-card {
+  margin-bottom: 2rem;
+}
+
+.pipeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pipeline-title-group h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+
+.pipeline-title-group p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Progress bar inside pipeline */
+.progress-container {
+  margin-top: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: 4px;
+  transition: width 0.3s ease-out;
+}
+
+.progress-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.progress-status {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.progress-percent {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.pipeline-footer {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Table layout */
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.table-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.alert-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-danger);
+  background: var(--color-danger-glow);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.anomaly-type-icon {
+  margin-right: 0.25rem;
+}
+
+.font-bold {
+  font-weight: 700;
+  color: var(--text-main);
+}

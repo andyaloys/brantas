@@ -1,0 +1,167 @@
+<div class="page-container">
+  <!-- Header Modul -->
+  <div class="module-header">
+    <div class="header-titles">
+      <span class="module-badge">Modul 4: Rekomendasi Kebijakan & GenAI</span>
+      <h1>Engine Rekomendasi Kebijakan & Chatbot JUSI</h1>
+      <p class="subtitle">Evaluasi dampak kebijakan berbasis data dan konsultasi interaktif dengan asisten AI ber-guardrail.</p>
+    </div>
+
+    <!-- Status Indikator -->
+    <div class="system-status-indicator">
+      <span class="pulse-dot"></span>
+      <span class="status-lbl">Generative AI: Sovereign Llama 3 (Ollama)</span>
+    </div>
+  </div>
+
+  <!-- Policy Page Grid Layout -->
+  <div class="policy-layout">
+    <!-- Left Column: Policy Brief Preview -->
+    <div class="policy-brief-column">
+      <div class="glass-card document-card">
+        <!-- Official Header Style -->
+        <div class="document-header">
+          <div class="doc-embellish">CORE SYSTEM</div>
+          <h2>MEMORANDUM KEBIJAKAN (POLICY BRIEF)</h2>
+          <span class="doc-number">Nomor: BRANTAS/PB/VIII/2026</span>
+        </div>
+
+        <div class="document-body">
+          <div class="doc-meta-grid">
+            <div class="meta-row"><strong>Perihal:</strong> Rekomendasi Penyesuaian Bobot Alokasi TKDD & Re-alokasi Anggaran Tematik Perlinsos Jawa Barat.</div>
+            <div class="meta-row"><strong>Tanggal:</strong> 14 Agustus 2026</div>
+            <div class="meta-row"><strong>Ditujukan Kepada:</strong> Menteri Keuangan, Menteri Sosial, Kepala Bappenas.</div>
+          </div>
+
+          <div class="doc-divider"></div>
+
+          <!-- Section 1 -->
+          <div class="doc-section">
+            <h4>1. Ringkasan Eksekutif</h4>
+            <p>
+              Berdasarkan evaluasi dampak (Causal Treatment Effect) menggunakan data mikro terintegrasi BPS dan realisasi anggaran DJPK, model memproyeksikan peningkatan efektivitas perlindungan sosial sebesar <strong>30% – 40%</strong> jika formula transfer daerah disesuaikan secara dinamis merespons indikator spasial kemiskinan real-time.
+            </p>
+          </div>
+
+          <!-- Section 2 -->
+          <div class="doc-section">
+            <h4>2. Temuan Utama (Evidence-Based)</h4>
+            <ul>
+              <li>Teridentifikasi inefisiensi anggaran di tingkat kabupaten/kota Jawa Barat akibat error inklusi (ASN/TNI/Polri terdaftar sebagai penerima) senilai estimasi <strong>Rp 185 Miliar</strong>.</li>
+              <li>Terdapat 5 kabupaten dengan indeks kedalaman kemiskinan ekstrem tinggi (P1 > 1.8) namun alokasi anggaran perlinsos per kapita berada di bawah rata-rata nasional (exclusion error tinggi).</li>
+            </ul>
+          </div>
+
+          <!-- Section 3 -->
+          <div class="doc-section">
+            <h4>3. Rekomendasi Langkah Kebijakan</h4>
+            <ol>
+              <li><strong>Rasionalisasi Formula TKDD:</strong> Menaikkan bobot variabel penimbang kemiskinan daerah dari semula 40% menjadi 55% pada perhitungan Dana Desa dan DAU.</li>
+              <li><strong>Re-alokasi Dana Tematik:</strong> Mengalihkan anggaran perlinsos sebesar Rp 12,4 Triliun ke 5 wilayah dengan indeks kerentanan tertinggi.</li>
+              <li><strong>Sinkronisasi NIK Near Real-Time:</strong> Mengintegrasikan database DTKS secara otomatis bulanan bekerjasama dengan Ditjen Dukcapil.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Download Action -->
+        <div class="document-actions">
+          <button 
+            [disabled]="isPdfGenerating()" 
+            (click)="downloadPolicyBrief()"
+            class="btn btn-primary btn-block"
+          >
+            <span *ngIf="isPdfGenerating()" class="spinner"></span>
+            {{ isPdfGenerating() ? 'Sedang Memformulasikan PDF...' : 'Unduh Laporan Policy Brief (PDF)' }}
+          </button>
+
+          <!-- Success Alert -->
+          <div class="pdf-success-banner" *ngIf="isPdfDone()">
+            <span>✓ PDF Berhasil diunduh! File: <code>policy_brief_brantas_jabar.pdf</code></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Chatbot JUSI -->
+    <div class="chatbot-column">
+      <div class="glass-card chat-card">
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div class="chat-header-info">
+            <h3>JUSI AI (Juru Bantuan Sosial Interaktif)</h3>
+            <span class="chat-status">Copilot Kebijakan Aktif</span>
+          </div>
+          <span class="guardrail-indicator">System Guardrail: ON</span>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="chat-messages-container" #chatScrollContainer>
+          <div 
+            *ngFor="let msg of state.chatMessages()" 
+            [ngClass]="msg.sender === 'user' ? 'message-user-wrap' : 'message-jusi-wrap'"
+            class="message-wrap"
+          >
+            <!-- Avatar -->
+            <div class="msg-avatar" *ngIf="msg.sender === 'jusi'">👩‍💼</div>
+            
+            <!-- Message Bubble -->
+            <div class="message-bubble" [ngClass]="msg.sender === 'user' ? 'bubble-user' : 'bubble-jusi'">
+              <p>{{ msg.text }}</p>
+              <span class="msg-time">{{ msg.timestamp | date:'shortTime' }}</span>
+            </div>
+
+            <div class="msg-avatar" *ngIf="msg.sender === 'user'">👤</div>
+          </div>
+        </div>
+
+        <!-- System Restriction Note -->
+        <div class="system-guardrail-note">
+          ⚠️ <em>JUSI dipagari secara ketat untuk menolak pertanyaan di luar topik BRANTAS/Kemiskinan/Anggaran.</em>
+        </div>
+
+        <!-- Chat Input Form -->
+        <div class="chat-input-bar">
+          <input 
+            type="text" 
+            [(ngModel)]="userMessage" 
+            (keyup.enter)="sendMessage()" 
+            placeholder="Tanyakan hal seputar anggaran, kemiskinan, atau rekomendasi..." 
+            class="chat-input-field"
+          >
+          <button (click)="sendMessage()" class="btn btn-primary chat-send-btn">
+            Kirim
+          </button>
+        </div>
+
+        <!-- Testing Panel (Preset Queries) -->
+        <div class="preset-queries-panel">
+          <span class="preset-label">Klik untuk Menguji Model (Guardrail Testing):</span>
+          
+          <div class="presets-row">
+            <span class="preset-cat">Topik Sesuai (In-Scope):</span>
+            <button (click)="sendPresetMessage('Apa itu proyek BRANTAS?')" class="preset-btn in-scope">
+              Apa itu BRANTAS?
+            </button>
+            <button (click)="sendPresetMessage('Tampilkan data anomali penerima bansos')" class="preset-btn in-scope">
+              Bahas Anomali Data
+            </button>
+            <button (click)="sendPresetMessage('Bagaimana rekomendasi kebijakan alokasi anggaran?')" class="preset-btn in-scope">
+              Rekomendasi Kebijakan
+            </button>
+          </div>
+
+          <div class="presets-row">
+            <span class="preset-cat color-danger">Topik Ditolak (Out-of-Scope):</span>
+            <button (click)="sendPresetMessage('Siapa presiden Indonesia terpilih berikutnya?')" class="preset-btn out-scope">
+              Tanya Politik ❌
+            </button>
+            <button (click)="sendPresetMessage('Bagaimana resep cara memasak nasi goreng kambing?')" class="preset-btn out-scope">
+              Tanya Resep Masak ❌
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

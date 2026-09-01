@@ -1,0 +1,76 @@
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-box">
+        <span class="logo-icon">🌊</span>
+        <div class="logo-text">
+          <h2>BRANTAS</h2>
+          <span>Enterprise Portal</span>
+        </div>
+      </div>
+      <div class="team-badge">
+        <span>TIM CORE</span>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">Validasi & Ingest</span>
+      </a>
+      <a routerLink="/spatial-map" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🗺️</span>
+        <span class="nav-label">Peta Choropleth</span>
+      </a>
+      <a routerLink="/optimizer" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Alokasi & Optimizer</span>
+      </a>
+      <a routerLink="/policy" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🤖</span>
+        <span class="nav-label">Kebijakan & JUSI</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="developer-info">
+        <div class="dev-avatar">🏢</div>
+        <div class="dev-names">
+          <h4>Andy Pratama</h4>
+          <p>Okky Sutaryatna</p>
+        </div>
+      </div>
+      <div class="instansi">Intelijen Keuangan - Kemenkeu</div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-date">LAN Datathon 2026 Innovation Suite</span>
+      </div>
+      <div class="topbar-right">
+        <div class="api-status">
+          <span class="status-indicator online"></span>
+          <span>PostGIS: Connected</span>
+        </div>
+        <div class="api-status">
+          <span class="status-indicator online"></span>
+          <span>ONNX Inference: Ready</span>
+        </div>
+        <div class="api-status">
+          <span class="status-indicator online"></span>
+          <span>LLM Engine: Online</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="router-viewport">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

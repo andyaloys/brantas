@@ -1,0 +1,228 @@
+/* OPTIMIZER MODULE SPECIFIC STYLES - LIGHT THEME */
+
+.optimizer-layout {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .optimizer-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Parameters Sidebar */
+.params-card {
+  padding: 1.5rem;
+}
+
+.params-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-glass);
+  padding-bottom: 1rem;
+}
+
+.params-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.params-header p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.sliders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.slider-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.slider-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-label {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.slider-val {
+  font-size: 0.95rem;
+  color: var(--color-primary);
+}
+
+.slider-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Custom Range Slider styling */
+.custom-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  outline: none;
+  transition: background 0.3s;
+}
+
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.3);
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+.custom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: var(--color-secondary);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+
+/* Sum banner */
+.sum-banner {
+  margin-top: 1.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  transition: var(--transition-smooth);
+}
+
+.banner-ok {
+  background: var(--color-success-glow);
+  border-color: rgba(5, 150, 105, 0.15);
+  color: var(--color-success);
+}
+
+.banner-warning {
+  background: var(--color-warning-glow);
+  border-color: rgba(217, 119, 6, 0.15);
+  color: var(--color-warning);
+}
+
+.banner-subtext {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* Right details column */
+.summary-details-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.quick-optimizer-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .quick-optimizer-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-glass-card {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-glass-card .card-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.stat-glass-card h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.stat-glass-card .color-teal {
+  color: var(--color-primary);
+}
+
+.stat-glass-card p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.insight-card {
+  padding: 1.5rem;
+}
+
+.insight-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+}
+
+.insight-card p {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* Comparison results table styling overrides */
+.table-margin-top {
+  margin-top: 1.5rem;
+}
+
+.vulnerability-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.01);
+  border: 1px solid var(--border-glass);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.score-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.text-teal { color: var(--color-primary) !important; }
+.text-green { color: var(--color-success) !important; }
+.text-red { color: var(--color-danger) !important; }
+.font-bold { font-weight: 700; }

@@ -1,0 +1,127 @@
+<div class="page-container">
+  <!-- Header Modul -->
+  <div class="module-header">
+    <div class="header-titles">
+      <span class="module-badge">Modul 1: Pendataan & Validasi</span>
+      <h1>Integrasi Data & Engine Validasi Anomali</h1>
+      <p class="subtitle">Konsolidasi multi-source data kemiskinan (BPS, DJPK, P3KE) dan deteksi otomatis salah sasaran bansos.</p>
+    </div>
+    
+    <!-- Status Indikator -->
+    <div class="system-status-indicator">
+      <span class="pulse-dot"></span>
+      <span class="status-lbl">Cross-Dataset Model: Active (ONNX)</span>
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap bg-blue-glow">
+        <span class="kpi-emoji">💳</span>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-label">Total Anggaran Perlinsos Terpantau</span>
+        <h3 class="kpi-value">{{ getFormattedCurrency(state.totalBudget()) }}</h3>
+        <span class="kpi-subtext">Dari DJPK Kemenkeu & APBN 2026</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap bg-green-glow">
+        <span class="kpi-emoji">👥</span>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-label">Penerima Manfaat (DTKS/Regsosek)</span>
+        <h3 class="kpi-value">{{ getFormattedNumber(state.totalPenerima()) }} Jiwa</h3>
+        <span class="kpi-subtext">Data terpadu kesejahteraan sosial</span>
+      </div>
+    </div>
+
+    <div class="kpi-card card-warning">
+      <div class="kpi-icon-wrap bg-orange-glow">
+        <span class="kpi-emoji">🚨</span>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-label">Total Anomali Terdeteksi (AI Engine)</span>
+        <h3 class="kpi-value color-warning">{{ getFormattedNumber(state.totalAnomalies()) }} Kasus</h3>
+        <span class="kpi-subtext">Inclusion & Exclusion Errors</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline Control Card -->
+  <div class="glass-card pipeline-card">
+    <div class="pipeline-header">
+      <div class="pipeline-title-group">
+        <h3>Pipeline Data & Sinkronisasi API</h3>
+        <p>Integrasikan data BPS (ekonomi), DJPK (anggaran), P3KE (kesejahteraan), dan BIG (geospasial).</p>
+      </div>
+      <button 
+        [disabled]="state.isPipelineRunning()" 
+        (click)="triggerPipeline()"
+        class="btn btn-primary"
+      >
+        <span *ngIf="state.isPipelineRunning()" class="spinner"></span>
+        {{ state.isPipelineRunning() ? 'Sedang Memproses...' : 'Jalankan Ingest & Validasi (AI)' }}
+      </button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" *ngIf="state.isPipelineRunning() || state.pipelineProgress() > 0">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" [style.width.%]="state.pipelineProgress()"></div>
+      </div>
+      <div class="progress-details">
+        <span class="progress-status">{{ state.pipelineStatusText() }}</span>
+        <span class="progress-percent">{{ state.pipelineProgress() }}%</span>
+      </div>
+    </div>
+
+    <div class="pipeline-footer" *ngIf="state.lastPipelineRun()">
+      <span class="last-run">Terakhir dijalankan: {{ state.lastPipelineRun() | date:'medium Time' }}</span>
+    </div>
+  </div>
+
+  <!-- Anomaly Alert Table -->
+  <div class="glass-card table-card">
+    <div class="table-header">
+      <h3>Daftar Alerts Validasi Anomali Data</h3>
+      <span class="alert-count">{{ state.anomalyAlerts().length }} Alerts Prioritas Tinggi</span>
+    </div>
+    
+    <div class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Wilayah</th>
+            <th>Tipe Anomali</th>
+            <th>Estimasi Dampak</th>
+            <th>Tingkat Keparahan</th>
+            <th>Tindakan Rekomendasi AI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let alert of state.anomalyAlerts()">
+            <td class="font-bold">{{ alert.regionName }}</td>
+            <td>
+              <span class="anomaly-type-icon">⚠️</span>
+              {{ alert.type }}
+            </td>
+            <td>{{ getFormattedNumber(alert.count) }} Jiwa / KK</td>
+            <td>
+              <span class="badge" [ngClass]="alert.severity === 'high' ? 'badge-danger' : 'badge-warning'">
+                {{ alert.severity === 'high' ? 'Tinggi' : 'Sedang' }}
+              </span>
+            </td>
+            <td>
+              <span class="recommendation-badge">
+                {{ alert.type.includes('ASN') ? 'Potong Kuota & Sinkron NIK' : 'Penambahan Alokasi & Rekonsiliasi' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

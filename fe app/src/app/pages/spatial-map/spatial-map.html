@@ -1,0 +1,262 @@
+<div class="page-container">
+  <!-- Header Modul -->
+  <div class="module-header">
+    <div class="header-titles">
+      <span class="module-badge">Modul 2: Pemetaan Spasial</span>
+      <h1>Peta Tematik Spasial Kemiskinan Interaktif</h1>
+      <p class="subtitle">
+        Pemetaan kantong kemiskinan dan alokasi anggaran perlindungan sosial tingkat 
+        {{ state.selectedScope() === 'nasional' ? 'Nasional (Provinsi)' : 'Lokal (Kabupaten/Kota)' }}.
+      </p>
+    </div>
+
+    <!-- Status Indikator -->
+    <div class="system-status-indicator">
+      <span class="pulse-dot"></span>
+      <span class="status-lbl">Database Spasial: Connected (PostGIS)</span>
+    </div>
+  </div>
+
+  <!-- Scope & Metric Control Panel -->
+  <div class="controls-panel glass-card">
+    <!-- Scope Selector (National / Provincial Filter) -->
+    <div class="scope-selector-wrap">
+      <label class="control-label">📍 Cakupan Analisis:</label>
+      <select 
+        [ngModel]="state.selectedScope()" 
+        (change)="changeScope($any($event.target).value)" 
+        class="scope-dropdown"
+      >
+        <option value="nasional">Nasional (Data 38 Provinsi)</option>
+        <optgroup label="Detail Tingkat Kabupaten/Kota per Provinsi">
+          <option *ngFor="let prov of state.provinces()" [value]="prov.id">
+            Provinsi {{ prov.name }}
+          </option>
+        </optgroup>
+      </select>
+    </div>
+
+    <!-- Metric Selector -->
+    <div class="metric-selector-bar">
+      <button 
+        (click)="setMetric('poverty')" 
+        [class.active]="selectedMetric() === 'poverty'"
+        class="metric-btn btn-poverty"
+      >
+        📈 Tingkat Kemiskinan (%)
+      </button>
+      <button 
+        (click)="setMetric('budget')" 
+        [class.active]="selectedMetric() === 'budget'"
+        class="metric-btn btn-budget"
+      >
+        💵 Anggaran Perlinsos ({{ state.selectedScope() === 'nasional' ? 'T' : 'M' }})
+      </button>
+      <button 
+        (click)="setMetric('anomalies')" 
+        [class.active]="selectedMetric() === 'anomalies'"
+        class="metric-btn btn-anomalies"
+      >
+        🚨 Anomali Penerima (Kasus)
+      </button>
+    </div>
+  </div>
+
+  <!-- Map Layout Grid -->
+  <div class="map-layout">
+    <!-- Map Column -->
+    <div class="map-column">
+      <!-- Leaflet Map Container -->
+      <div class="map-wrapper-card glass-card">
+        <div id="leaflet-map-container" class="leaflet-map"></div>
+      </div>
+
+      <!-- Map Legend (Dynamic based on Scope and Metric) -->
+      <div class="glass-card legend-card">
+        <h4>Legenda Intensitas (Bubble Map)</h4>
+        
+        <div class="legend-items" *ngIf="selectedMetric() === 'poverty'">
+          <span class="legend-item"><span class="dot-lg bg-green"></span> Rendah (< 7%)</span>
+          <span class="legend-item"><span class="dot-lg bg-blue"></span> Sedang (7% - 11%)</span>
+          <span class="legend-item"><span class="dot-lg bg-orange"></span> Tinggi (11% - 18%)</span>
+          <span class="legend-item"><span class="dot-lg bg-red"></span> Sangat Tinggi (> 18%)</span>
+        </div>
+
+        <div class="legend-items" *ngIf="selectedMetric() === 'budget'">
+          <!-- National Budget Legend -->
+          <ng-container *ngIf="state.selectedScope() === 'nasional'">
+            <span class="legend-item"><span class="dot-lg bg-purple"></span> Rendah (< Rp 15T)</span>
+            <span class="legend-item"><span class="dot-lg bg-indigo"></span> Menengah (Rp 15T - 40T)</span>
+            <span class="legend-item"><span class="dot-lg bg-blue"></span> Tinggi (> Rp 40T)</span>
+          </ng-container>
+          <!-- Provincial Budget Legend -->
+          <ng-container *ngIf="state.selectedScope() !== 'nasional'">
+            <span class="legend-item"><span class="dot-lg bg-purple"></span> Rendah (< Rp 40M)</span>
+            <span class="legend-item"><span class="dot-lg bg-indigo"></span> Menengah (Rp 40M - 80M)</span>
+            <span class="legend-item"><span class="dot-lg bg-blue"></span> Tinggi (> Rp 80M)</span>
+          </ng-container>
+        </div>
+
+        <div class="legend-items" *ngIf="selectedMetric() === 'anomalies'">
+          <!-- National Anomalies Legend -->
+          <ng-container *ngIf="state.selectedScope() === 'nasional'">
+            <span class="legend-item"><span class="dot-lg bg-orange"></span> Rendah (< 15.000)</span>
+            <span class="legend-item"><span class="dot-lg bg-orange-dark"></span> Sedang (15.000 - 45.000)</span>
+            <span class="legend-item"><span class="dot-lg bg-red"></span> Tinggi (> 45.000)</span>
+          </ng-container>
+          <!-- Provincial Anomalies Legend -->
+          <ng-container *ngIf="state.selectedScope() !== 'nasional'">
+            <span class="legend-item"><span class="dot-lg bg-orange"></span> Rendah (< 2.000)</span>
+            <span class="legend-item"><span class="dot-lg bg-orange-dark"></span> Sedang (2.000 - 6.000)</span>
+            <span class="legend-item"><span class="dot-lg bg-red"></span> Tinggi (> 6.000)</span>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inspector Sidebar Column -->
+    <div class="sidebar-column">
+      <!-- Detailed Stats Card -->
+      <div class="glass-card region-detail-card" *ngIf="selectedRegion() as r">
+        <div class="region-detail-header">
+          <div>
+            <span class="region-code">Kode BPS: {{ r.id }}</span>
+            <h2>{{ r.name }}</h2>
+          </div>
+          <span class="vulnerability-badge">
+            Kerentanan: {{ getFormattedNumber(r.povertyRate * 0.8) }} / 10
+          </span>
+        </div>
+
+        <div class="stats-mini-grid">
+          <div class="stat-mini-box">
+            <span class="lbl">Kemiskinan</span>
+            <span class="val color-red">{{ r.povertyRate }}%</span>
+          </div>
+          <div class="stat-mini-box">
+            <span class="lbl">Anggaran</span>
+            <span class="val color-blue">
+              Rp {{ r.actualBudget }}{{ state.selectedScope() === 'nasional' ? 'T' : 'M' }}
+            </span>
+          </div>
+          <div class="stat-mini-box">
+            <span class="lbl">IPM</span>
+            <span class="val color-green">{{ r.ipm }}</span>
+          </div>
+        </div>
+
+        <!-- Anomaly Breakdown -->
+        <div class="anomalies-section">
+          <h4>Breakdown Anomali Data Penerima:</h4>
+          
+          <div class="anomaly-item">
+            <div class="anomaly-meta">
+              <span>👤 Penerima Aktif ASN / TNI / Polri</span>
+              <span class="anomaly-num font-bold">{{ getFormattedNumber(r.anomalies.asnTniPolri) }}</span>
+            </div>
+            <div class="bar-progress bg-red-opacity">
+              <div 
+                class="bar-progress-fill bg-red" 
+                [style.width.%]="(r.anomalies.asnTniPolri / (state.selectedScope() === 'nasional' ? 35000 : 3000)) * 100"
+              ></div>
+            </div>
+          </div>
+
+          <div class="anomaly-item">
+            <div class="anomaly-meta">
+              <span>👥 Identitas Ganda / Duplikat</span>
+              <span class="anomaly-num font-bold">{{ getFormattedNumber(r.anomalies.ganda) }}</span>
+            </div>
+            <div class="bar-progress bg-orange-opacity">
+              <div 
+                class="bar-progress-fill bg-orange" 
+                [style.width.%]="(r.anomalies.ganda / (state.selectedScope() === 'nasional' ? 100000 : 8000)) * 100"
+              ></div>
+            </div>
+          </div>
+
+          <div class="anomaly-item">
+            <div class="anomaly-meta">
+              <span>💀 NIK Terdaftar Meninggal</span>
+              <span class="anomaly-num font-bold">{{ getFormattedNumber(r.anomalies.meninggal) }}</span>
+            </div>
+            <div class="bar-progress bg-orange-opacity">
+              <div 
+                class="bar-progress-fill bg-orange" 
+                [style.width.%]="(r.anomalies.meninggal / (state.selectedScope() === 'nasional' ? 30000 : 3000)) * 100"
+              ></div>
+            </div>
+          </div>
+
+          <div class="anomaly-item">
+            <div class="anomaly-meta text-warning-glow">
+              <span>❌ Warga Sangat Miskin Terlewat (Exclusion)</span>
+              <span class="anomaly-num font-bold">{{ getFormattedNumber(r.anomalies.exclusion) }}</span>
+            </div>
+            <div class="bar-progress bg-orange-opacity">
+              <div 
+                class="bar-progress-fill bg-amber" 
+                [style.width.%]="(r.anomalies.exclusion / (state.selectedScope() === 'nasional' ? 130000 : 12000)) * 100"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Recommendation Text Box -->
+        <div class="ai-recommendation-box">
+          <div class="ai-header">
+            <span>✨ Rekomendasi Spasial AI:</span>
+          </div>
+          <p *ngIf="r.povertyRate > 10">
+            Tingkat kemiskinan dan kedalaman kemiskinan (P1: {{ r.p1 }}) sangat tinggi. Segera lakukan audit lapangan di {{ r.name }} untuk merekonsiliasi <strong>{{ getFormattedNumber(r.anomalies.exclusion) }} exclusion errors</strong> dengan memprioritaskan penyaluran bansos PKH tambahan.
+          </p>
+          <p *ngIf="r.povertyRate <= 10">
+            Wilayah relatif stabil. Temuan anomali data ganda dan NIK ASN/TNI/Polri aktif harus ditindaklanjuti untuk pemblokiran otomatis melalui sistem validasi DTKS. Estimasi efisiensi anggaran: 
+            <strong>Rp {{ getFormattedNumber(r.actualBudget * 0.12) }} {{ state.selectedScope() === 'nasional' ? 'Triliun' : 'Miliar' }}</strong>.
+          </p>
+        </div>
+
+        <!-- Drill Down Actions -->
+        <div class="drill-down-actions-panel" style="margin-top: 1rem;">
+          <button 
+            *ngIf="state.selectedScope() === 'nasional'" 
+            (click)="drillDown(r)" 
+            class="btn btn-primary btn-block"
+          >
+            🔍 Lihat Detail Kabupaten/Kota
+          </button>
+          <button 
+            *ngIf="state.selectedScope() !== 'nasional'" 
+            (click)="goBackToNasional()" 
+            class="btn btn-secondary btn-block"
+            style="width: 100%; border: 1px solid var(--border-glass); background: transparent; color: var(--text-main);"
+          >
+            ← Kembali ke Nasional
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Selector List -->
+      <div class="glass-card region-list-card">
+        <h3>
+          Daftar {{ state.selectedScope() === 'nasional' ? 'Provinsi' : 'Kabupaten / Kota' }}
+        </h3>
+        
+        <div class="region-scroll-list">
+          <div 
+            *ngFor="let region of state.activeRegions()" 
+            (click)="selectRegion(region)"
+            [class.active]="selectedRegion()?.id === region.id"
+            class="region-list-item"
+          >
+            <div class="r-item-left">
+              <span class="r-name">{{ region.name }}</span>
+              <span class="r-sub">Kemiskinan: {{ region.povertyRate }}%</span>
+            </div>
+            <span class="r-arrow">⚡</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

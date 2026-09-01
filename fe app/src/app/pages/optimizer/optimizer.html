@@ -1,0 +1,201 @@
+<div class="page-container">
+  <!-- Header Modul -->
+  <div class="module-header">
+    <div class="header-titles">
+      <span class="module-badge">Modul 3: Prioritisasi Bantuan</span>
+      <h1>Optimizer Prioritisasi & Alokasi Anggaran</h1>
+      <p class="subtitle">Simulasi alokasi fiskal perlindungan sosial & TKDD berdasarkan model bobot kerentanan AI.</p>
+    </div>
+
+    <!-- Status Indikator -->
+    <div class="system-status-indicator">
+      <span class="pulse-dot"></span>
+      <span class="status-lbl">Predictive Engine: ONNX (Inference Engine)</span>
+    </div>
+  </div>
+
+  <!-- Scope Control Panel -->
+  <div class="controls-panel glass-card" style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; flex-wrap: wrap;">
+    <div class="scope-selector-wrap" style="display: flex; align-items: center; gap: 0.75rem;">
+      <label class="control-label" style="font-size: 0.9rem; font-weight: 700; color: var(--text-main);">📍 Cakupan Analisis:</label>
+      <select 
+        [ngModel]="state.selectedScope()" 
+        (change)="state.selectedScope.set($any($event.target).value)" 
+        class="scope-dropdown"
+        style="background: var(--bg-secondary); border: 1px solid var(--border-glass); padding: 0.5rem 1rem; border-radius: 8px; color: var(--text-main); font-weight: 600; outline: none; cursor: pointer; font-size: 0.85rem;"
+      >
+        <option value="nasional">Nasional (Data 38 Provinsi)</option>
+        <optgroup label="Detail Tingkat Kabupaten/Kota per Provinsi">
+          <option *ngFor="let prov of state.provinces()" [value]="prov.id">
+            Provinsi {{ prov.name }}
+          </option>
+        </optgroup>
+      </select>
+    </div>
+    <span class="badge badge-success" style="padding: 0.35rem 0.75rem;">
+      Unit Anggaran: {{ state.selectedScope() === 'nasional' ? 'Triliun Rupiah (T)' : 'Miliar Rupiah (M)' }}
+    </span>
+  </div>
+
+  <!-- Optimizer Main Layout -->
+  <div class="optimizer-layout">
+    <!-- Parameters Sidebar (Left) -->
+    <div class="params-card glass-card">
+      <div class="params-header">
+        <h3>Parameter Pembobotan AI</h3>
+        <p>Atur porsi kepentingan untuk masing-masing kriteria indikator kemiskinan daerah.</p>
+      </div>
+
+      <div class="sliders-list">
+        <!-- Slider 1 -->
+        <div class="slider-item">
+          <div class="slider-meta">
+            <span class="slider-label">📈 Persentase Kemiskinan</span>
+            <span class="slider-val font-bold">{{ state.weightPoverty() }}%</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            [ngModel]="state.weightPoverty()" 
+            (input)="updateWeight('poverty', $any($event.target).value)" 
+            class="custom-slider"
+          >
+          <span class="slider-desc">Berdasarkan rasio masyarakat di bawah garis kemiskinan BPS.</span>
+        </div>
+
+        <!-- Slider 2 -->
+        <div class="slider-item">
+          <div class="slider-meta">
+            <span class="slider-label">📚 Indeks Pembangunan Manusia (IPM)</span>
+            <span class="slider-val font-bold">{{ state.weightIpm() }}%</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            [ngModel]="state.weightIpm()" 
+            (input)="updateWeight('ipm', $any($event.target).value)" 
+            class="custom-slider"
+          >
+          <span class="slider-desc">Kualitas hidup masyarakat (pendidikan, kesehatan, pendapatan).</span>
+        </div>
+
+        <!-- Slider 3 -->
+        <div class="slider-item">
+          <div class="slider-meta">
+            <span class="slider-label">🔍 Kedalaman & Keparahan Kemiskinan</span>
+            <span class="slider-val font-bold">{{ state.weightP1P2() }}%</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            [ngModel]="state.weightP1P2()" 
+            (input)="updateWeight('p1p2', $any($event.target).value)" 
+            class="custom-slider"
+          >
+          <span class="slider-desc">Mengukur kesenjangan pengeluaran antar penduduk miskin.</span>
+        </div>
+
+        <!-- Slider 4 -->
+        <div class="slider-item">
+          <div class="slider-meta">
+            <span class="slider-label">🚨 Kerentanan Data (Exclusion Errors)</span>
+            <span class="slider-val font-bold">{{ state.weightExclusion() }}%</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            [ngModel]="state.weightExclusion()" 
+            (input)="updateWeight('exclusion', $any($event.target).value)" 
+            class="custom-slider"
+          >
+          <span class="slider-desc">Rasio data warga miskin yang belum tersentuh bantuan.</span>
+        </div>
+      </div>
+
+      <!-- Sum Check Banner -->
+      <div class="sum-banner" [ngClass]="(state.weightPoverty() + state.weightIpm() + state.weightP1P2() + state.weightExclusion()) === 100 ? 'banner-ok' : 'banner-warning'">
+        <span>Total Bobot: <strong>{{ state.weightPoverty() + state.weightIpm() + state.weightP1P2() + state.weightExclusion() }}%</strong></span>
+        <span class="banner-subtext" *ngIf="(state.weightPoverty() + state.weightIpm() + state.weightP1P2() + state.weightExclusion()) !== 100">
+          (AI menormalisasi pembobotan secara relatif)
+        </span>
+        <span class="banner-subtext" *ngIf="(state.weightPoverty() + state.weightIpm() + state.weightP1P2() + state.weightExclusion()) === 100">
+          ✓ Bobot Ideal Terpenuhi
+        </span>
+      </div>
+    </div>
+
+    <!-- Optimization Dashboard Summary (Right) -->
+    <div class="summary-details-column">
+      <!-- Optimization Quick Stats -->
+      <div class="quick-optimizer-stats">
+        <div class="stat-glass-card glass-card">
+          <span class="card-title">Anggaran Direlokasi Presisi</span>
+          <h2>{{ getFormattedCurrency(getReallocatedTotal()) }}</h2>
+          <p>Anggaran yang dipindahkan ke daerah dengan kerentanan tinggi.</p>
+        </div>
+        <div class="stat-glass-card glass-card">
+          <span class="card-title">Akurasi Efektivitas</span>
+          <h2 class="color-teal">+38,4%</h2>
+          <p>Proyeksi peningkatan dampak perlinsos (World Bank Model).</p>
+        </div>
+      </div>
+
+      <!-- AI Insight Text -->
+      <div class="glass-card insight-card">
+        <h3>✨ Insights Rekomendasi Optimal:</h3>
+        <p>
+          Berdasarkan konfigurasi saat ini, porsi anggaran perlinsos untuk beberapa wilayah kabupaten padat penduduk dengan angka kemiskinan tinggi (seperti <strong>Kab. Kuningan, Kab. Tasikmalaya, dan Kab. Indramayu</strong>) direkomendasikan untuk <strong>ditambah</strong>. 
+          Sebaliknya, beberapa kota dengan IPM tinggi dan kemiskinan rendah (seperti <strong>Kota Depok dan Kota Bandung</strong>) disarankan untuk mengalami <strong>rasionalisasi anggaran</strong> agar dialihkan ke wilayah yang membutuhkan.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Results Table (Full Width) -->
+  <div class="glass-card table-card table-margin-top">
+    <div class="table-header">
+      <h3>Hasil Simulasi Perbandingan Anggaran: Aktual vs Rekomendasi AI</h3>
+      <span class="badge badge-success">Model Optimal</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Wilayah</th>
+            <th>Skor Kerentanan (1-10)</th>
+            <th>Anggaran Saat Ini (Aktual)</th>
+            <th>Rekomendasi Anggaran (Optimal)</th>
+            <th>Selisih Alokasi</th>
+            <th>Persentase Perubahan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of state.optimizedAllocations()">
+            <td class="font-bold">{{ item.name }}</td>
+            <td>
+              <div class="vulnerability-score-badge">
+                <span class="score-dot" [ngClass]="item.vulnerabilityScore > 7.5 ? 'bg-red' : (item.vulnerabilityScore > 4.5 ? 'bg-orange' : 'bg-green')"></span>
+                {{ item.vulnerabilityScore }}
+              </div>
+            </td>
+            <td>Rp {{ item.actualBudget }} {{ state.selectedScope() === 'nasional' ? 'Triliun' : 'Miliar' }}</td>
+            <td class="font-bold text-teal">Rp {{ item.optimizedBudget }} {{ state.selectedScope() === 'nasional' ? 'Triliun' : 'Miliar' }}</td>
+            <td class="font-bold" [ngClass]="item.difference > 0 ? 'text-green' : (item.difference < 0 ? 'text-red' : '')">
+              {{ item.difference > 0 ? '+' : '' }}{{ item.difference }}{{ state.selectedScope() === 'nasional' ? 'T' : 'M' }}
+            </td>
+            <td>
+              <span class="badge" [ngClass]="item.pctChange > 0 ? 'badge-success' : (item.pctChange < 0 ? 'badge-danger' : 'badge-warning')">
+                {{ item.pctChange > 0 ? '+' : '' }}{{ item.pctChange }}%
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
