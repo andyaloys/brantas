@@ -1,0 +1,153 @@
+<section class="page-header">
+  <div class="header-titles">
+    <div class="kicker">
+      <span class="pulse-dot-sm"></span>
+      RINGKASAN EKSEKUTIF NASIONAL
+    </div>
+    <h1>Beranda Analitik</h1>
+    <p class="subtitle">
+      @if (summary(); as data) {
+        Pembacaan kondisi kemiskinan makro, alokasi anggaran perlindungan sosial, dan prioritas intervensi 38 provinsi · Periode <strong>{{ data.period }}</strong>.
+      } @else {
+        Jalankan pipeline untuk membangun indikator dan temuan awal.
+      }
+    </p>
+  </div>
+  <button type="button" class="btn-refresh" [disabled]="isRunning()" (click)="runPipeline()">
+    <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
+    <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Perbarui Dataset' }}</span>
+  </button>
+</section>
+
+<section class="metrics" aria-label="Indikator utama">
+  <article class="metric-card teal">
+    <div class="card-head">
+      <span>Rata-rata Kemiskinan</span>
+      <div class="card-icon"><i class="pi pi-chart-line" aria-hidden="true"></i></div>
+    </div>
+    <div class="card-body">
+      <strong>{{ summary()?.averagePovertyRate ?? '—' }}@if (summary()) { <small>%</small> }</strong>
+      <div class="trend-badge positive">
+        <i class="pi pi-check"></i> Rerata Nasional (38 Prov)
+      </div>
+    </div>
+  </article>
+
+  <article class="metric-card blue">
+    <div class="card-head">
+      <span>Penduduk Miskin</span>
+      <div class="card-icon"><i class="pi pi-users" aria-hidden="true"></i></div>
+    </div>
+    <div class="card-body">
+      <strong>{{ summary()?.totalPoorPopulation?.toLocaleString('id-ID') ?? '—' }}</strong>
+      <small class="unit-label">Estimasi data simulasi</small>
+    </div>
+  </article>
+
+  <article class="metric-card indigo">
+    <div class="card-head">
+      <span>Wilayah Terpetakan</span>
+      <div class="card-icon"><i class="pi pi-map-marker" aria-hidden="true"></i></div>
+    </div>
+    <div class="card-body">
+      <strong>{{ summary()?.regionCount ?? '—' }}</strong>
+      <small class="unit-label">Cakupan provinsi nasional</small>
+    </div>
+  </article>
+
+  <article class="metric-card rose">
+    <div class="card-head">
+      <span>Tingkat Tertinggi</span>
+      <div class="card-icon"><i class="pi pi-arrow-up-right" aria-hidden="true"></i></div>
+    </div>
+    <div class="card-body">
+      <strong>{{ summary()?.highestPovertyRate ?? '—' }}@if (summary()) { <small>%</small> }</strong>
+      <div class="trend-badge critical">
+        <i class="pi pi-exclamation-triangle"></i> Perhatian Segera
+      </div>
+    </div>
+  </article>
+</section>
+
+@if (error()) {
+  <section class="state error">
+    <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+    <p>{{ error() }}</p>
+  </section>
+}
+
+@if (priorityRegions().length > 0) {
+  <section class="dashboard-grid">
+    <article class="panel priority-panel">
+      <header class="panel-header">
+        <div>
+          <span class="panel-kicker">FOKUS INTERVENSI FISKAL</span>
+          <h2>Top 5 Wilayah Prioritas Kemiskinan</h2>
+        </div>
+        <span class="panel-tag warning">Perlu Alokasi Afirmatif</span>
+      </header>
+      <div class="region-list">
+        @for (region of priorityRegions(); track region.region; let index = $index) {
+          <div class="region-row">
+            <span class="rank" [class.top]="index < 3">{{ index + 1 }}</span>
+            <div class="region-detail">
+              <div class="region-head">
+                <strong>{{ region.region }}</strong>
+                <span class="ipm-chip">IPM {{ region.humanDevelopmentIndex.toFixed(1) }}</span>
+              </div>
+              <span class="pop-sub">{{ region.poorPopulation.toLocaleString('id-ID') }} jiwa</span>
+              <div class="bar">
+                <i [style.width.%]="(region.povertyRate / (summary()?.highestPovertyRate ?? 1)) * 100"></i>
+              </div>
+            </div>
+            <strong class="rate">{{ region.povertyRate.toFixed(2) }}%</strong>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="panel data-panel">
+      <header class="panel-header">
+        <div>
+          <span class="panel-kicker">METADATA SISTEM</span>
+          <h2>Status Dataset Aktif</h2>
+        </div>
+        <span class="panel-tag success">Terverifikasi</span>
+      </header>
+      <dl class="dataset-meta">
+        <div>
+          <dt>Mode Sumber</dt>
+          <dd><span class="badge-subtle">Data Simulasi Terkontrol</span></dd>
+        </div>
+        <div>
+          <dt>Versi Dataset</dt>
+          <dd class="mono-text">{{ summary()?.datasetVersionId?.slice(0, 8) ?? '—' }}</dd>
+        </div>
+        <div>
+          <dt>Periode Observasi</dt>
+          <dd><strong>{{ summary()?.period ?? '—' }}</strong></dd>
+        </div>
+        <div>
+          <dt>Integritas Pipeline</dt>
+          <dd><i class="pi pi-check-circle" style="color: #059669;"></i> Idempoten (Seed 20260101)</dd>
+        </div>
+        <div>
+          <dt>Standar Keamanan</dt>
+          <dd>Hashed PII (SHA-256)</dd>
+        </div>
+      </dl>
+      <div class="method-note">
+        <i class="pi pi-shield" aria-hidden="true"></i>
+        <p>Dataset sintetis bersifat deterministik agar setiap hasil analitik dapat direproduksi dan tidak memuat data pribadi warga.</p>
+      </div>
+    </article>
+  </section>
+}
+
+@if (!summary()) {
+  <section class="empty-state">
+    <i class="pi pi-database" aria-hidden="true"></i>
+    <h2>Data Belum Tersedia</h2>
+    <p>Pipeline data sintetis akan membangkitkan indikator kemiskinan, alokasi anggaran, struktur spasial, dan anomali terukur.</p>
+  </section>
+}

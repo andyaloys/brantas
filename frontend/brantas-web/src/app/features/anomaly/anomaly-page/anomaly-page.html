@@ -1,0 +1,80 @@
+<section class="page-header">
+  <div><p class="eyebrow">PEMANTAUAN FISKAL</p><h1>Temuan Anomali</h1><p class="subtitle">Deteksi mismatch alokasi bantuan sosial terhadap kebutuhan penduduk miskin · Periode {{ summary()?.period ?? '—' }}.</p></div>
+  <div class="method"><i class="pi pi-chart-line" aria-hidden="true"></i> Residual z-score</div>
+</section>
+
+@if (isLoading()) {
+  <section class="state"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i><p>Memuat temuan anomali...</p></section>
+} @else if (error()) {
+  <section class="state error"><i class="pi pi-exclamation-circle" aria-hidden="true"></i><p>{{ error() }}</p></section>
+} @else if (summary(); as data) {
+  <section class="metrics" aria-label="Ringkasan anomali fiskal">
+    <article class="metric-card red"><span>Temuan terdeteksi</span><strong>{{ data.totalCount }}</strong><em>Wilayah memerlukan telaah</em></article>
+    <article class="metric-card amber"><span>Under-allocation</span><strong>{{ data.underAllocationCount }}</strong><em>Alokasi di bawah kebutuhan</em></article>
+    <article class="metric-card blue"><span>Over-allocation</span><strong>{{ data.overAllocationCount }}</strong><em>Alokasi di atas kebutuhan</em></article>
+    <article class="metric-card teal"><span>Nilai berisiko</span><strong>{{ formatRisk(data.totalValueAtRisk) }}</strong><em>Deviasi dari alokasi ekspektasian</em></article>
+  </section>
+
+  @if (anomalies().length > 0) {
+    <section class="panel">
+      <header><div><p class="panel-kicker">HASIL DETEKSI</p><h2>Daftar Temuan Prioritas</h2></div><span>{{ anomalies().length }} wilayah</span></header>
+      <div class="table-wrap"><table><thead><tr><th>Wilayah</th><th>Jenis</th><th>Keparahan</th><th>Z-score</th><th>Nilai berisiko</th><th>Dasar temuan</th><th>Tinjauan</th></tr></thead><tbody>
+        @for (item of anomalies(); track item.id) {
+          <tr><td><strong>{{ item.region }}</strong><small>Keyakinan {{ item.confidenceScore.toFixed(0) }}%</small></td><td><span [class]="item.type === 'Under-allocation' ? 'type under' : 'type over'">{{ item.type }}</span></td><td><span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'">{{ item.severity }}</span></td><td class="number">{{ item.zScore.toFixed(2) }}σ</td><td class="number">{{ formatRisk(item.valueAtRisk) }}</td><td class="explanation">{{ item.explanation }}</td><td><select [value]="item.reviewStatus" [disabled]="updatingReviewId() === item.id" (change)="updateReview(item, $event)" aria-label="Status tinjauan {{ item.region }}"><option value="InVerification">Dalam Verifikasi</option><option value="Valid">Valid</option><option value="FalsePositive">False Positive</option></select></td></tr>
+        }
+      </tbody></table></div>
+    </section>
+  } @else { <section class="state"><i class="pi pi-check-circle" aria-hidden="true"></i><p>Tidak ada anomali fiskal pada dataset aktif.</p></section> }
+
+  @if (beneficiarySummary(); as beneficiaries) {
+    <section class="beneficiary-section"><header><div><p class="panel-kicker">KEPESERTAAN BANTUAN</p><h2>Indikator Risiko Penerima</h2></div><span>{{ beneficiaries.totalBeneficiaries.toLocaleString('id-ID') }} record sintetis</span></header><div class="beneficiary-metrics"><article><i class="pi pi-briefcase" aria-hidden="true"></i><strong>{{ beneficiaries.activePublicServantCount.toLocaleString('id-ID') }}</strong><small>ASN/TNI/Polri aktif</small></article><article><i class="pi pi-copy" aria-hidden="true"></i><strong>{{ beneficiaries.duplicateIdentityCount.toLocaleString('id-ID') }}</strong><small>Identitas duplikat</small></article><article><i class="pi pi-heart-fill" aria-hidden="true"></i><strong>{{ beneficiaries.deceasedCount.toLocaleString('id-ID') }}</strong><small>Penerima meninggal</small></article><article><i class="pi pi-car" aria-hidden="true"></i><strong>{{ beneficiaries.economicAssetCount.toLocaleString('id-ID') }}</strong><small>Indikator aset ekonomi</small></article></div></section>
+  }
+  @if (onnxReport(); as onnx) {
+    <section class="panel">
+      <header>
+        <div>
+          <p class="panel-kicker">DETEKSI MULTIVARIAT ML (ONNX)</p>
+          <h2>{{ onnx.model }}</h2>
+        </div>
+        <span>{{ onnx.criticalCount }} Kritis · {{ onnx.highCount }} Tinggi</span>
+      </header>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Wilayah</th>
+              <th>Skor Anomali</th>
+              <th>Keyakinan</th>
+              <th>Keparahan</th>
+              <th>Penjelasan Teknis</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of onnx.results.slice(0, 10); track item.regionId) {
+              <tr>
+                <td><strong>{{ item.regionName }}</strong></td>
+                <td class="number"><strong>{{ item.anomalyScore.toFixed(2) }}</strong></td>
+                <td class="number">{{ item.confidenceScore.toFixed(0) }}%</td>
+                <td><span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ item.severity }}</span></td>
+                <td class="explanation">{{ item.explanation }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+  @if (beneficiaryFindings().length > 0) {
+    <section class="panel">
+      <header><div><p class="panel-kicker">PRIORITAS VERIFIKASI</p><h2>Temuan Kepesertaan per Wilayah</h2></div><span>{{ beneficiaryFindings().length }} temuan agregat</span></header>
+      <div class="table-wrap"><table><thead><tr><th>Wilayah</th><th>Indikator risiko</th><th>Jumlah</th><th>Keparahan</th><th>Dasar temuan</th></tr></thead><tbody>
+        @for (item of beneficiaryFindings().slice(0, 20); track item.region + item.type) {
+          <tr><td><strong>{{ item.region }}</strong><small>Keyakinan {{ item.confidenceScore.toFixed(0) }}%</small></td><td>{{ item.type }}</td><td class="number">{{ item.count.toLocaleString('id-ID') }}</td><td><span class="severity" [class.high]="item.severity === 'High'">{{ item.severity }}</span></td><td class="explanation">{{ item.explanation }}</td></tr>
+        }
+      </tbody></table></div>
+    </section>
+  }
+  @if (exclusionErrors().length > 0) {
+    <section class="exclusion"><header><div><p class="panel-kicker">EXCLUSION ERROR</p><h2>Wilayah dengan Gap Kepesertaan</h2></div><span>{{ exclusionErrors().length }} wilayah</span></header><div class="gap-list">@for (item of exclusionErrors().slice(0, 5); track item.region) { <div><strong>{{ item.region }}</strong><span>{{ item.gap.toLocaleString('id-ID') }} keluarga belum tercakup</span><i [style.width.%]="item.gapRate * 20"></i></div> }</div></section>
+  }
+}

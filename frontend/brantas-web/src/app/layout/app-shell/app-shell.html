@@ -1,0 +1,83 @@
+<div class="shell">
+  <aside class="sidebar" aria-label="Navigasi utama">
+    <div class="sidebar-header">
+      <a class="brand" routerLink="/beranda" aria-label="BRANTAS beranda">
+        <div class="brand-mark">
+          <span>B</span>
+        </div>
+        <div class="brand-text">
+          <strong>BRANTAS</strong>
+          <small>Sistem Analitik Anggaran</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="nav-section-title">MODUL UTAMA</div>
+    <nav class="nav-list">
+      <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+        <i class="pi pi-chart-bar" aria-hidden="true"></i>
+        <span>Beranda</span>
+      </a>
+      <a routerLink="/anomali" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+        <span>Anomali Fiskal</span>
+      </a>
+      <a routerLink="/peta-spasial" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-map" aria-hidden="true"></i>
+        <span>Peta Spasial</span>
+      </a>
+      <a routerLink="/simulasi-alokasi" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-sliders-h" aria-hidden="true"></i>
+        <span>Simulasi Alokasi</span>
+      </a>
+      <a routerLink="/dampak" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-chart-line" aria-hidden="true"></i>
+        <span>Dampak Kebijakan</span>
+      </a>
+      <a routerLink="/jusi" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-comments" aria-hidden="true"></i>
+        <span>Asisten JUSI</span>
+        <span class="nav-badge">AI</span>
+      </a>
+      <a routerLink="/laporan" routerLinkActive="active" class="nav-item">
+        <i class="pi pi-file-pdf" aria-hidden="true"></i>
+        <span>Pelaporan</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="role-card">
+        <div class="role-icon"><i class="pi pi-shield"></i></div>
+        <div class="role-info">
+          <small>Otoritas Pengguna</small>
+          <strong>Kemenkeu Pusat</strong>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="portal-badge">
+          <i class="pi pi-building"></i>
+          LAN DATATHON 2026
+        </span>
+      </div>
+      <div class="topbar-right">
+        <div class="period-chip">
+          <i class="pi pi-calendar"></i>
+          <span>Periode: <strong>2026-03</strong></span>
+        </div>
+        <div class="dataset-badge">
+          <span class="pulse-dot"></span>
+          <span>Data Simulasi Terverifikasi</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <router-outlet />
+    </main>
+  </div>
+</div>

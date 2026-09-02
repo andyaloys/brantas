@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ringkasan Eksekutif BRANTAS - LAN Datathon 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #003366;
+      --primary-dark: #002244;
+      --primary-light: #0d47a1;
+      --accent: #2563eb;
+      --accent-light: #60a5fa;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: var(--slate-800);
+      line-height: 1.6;
+      font-size: 14.5px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* HEADER & HERO */
+    .hero-header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 44px 0 36px;
+      border-bottom: 4px solid var(--accent);
+      position: relative;
+    }
+
+    .badge-wrapper {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .badge-gold {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .badge-blue {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .badge-green {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(to right, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 15.5px;
+      color: #cbd5e1;
+      font-weight: 500;
+      max-width: 880px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+
+    .stat-box .stat-label {
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .stat-box .stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 4px;
+    }
+
+    .stat-box .stat-desc {
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+
+    /* ACTION BAR */
+    .action-bar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .action-bar-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      overflow-x: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 6px;
+    }
+
+    .nav-link {
+      color: var(--slate-600);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: var(--slate-100);
+      color: var(--primary);
+    }
+
+    .btn-print {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 7px 16px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-print:hover {
+      background: var(--primary-light);
+    }
+
+    /* MAIN CONTENT */
+    main {
+      padding: 36px 0 60px;
+    }
+
+    .section-block {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+      scroll-margin-top: 70px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--slate-100);
+    }
+
+    .section-number {
+      background: var(--primary);
+      color: #ffffff;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--slate-600);
+      margin-bottom: 16px;
+    }
+
+    /* CARDS & GRIDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 16px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .card:hover {
+      border-color: var(--accent-light);
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-icon {
+      font-size: 22px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .card-text {
+      font-size: 13.5px;
+      color: var(--slate-600);
+      line-height: 1.5;
+    }
+
+    /* PROCESS FLOW */
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 14px 18px;
+    }
+
+    .step-idx {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-content h4 {
+      font-size: 14.5px;
+      color: var(--slate-900);
+      margin-bottom: 3px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: var(--slate-600);
+    }
+
+    /* TABLES */
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--slate-200);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      padding: 10px 14px;
+      text-transform: uppercase;
+      font-size: 11.5px;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--slate-200);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    tr:nth-child(even) {
+      background: var(--slate-50);
+    }
+
+    tr:hover {
+      background: #eff6ff;
+    }
+
+    .pill-p0 {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      display: inline-block;
+    }
+
+    .pill-p1 {
+      background: #fef3c7;
+      color: #b45309;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      display: inline-block;
+    }
+
+    .pill-p2 {
+      background: #e0e7ff;
+      color: #4338ca;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      display: inline-block;
+    }
+
+    /* CALLOUT BOX */
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #eff6ff;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 13.5px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .callout-body {
+      font-size: 13px;
+      color: var(--slate-700);
+      line-height: 1.5;
+    }
+
+    /* VISUAL ARCHITECTURE COMPONENT (POIN 5) */
+    .arch-container {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 18px;
+    }
+
+    .arch-layer {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+
+    .arch-layer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    .arch-layer-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .arch-layer-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .arch-cards-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .arch-subcard {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+    }
+
+    .arch-subcard strong {
+      display: block;
+      color: #1e293b;
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+
+    .arch-subcard span {
+      color: #64748b;
+      font-size: 11.5px;
+    }
+
+    .arch-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+      gap: 4px;
+    }
+
+    .arch-arrow {
+      width: 2px;
+      height: 18px;
+      background: var(--accent);
+      position: relative;
+    }
+
+    .arch-arrow::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -4px;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--accent);
+    }
+
+    .arch-split-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--primary-dark);
+      color: #94a3b8;
+      padding: 30px 0;
+      text-align: center;
+      font-size: 12.5px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer p {
+      margin-bottom: 6px;
+    }
+
+    footer strong {
+      color: #ffffff;
+    }
+
+    @media print {
+      .action-bar, .btn-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff;
+        font-size: 10.5pt;
+      }
+      .section-block {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+        padding: 20px;
+      }
+      .hero-header {
+        background: #003366 !important;
+        color: #fff !important;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO SECTION -->
+  <header class="hero-header">
+    <div class="container">
+      <div class="badge-wrapper">
+        <span class="badge badge-gold">LAN Datathon 2026</span>
+        <span class="badge badge-blue">Kementerian Keuangan RI</span>
+        <span class="badge badge-green">Precision Fiscal Governance</span>
+      </div>
+      <h1 class="hero-title">
+        <span>🌊 BRANTAS</span>
+      </h1>
+      <div class="hero-subtitle">
+        <strong>Basis Rekomendasi & Analisis Terpadu Anggaran Sosial</strong> — Platform cerdas pengelola anggaran kemiskinan dan bantuan sosial nasional. Membantu pemerintah mendeteksi data salah sasaran, memetakan kantong kemiskinan hingga daerah, dan mensimulasikan pembagian dana transfer daerah secara tepat, adil, dan transparan.
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-box">
+          <div class="stat-label">Anggaran Perlinsos APBN 2026</div>
+          <div class="stat-val">Rp508,2 Triliun</div>
+          <div class="stat-desc">Meningkat stabil dari Rp493,5 T (2024)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Angka Kemiskinan Nasional</div>
+          <div class="stat-val">8,07% (22,93 Juta Jiwa)</div>
+          <div class="stat-desc">Rilis resmi BPS (Melandai dari 8,25%)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Pencegahan Salah Sasaran</div>
+          <div class="stat-val">30% - 40%</div>
+          <div class="stat-desc">Efisiensi anggaran via pembersihan data AI</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Kecepatan Olah Data</div>
+          <div class="stat-val">&lt; 10 Menit</div>
+          <div class="stat-desc">Dari sebelumnya butuh 14+ hari manual</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ACTION & NAV BAR -->
+  <nav class="action-bar">
+    <div class="container action-bar-inner">
+      <div class="nav-links">
+        <a href="#poin1" class="nav-link">1. Konsep & Alur</a>
+        <a href="#poin2" class="nav-link">2. Fitur MoSCoW</a>
+        <a href="#poin3" class="nav-link">3. Data & AI</a>
+        <a href="#poin4" class="nav-link">4. Teknologi & API</a>
+        <a href="#poin5" class="nav-link">5. Arsitektur</a>
+        <a href="#poin6" class="nav-link">6. Keamanan</a>
+        <a href="#poin7" class="nav-link">7. Kelayakan MVP</a>
+        <a href="#poin8" class="nav-link">8. Jadwal Demo</a>
+      </div>
+      <button class="btn-print" onclick="window.print()">🖨️ Cetak / PDF</button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT BODY -->
+  <main class="container">
+
+    <!-- POIN 1 -->
+    <section id="poin1" class="section-block">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2 class="section-title">Konsep Aplikasi dan Alur Kerja Pengguna (User Flow)</h2>
+      </div>
+      
+      <p class="section-desc">
+        Sistem <strong>BRANTAS</strong> hadir untuk menjawab 3 kendala nyata yang selama ini dihadapi dalam penyaluran dana bantuan sosial dan transfer daerah:
+      </p>
+      
+      <div class="grid-3" style="margin-bottom: 20px;">
+        <div class="card">
+          <span class="card-icon">🎯</span>
+          <div class="card-title">Bansos Salah Sasaran</div>
+          <div class="card-text">Masih ditemukan aparatur/warga mampu yang menerima bantuan (*inclusion error*), sementara warga sangat miskin di pelosok justru terlewat (*exclusion error*).</div>
+        </div>
+        <div class="card">
+          <span class="card-icon">⏳</span>
+          <div class="card-title">Data Lambat Dimutakhirkan</div>
+          <div class="card-text">Proses verifikasi data secara manual memakan waktu berbulan-bulan, sehingga alokasi dana bantuan sering kali terlambat merespons kondisi ekonomi darurat di daerah.</div>
+        </div>
+        <div class="card">
+          <span class="card-icon">📈</span>
+          <div class="card-title">Kebijakan Kurang Berbasis Bukti</div>
+          <div class="card-text">Pembagian anggaran sering kali menggunakan formula lama yang kaku tanpa menghitung dampak nyata penurunan angka kemiskinan per triliun dana yang disalurkan.</div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 15px; color: var(--primary); margin-top: 15px; margin-bottom: 10px;">Alur Penggunaan Sistem dalam 5 Langkah Mudah:</h3>
+      
+      <div class="flow-steps">
+        <div class="flow-step">
+          <span class="step-idx">Langkah 1</span>
+          <div class="step-content">
+            <h4>Sinkronisasi Data Otomatis</h4>
+            <p>Pengguna cukup menekan satu tombol untuk menggabungkan data statistik kemiskinan BPS, realisasi belanja Kemenkeu, dan data keluarga rentan P3KE dalam hitungan menit.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="step-idx">Langkah 2</span>
+          <div class="step-content">
+            <h4>Pemeriksaan Anomali Otomatis</h4>
+            <p>Kecerdasan Buatan (AI) langsung memindai data dan menandai daerah yang alokasi anggarannya tidak sesuai dengan tingkat kemiskinan riil serta mendeteksi data ganda atau data aparatur aktif.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="step-idx">Langkah 3</span>
+          <div class="step-content">
+            <h4>Melihat Peta Sebaran Wilayah</h4>
+            <p>Pengguna dapat melihat peta interaktif 38 provinsi hingga kabupaten/kota untuk melihat daerah mana yang tergolong "kantong kemiskinan" yang butuh perhatian khusus.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="step-idx">Langkah 4</span>
+          <div class="step-content">
+            <h4>Simulasi Pembagian Anggaran</h4>
+            <p>Pengguna dapat menggeser slider bobot (seperti persentase kemiskinan, mutu manusia, dan risiko bencana) untuk melihat saran pembagian anggaran yang paling adil dan efektif.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="step-idx">Langkah 5</span>
+          <div class="step-content">
+            <h4>Tanya Jawab AI & Unduh Dokumen Resmi</h4>
+            <p>Pengguna bisa berdiskusi langsung dengan asisten pintar <strong>JUSI</strong> untuk menanyakan alasan rekomendasi dan langsung mengunduh naskah laporan kebijakan (PDF) siap pakai.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POIN 2 -->
+    <section id="poin2" class="section-block">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2 class="section-title">Fitur Utama dan Matriks Prioritas (MoSCoW)</h2>
+      </div>
+
+      <p class="section-desc">
+        Untuk memastikan sistem dapat didemonstrasikan dengan sempurna pada <strong>Demo Day</strong>, fitur-fitur dikelompokkan ke dalam prioritas yang jelas:
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 140px;">Prioritas</th>
+              <th style="width: 200px;">Nama Fitur</th>
+              <th>Penjelasan Fungsi & Manfaat</th>
+              <th style="width: 130px;">Kesiapan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pill-p0">Wajib (Must-Have)</span></td>
+              <td><strong>Pusat Data & Alarm Anomali</strong></td>
+              <td>Dashboard ringkasan 38 provinsi yang mendeteksi data janggal (seperti ASN menerima bansos, warga meninggal, atau data duplikat).</td>
+              <td><strong>Siap Demo (MVP)</strong></td>
+            </tr>
+            <tr>
+              <td><span class="pill-p0">Wajib (Must-Have)</span></td>
+              <td><strong>Peta Sebaran Spasial</strong></td>
+              <td>Peta digital interaktif berwarna yang memperlihatkan tingkat kemiskinan dan alokasi dana per kapita di seluruh Indonesia.</td>
+              <td><strong>Siap Demo (MVP)</strong></td>
+            </tr>
+            <tr>
+              <td><span class="pill-p0">Wajib (Must-Have)</span></td>
+              <td><strong>Simulasi Alokasi Anggaran</strong></td>
+              <td>Fitur penggeser slider bobot yang otomatis menghitung saran pembagian dana terbaik untuk tiap daerah.</td>
+              <td><strong>Siap Demo (MVP)</strong></td>
+            </tr>
+            <tr>
+              <td><span class="pill-p0">Wajib (Must-Have)</span></td>
+              <td><strong>Asisten Cerdas JUSI</strong></td>
+              <td>Chatbot AI yang pintar menjawab data APBN dan kemiskinan, serta aman dari pertanyaan di luar topik (seperti politik praktis).</td>
+              <td><strong>Siap Demo (MVP)</strong></td>
+            </tr>
+            <tr>
+              <td><span class="pill-p0">Wajib (Must-Have)</span></td>
+              <td><strong>Cetak Naskah Rekomendasi (PDF)</strong></td>
+              <td>Kemampuan mencetak dokumen telaahan kebijakan resmi dalam format PDF berstandar laporan kementerian.</td>
+              <td><strong>Siap Demo (MVP)</strong></td>
+            </tr>
+            <tr>
+              <td><span class="pill-p1">Tahap 2 (Should-Have)</span></td>
+              <td><strong>Estimasi Dampak Nyata (DiD)</strong></td>
+              <td>Grafik kalkulasi ilmiah untuk mengukur berapa persen penurunan kemiskinan yang berhasil dicapai berkat intervensi anggaran.</td>
+              <td>Pengembangan Lanjutan</td>
+            </tr>
+            <tr>
+              <td><span class="pill-p1">Tahap 2 (Should-Have)</span></td>
+              <td><strong>Peta Detail Kecamatan & Desa</strong></td>
+              <td>Peta lebih rinci hingga level kecamatan dan desa bagi dinas sosial daerah.</td>
+              <td>Pengembangan Lanjutan</td>
+            </tr>
+            <tr>
+              <td><span class="pill-p2">Pelengkap (Could-Have)</span></td>
+              <td><strong>Notifikasi Alarm Otomatis</strong></td>
+              <td>Pengiriman pesan otomatis via Email jika ada anomali anggaran darurat.</td>
+              <td>Fase Masa Depan</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- POIN 3 -->
+    <section id="poin3" class="section-block">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <h2 class="section-title">Pemanfaatan Data dan Kecerdasan Buatan (AI)</h2>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 10px;">5 Sumber Data yang Digunakan:</h3>
+          <ul style="padding-left: 20px; color: var(--slate-700); font-size: 13.5px; line-height: 1.8;">
+            <li><strong>Badan Pusat Statistik (BPS):</strong> Angka kemiskinan resmi, garis kemiskinan, Indeks Pembangunan Manusia (IPM), dan pendapatan daerah.</li>
+            <li><strong>DJPK Kemenkeu RI:</strong> Realisasi Dana Desa, Dana Alokasi Umum (DAU), DAK, dan belanja bansos daerah.</li>
+            <li><strong>P3KE / Bappenas:</strong> Data keluarga prasejahtera (Desil 1–4), kondisi rumah tidak layak huni, dan sanitasi.</li>
+            <li><strong>Badan Informasi Geospasial (BIG):</strong> Batas wilayah peta Indonesia dan peta jaringan transportasi daerah.</li>
+            <li><strong>Badan Penanggulangan Bencana (BNPB):</strong> Indeks risiko bencana daerah untuk antisipasi darurat.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 10px;">4 Kemampuan Kecerdasan Buatan (AI):</h3>
+          <div class="card" style="margin-bottom: 10px; padding: 12px 14px;">
+            <strong style="color: var(--primary); font-size: 13.5px;">1. AI Pendeteksi Anomali (Machine Learning)</strong>
+            <p style="font-size: 12.5px; color: var(--slate-600); margin-top: 2px;">Secara otomatis menemukan kejanggalan pada data, seperti daerah sangat miskin tapi alokasi anggarannya minim, atau data penerima yang ganda.</p>
+          </div>
+          <div class="card" style="margin-bottom: 10px; padding: 12px 14px;">
+            <strong style="color: var(--primary); font-size: 13.5px;">2. AI Pemetaan Wilayah (Spatial AI)</strong>
+            <p style="font-size: 12.5px; color: var(--slate-600); margin-top: 2px;">Mengelompokkan daerah-daerah yang saling bertetangga untuk membedakan kemiskinan yang meluas (*klaster*) dengan daerah yang mandiri.</p>
+          </div>
+          <div class="card" style="margin-bottom: 10px; padding: 12px 14px;">
+            <strong style="color: var(--primary); font-size: 13.5px;">3. AI Pengatur Anggaran (Optimizer)</strong>
+            <p style="font-size: 12.5px; color: var(--slate-600); margin-top: 2px;">Menghitung skor kerentanan setiap daerah dan merekomendasikan porsi alokasi dana yang paling optimal sesuai batas anggaran yang ada.</p>
+          </div>
+          <div class="card" style="padding: 12px 14px;">
+            <strong style="color: var(--primary); font-size: 13.5px;">4. Asisten AI Berpengetahuan Khusus (JUSI)</strong>
+            <p style="font-size: 12.5px; color: var(--slate-600); margin-top: 2px;">Asisten pintar yang berjalan di server lokal, siap menjawab pertanyaan seputar data kemiskinan tanpa mengirim data negara ke pihak luar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POIN 4 -->
+    <section id="poin4" class="section-block">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <h2 class="section-title">Pemilihan Teknologi, Basis Data, dan Integrasi Sistem</h2>
+      </div>
+
+      <p class="section-desc">
+        Seluruh teknologi dipilih dengan mempertimbangkan 3 aspek: <strong>Kecepatan Tinggi</strong>, <strong>Kemudahan Integrasi</strong>, dan <strong>Keamanan Data Pemerintah</strong>:
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Bagian Sistem</th>
+              <th>Teknologi Terpilih</th>
+              <th>Peran dan Keunggulannya</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tampilan Web (Frontend)</strong></td>
+              <td>Angular (v21)</td>
+              <td>Tampilan modern yang sangat cepat, interaktif, dan ringan saat dibuka di berbagai perangkat laptop maupun tablet.</td>
+            </tr>
+            <tr>
+              <td><strong>Peta Digital</strong></td>
+              <td>Leaflet.js</td>
+              <td>Menampilkan peta Indonesia dan pewarnaan wilayah secara mulus tanpa membuat browser menjadi berat atau lambat.</td>
+            </tr>
+            <tr>
+              <td><strong>Mesin Utama (Backend API)</strong></td>
+              <td>ASP.NET Core (.NET 10)</td>
+              <td>Standar enterprise kementerian dengan kecepatan pemrosesan data tinggi, aman, dan tangguh menangani ribuan data secara bersamaan.</td>
+            </tr>
+            <tr>
+              <td><strong>Pemrosesan AI Langsung</strong></td>
+              <td>Microsoft ML ONNX Runtime</td>
+              <td>Model AI dijalankan langsung di dalam mesin tanpa memerlukan server tambahan, membuat proses prediksi berjalan dalam hitungan milidetik.</td>
+            </tr>
+            <tr>
+              <td><strong>Basis Data & Peta (Database)</strong></td>
+              <td>PostgreSQL + PostGIS</td>
+              <td>Basis data standar internasional yang sangat andal untuk menyimpan data angka keuangan sekaligus bentuk koordinat geografis wilayah.</td>
+            </tr>
+            <tr>
+              <td><strong>Otak Asisten Pintar (LLM)</strong></td>
+              <td>Ollama (Llama 3 / Qwen 2.5)</td>
+              <td>Menjalankan kecerdasan bahasa buatan secara 100% mandiri di komputer/server lokal (Sovereign AI), menjamin kerahasiaan data fiskal.</td>
+            </tr>
+            <tr>
+              <td><strong>Pembuat Dokumen PDF</strong></td>
+              <td>QuestPDF</td>
+              <td>Menyusun dan mencetak dokumen naskah kebijakan resmi secara otomatis dan rapi dengan tata letak laporan kementerian.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- POIN 5 (PENYEMPURNAAN VISUAL ARSITEKTUR) -->
+    <section id="poin5" class="section-block">
+      <div class="section-header">
+        <div class="section-number">5</div>
+        <h2 class="section-title">Arsitektur Solusi Sistem Secara Menyeluruh</h2>
+      </div>
+
+      <p class="section-desc">
+        Sistem BRANTAS dibangun dengan membagi alur kerja ke dalam 4 lapisan yang saling terhubung secara teratur, aman, dan mudah dipelihara:
+      </p>
+
+      <!-- VISUAL ARCHITECTURE COMPONENT -->
+      <div class="arch-container">
+        
+        <!-- LAYER 1: FRONTEND -->
+        <div class="arch-layer">
+          <div class="arch-layer-header">
+            <div class="arch-layer-title">
+              <span>🖥️ 1. LAPISAN ANTARMUKA PENGGUNA (FRONTEND WEB)</span>
+            </div>
+            <span class="arch-layer-badge">Angular 21 + Leaflet Spasial</span>
+          </div>
+          <div class="arch-cards-row">
+            <div class="arch-subcard">
+              <strong>🔍 Dashboard Anomali</strong>
+              <span>Pantauan alert data janggal & KPI APBN</span>
+            </div>
+            <div class="arch-subcard">
+              <strong>🗺️ Peta Interaktif</strong>
+              <span>Visualisasi sebaran kantong kemiskinan</span>
+            </div>
+            <div class="arch-subcard">
+              <strong>⚙️ Simulasi Anggaran</strong>
+              <span>Slider penimbang formula transfer daerah</span>
+            </div>
+            <div class="arch-subcard">
+              <strong>🤖 Asisten JUSI</strong>
+              <span>Dialog cerdas & cetak naskah PDF</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONNECTOR 1 -->
+        <div class="arch-connector">
+          <div class="arch-arrow"></div>
+          <span>Komunikasi Aman (HTTPS / RESTful API & Server-Sent Events Streaming)</span>
+          <div class="arch-arrow"></div>
+        </div>
+
+        <!-- LAYER 2: BACKEND CORE -->
+        <div class="arch-layer" style="border-left: 4px solid var(--primary);">
+          <div class="arch-layer-header">
+            <div class="arch-layer-title">
+              <span>⚙️ 2. LAPISAN PENGOLAH UTAMA & LOGIKA BISNIS (CORE API)</span>
+            </div>
+            <span class="arch-layer-badge" style="background: #dbeafe; color: #1e40af;">ASP.NET Core 10 (Clean Architecture)</span>
+          </div>
+          <div class="arch-cards-row">
+            <div class="arch-subcard">
+              <strong>⚡ Mesin Deteksi AI (ONNX)</strong>
+              <span>Pemeriksaan anomali data langsung di memori</span>
+            </div>
+            <div class="arch-subcard">
+              <strong>🔄 Penarik Data Otomatis (ETL)</strong>
+              <span>Penggabungan data multi-instansi berkala</span>
+            </div>
+            <div class="arch-subcard">
+              <strong>🧠 Pengatur Dialog AI</strong>
+              <span>Microsoft Semantic Kernel & Penjaga Topik</span>
+            </div>
+            <div class="arch-subcard">
+              <strong>📄 Mesin Pencetak PDF</strong>
+              <span>Penyusun dokumen laporan resmi otomatis</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONNECTOR 2 (SPLIT) -->
+        <div class="arch-connector">
+          <div class="arch-arrow"></div>
+          <span>Jalur Akses Data Terpisah & Terenkripsi</span>
+          <div class="arch-arrow"></div>
+        </div>
+
+        <!-- LAYER 3 & 4: DATABASE & SOVEREIGN AI -->
+        <div class="arch-split-row">
+          
+          <!-- LAYER 3: DATABASE -->
+          <div class="arch-layer" style="border-left: 4px solid var(--success);">
+            <div class="arch-layer-header">
+              <div class="arch-layer-title">
+                <span>🗄️ 3. BASIS DATA & PETA</span>
+              </div>
+              <span class="arch-layer-badge" style="background: #dcfce7; color: #166534;">PostgreSQL 17 + PostGIS</span>
+            </div>
+            <div style="font-size: 12.5px; color: var(--slate-600); line-height: 1.6;">
+              <p>• <strong>Data Wilayah:</strong> Batas poligon 38 provinsi & kab/kota</p>
+              <p>• <strong>Data Sosial:</strong> Statistik kemiskinan BPS & agregat P3KE</p>
+              <p>• <strong>Data APBN:</strong> Anggaran DAU, Dana Desa, dan bansos daerah</p>
+              <p>• <strong>Log Audit:</strong> Catatan seluruh aktivitas penggunaan sistem</p>
+            </div>
+          </div>
+
+          <!-- LAYER 4: SOVEREIGN LLM -->
+          <div class="arch-layer" style="border-left: 4px solid var(--warning);">
+            <div class="arch-layer-header">
+              <div class="arch-layer-title">
+                <span>🛡️ 4. ASISTEN AI LOKAL AMAN</span>
+              </div>
+              <span class="arch-layer-badge" style="background: #fef3c7; color: #92400e;">Ollama (Sovereign AI)</span>
+            </div>
+            <div style="font-size: 12.5px; color: var(--slate-600); line-height: 1.6;">
+              <p>• <strong>Model Bahasa Lokal:</strong> Berjalan di server internal Kemenkeu</p>
+              <p>• <strong>Penjaga Topik Ketat:</strong> Hanya merespons data fiskal & bansos</p>
+              <p>• <strong>Penolak Sopan:</strong> Menolak topik di luar ruang lingkup</p>
+              <p>• <strong>Bebas Bocor:</strong> Nol data negara yang dikirim ke server luar</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- POIN 6 -->
+    <section id="poin6" class="section-block">
+      <div class="section-header">
+        <div class="section-number">6</div>
+        <h2 class="section-title">Keamanan Data dan Perlindungan Privasi</h2>
+      </div>
+
+      <p class="section-desc">
+        Keamanan informasi dan kedaulatan data keuangan negara dijaga dengan 4 lapis perlindungan:
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="card-icon">🛡️</span>
+          <div class="card-title">1. Kedaulatan Data Penuh (Sovereign AI)</div>
+          <div class="card-text">Semua pemrosesan kecerdasan buatan dilakukan di komputer/server internal. Tidak ada satupun data APBN atau data warga yang keluar ke penyedia cloud luar negeri.</div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔒</span>
+          <div class="card-title">2. Perlindungan Identitas Warga (Privasi)</div>
+          <div class="card-text">Data yang dianalisis adalah data agregat per wilayah/keluarga. Data pribadi sensitif seperti Nomor Induk Kependudukan (NIK) disamarkan dan dienkripsi sehingga aman dari penyalahgunaan.</div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🛑</span>
+          <div class="card-title">3. Penjaga Topik Pintar (Guardrail)</div>
+          <div class="card-text">Asisten JUSI diprogram agar hanya menjawab pertanyaan terkait anggaran dan kemiskinan. Jika ditanya hal di luar topik (seperti politik praktis, opini pribadi, atau hiburan), AI akan menolak secara sopan.</div>
+        </div>
+        <div class="card">
+          <span class="card-icon">📝</span>
+          <div class="card-title">4. Catatan Aktivitas Lengkap (Audit Trail)</div>
+          <div class="card-text">Setiap aksi sinkronisasi data, simulasi perubahan anggaran, dan pertanyaan yang diajukan ke chatbot tercatat otomatis di basis data sebagai bukti transparansi dan akuntabilitas.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POIN 7 -->
+    <section id="poin7" class="section-block">
+      <div class="section-header">
+        <div class="section-number">7</div>
+        <h2 class="section-title">Kelayakan Teknis dan Ruang Lingkup Prototipe (MVP)</h2>
+      </div>
+
+      <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 12px;">Penilaian Kelayakan Teknis (Technical Feasibility):</h3>
+      
+      <div class="grid-4" style="margin-bottom: 18px;">
+        <div class="card" style="border-top: 3px solid var(--success);">
+          <div class="card-title" style="color: var(--success); font-size: 14px;">Web: Sangat Siap</div>
+          <div class="card-text">Tampilan web telah teruji ringan dan responsif menampilkan data 38 provinsi di browser.</div>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--success);">
+          <div class="card-title" style="color: var(--success); font-size: 14px;">Mesin AI: Sangat Siap</div>
+          <div class="card-text">Pemeriksaan anomali berjalan cepat di memori tanpa bergantung pada modul luar yang berat.</div>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--success);">
+          <div class="card-title" style="color: var(--success); font-size: 14px;">Basis Data: Sangat Siap</div>
+          <div class="card-text">Basis data PostGIS mampu memproses ratusan batas daerah dalam hitungan detik.</div>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--success);">
+          <div class="card-title" style="color: var(--success); font-size: 14px;">AI Chatbot: Siap</div>
+          <div class="card-text">Model bahasa buatan lokal dapat berjalan lancar di laptop standar tim pengembang.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">🎯 Ruang Lingkup MVP Siap Demo:</div>
+        <div class="callout-body">
+          Prototipe difokuskan pada 4 modul utama yang paling penting: 
+          <strong>1) Dashboard Peringatan Anomali Data</strong>, 
+          <strong>2) Peta Sebaran Kemiskinan 38 Provinsi</strong>, 
+          <strong>3) Simulasi Cerdas Pembagian Anggaran Daerah</strong>, dan 
+          <strong>4) Asisten AI JUSI beserta Fitur Unduh Laporan PDF Resmi</strong>.
+        </div>
+      </div>
+    </section>
+
+    <!-- POIN 8 -->
+    <section id="poin8" class="section-block">
+      <div class="section-header">
+        <div class="section-number">8</div>
+        <h2 class="section-title">Kendala Teknis dan Rencana Aksi Menuju Demo Day</h2>
+      </div>
+
+      <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 10px;">Antisipasi Kendala Teknis:</h3>
+
+      <div class="table-responsive" style="margin-bottom: 20px;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 220px;">Kemungkinan Kendala</th>
+              <th style="width: 110px;">Tingkat Risiko</th>
+              <th>Dampak</th>
+              <th>Solusi Praktis yang Disiapkan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Peta Terasa Berat Saat Dibuka</strong></td>
+              <td><span class="pill-p1">Sedang</span></td>
+              <td>Tampilan peta lambat jika garis batas pulau di Indonesia terlalu detail.</td>
+              <td>Menyederhanakan garis batas pulau tanpa merusak bentuk aslinya, sehingga ukuran file peta berkurang 80% dan peta terbuka sangat cepat.</td>
+            </tr>
+            <tr>
+              <td><strong>Server AI Lokal Belum Menyala</strong></td>
+              <td><span class="pill-p1">Sedang</span></td>
+              <td>Chatbot tidak merespons jika server AI lokal belum dinyalakan saat demo.</td>
+              <td>Menyediakan sistem cadangan cerdas otomatis (*fallback*), sehingga chatbot tetap bisa menjawab pertanyaan umum seputar data dengan benar.</td>
+            </tr>
+            <tr>
+              <td><strong>Perbedaan Kode Wilayah Antar Lembaga</strong></td>
+              <td><span class="pill-p2">Rendah</span></td>
+              <td>Kode wilayah BPS sedikit berbeda dengan kode wilayah Kemendagri.</td>
+              <td>Membuat tabel penyelarasan kode wilayah baku sebagai acuan tunggal dalam sistem.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 10px;">Jadwal 3 Tahap Menuju Demo Day:</h3>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <span class="step-idx" style="background: var(--primary);">Tahap 1</span>
+          <div class="step-content">
+            <h4>Penyusunan Data & Mesin Utama</h4>
+            <p>Menyiapkan data 38 provinsi di Indonesia dan memastikan sistem dapat menggabungkan data BPS serta Kemenkeu dengan lancar.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="step-idx" style="background: var(--primary);">Tahap 2</span>
+          <div class="step-content">
+            <h4>Penyempurnaan Peta & Simulasi Anggaran</h4>
+            <p>Menyempurnakan pewarnaan peta interaktif serta memastikan slider pembagian anggaran bekerja secara responsif dan akurat.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="step-idx" style="background: var(--primary);">Tahap 3</span>
+          <div class="step-content">
+            <h4>Uji Coba Menyeluruh & Latihan Presentasi Demo</h4>
+            <p>Menguji kelancaran tanya jawab asisten AI JUSI, memastikan pencetakan PDF bekerja rapi, dan mematangkan alur presentasi di hadapan juri.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p><strong>BRANTAS — Basis Rekomendasi & Analisis Terpadu Anggaran Sosial</strong></p>
+      <p>Karya Inovasi LAN Datathon 2026 | Tim Pengembang: Andy Pratama & Okky Sutaryatna</p>
+      <p style="font-size: 11.5px; opacity: 0.7;">Kementerian Keuangan Republik Indonesia</p>
+    </div>
+  </footer>
+
+</body>
+</html>

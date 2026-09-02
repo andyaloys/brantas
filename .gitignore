@@ -6,6 +6,17 @@ node_modules/
 dist/
 **/dist/
 
+# .NET dan rahasia lingkungan lokal
+bin/
+obj/
+**/bin/
+**/obj/
+TestResults/
+*.usersecrets
+.env
+.env.*
+!.env.example
+
 # IDE / Editor
 .vscode/
 **/.vscode/

@@ -1,0 +1,91 @@
+﻿<section class="page-header">
+  <div>
+    <p class="eyebrow">ASISTEN ANALITIK KEBIJAKAN</p>
+    <h1>JUSI (Justifikasi & Analitik Sosial Terintegrasi)</h1>
+    <p class="subtitle">Asisten cerdas berbasis data terverifikasi untuk analisis kemiskinan, alokasi anggaran, deteksi anomali, dan evaluasi dampak BRANTAS.</p>
+  </div>
+  <div class="grounded-badge">
+    <i class="pi pi-shield" aria-hidden="true"></i>
+    <span>Database-Grounded (Zero Hallucination)</span>
+  </div>
+</section>
+
+<section class="chat-layout">
+  <aside class="suggestion-panel">
+    <p class="panel-kicker">CONTOH PERTANYAAN ANALISIS</p>
+    <div class="prompt-chips">
+      <button type="button" class="chip" (click)="useQuestion('Berapa rata-rata kemiskinan nasional?')">
+        <i class="pi pi-chart-line"></i>
+        <span>Rata-rata Kemiskinan Nasional</span>
+      </button>
+      <button type="button" class="chip" (click)="useQuestion('Berapa nilai anomali fiskal?')">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>Ringkasan Anomali Fiskal</span>
+      </button>
+      <button type="button" class="chip" (click)="useQuestion('Bagaimana dampak kebijakan?')">
+        <i class="pi pi-bolt"></i>
+        <span>Evaluasi Dampak Intervensi (DiD)</span>
+      </button>
+      <button type="button" class="chip" (click)="useQuestion('Berapa total alokasi anggaran?')">
+        <i class="pi pi-dollar"></i>
+        <span>Total Alokasi Perlindungan Sosial</span>
+      </button>
+    </div>
+
+    <div class="safety-box">
+      <i class="pi pi-lock"></i>
+      <p>JUSI dilengkapi filter pencegahan kebocoran PII (NIK/NKK) dan pembatasan domain kebijakan publik.</p>
+    </div>
+  </aside>
+
+  <div class="conversation-container">
+    <div class="message-stream">
+      <div class="chat-bubble assistant-welcome">
+        <div class="avatar"><i class="pi pi-sparkles"></i></div>
+        <div class="bubble-content">
+          <div class="bubble-title">JUSI Assistant</div>
+          <p>Halo, saya JUSI. Saya siap membantu menelaah data kemiskinan, menghitung simulasi anggaran, dan mengevaluasi efektivitas program perlindungan sosial berdasarkan data aktif BRANTAS.</p>
+        </div>
+      </div>
+
+      @if (response(); as data) {
+        <div class="chat-bubble answer-bubble">
+          <div class="avatar active"><i class="pi pi-check-circle"></i></div>
+          <div class="bubble-content">
+            <div class="bubble-title">Hasil Jawaban Terverifikasi</div>
+            <p class="answer-text">{{ data.answer }}</p>
+            <div class="citation-tag">
+              <i class="pi pi-database"></i>
+              <span>Sumber: <strong>{{ data.source }}</strong> · Periode {{ data.period }} · {{ data.usedFallback ? 'Grounding Deterministik' : 'LLM Gateway Gateway' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="chat-bubble error-bubble">
+          <div class="avatar error"><i class="pi pi-exclamation-circle"></i></div>
+          <div class="bubble-content">
+            <div class="bubble-title">Peringatan Keamanan / Parameter</div>
+            <p>{{ error() }}</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="composer-bar">
+      <textarea
+        [value]="question()"
+        (input)="updateQuestion($event)"
+        (keydown.enter)="$event.preventDefault(); ask()"
+        placeholder="Tanyakan analisis anggaran sosial (mis: Berapa rata-rata kemiskinan nasional?)..."
+        aria-label="Pertanyaan untuk JUSI"
+        rows="2"
+      ></textarea>
+      <button type="button" class="btn-send" (click)="ask()" [disabled]="isLoading()">
+        <i class="pi" [class.pi-send]="!isLoading()" [class.pi-spin]="isLoading()" [class.pi-spinner]="isLoading()" aria-hidden="true"></i>
+        <span>{{ isLoading() ? 'Menganalisis...' : 'Kirim' }}</span>
+      </button>
+    </div>
+  </div>
+</section>

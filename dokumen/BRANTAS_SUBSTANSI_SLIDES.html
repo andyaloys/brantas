@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Presentasi: Penguatan Substansi BRANTAS - LAN Datathon 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070d18;
+      --bg-card: rgba(15, 23, 42, 0.88);
+      --bg-card-hover: rgba(30, 41, 59, 0.95);
+      --primary: #2563eb;
+      --primary-light: #60a5fa;
+      --primary-glow: rgba(37, 99, 235, 0.35);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.3);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.3);
+      --rose: #ef4444;
+      --rose-glow: rgba(239, 68, 68, 0.3);
+      --purple: #a855f7;
+      --purple-glow: rgba(168, 85, 247, 0.3);
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--slate-100);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.6) 0%, transparent 100%);
+    }
+
+    /* TOP PROGRESS BAR */
+    .progress-bar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 100;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 9.09%;
+      background: linear-gradient(90deg, var(--primary) 0%, #38bdf8 50%, var(--emerald) 100%);
+      box-shadow: 0 0 10px var(--primary-glow);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* PRESENTATION STAGE */
+    .presentation-stage {
+      position: relative;
+      width: 94vw;
+      max-width: 1400px;
+      height: 85vh;
+      max-height: 830px;
+      aspect-ratio: 16 / 9;
+      background: rgba(11, 19, 38, 0.88);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(37, 99, 235, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* SLIDE CONTAINER */
+    .slides-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 52px 36px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateX(40px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    .slide.prev {
+      transform: translateX(-40px) scale(0.98);
+      opacity: 0;
+    }
+
+    /* SLIDE HEADER */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 14px;
+      flex-shrink: 0;
+    }
+
+    .slide-badge-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .slide-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .badge-blue { background: rgba(37, 99, 235, 0.25); color: #93c5fd; border: 1px solid rgba(37, 99, 235, 0.5); }
+    .badge-gold { background: rgba(245, 158, 11, 0.25); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.5); }
+    .badge-green { background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.5); }
+    .badge-purple { background: rgba(168, 85, 247, 0.25); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.5); }
+    .badge-rose { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
+
+    .slide-title {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .slide-title span {
+      background: linear-gradient(90deg, #60a5fa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 13.5px;
+      color: var(--slate-300);
+      margin-top: 4px;
+    }
+
+    .slide-num-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--slate-400);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* SLIDE CONTENT ELEMENTS */
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 18px;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .card-blue { border-top: 3px solid var(--primary); }
+    .card-green { border-top: 3px solid var(--emerald); }
+    .card-amber { border-top: 3px solid var(--amber); }
+    .card-rose { border-top: 3px solid var(--rose); }
+    .card-purple { border-top: 3px solid var(--purple); }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--slate-300);
+      line-height: 1.55;
+    }
+
+    .card-desc strong {
+      color: #ffffff;
+    }
+
+    /* HIGHLIGHT BADGE */
+    .highlight-pill {
+      display: inline-block;
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      color: #bfdbfe;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .highlight-pill-green {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(52, 211, 153, 0.4);
+      color: #a7f3d0;
+    }
+
+    .highlight-pill-amber {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: rgba(251, 191, 36, 0.4);
+      color: #fde68a;
+    }
+
+    .highlight-pill-rose {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(248, 113, 113, 0.4);
+      color: #fecaca;
+    }
+
+    .highlight-pill-purple {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: rgba(216, 180, 254, 0.4);
+      color: #e9d5ff;
+    }
+
+    /* STAT CARD */
+    .stat-hero-card {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-hero-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 4px 0;
+    }
+
+    .stat-hero-lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--slate-400);
+      font-weight: 700;
+    }
+
+    .stat-hero-sub {
+      font-size: 11.5px;
+      color: #93c5fd;
+    }
+
+    /* TABLES IN SLIDE */
+    .slide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .slide-table th {
+      background: rgba(30, 41, 59, 0.8);
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .slide-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--slate-300);
+      vertical-align: middle;
+    }
+
+    .slide-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* DATA SOURCE LIST (SLIDE 7) */
+    .data-source-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .data-source-item {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 3px solid var(--primary);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--slate-300);
+      line-height: 1.5;
+    }
+
+    .data-source-item strong {
+      color: #60a5fa;
+    }
+
+    /* CALLOUT BOX */
+    .highlight-box {
+      background: rgba(37, 99, 235, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: #bfdbfe;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .highlight-box-green {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #a7f3d0;
+    }
+
+    .highlight-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    /* BOTTOM CONTROLS */
+    .controls-bar {
+      position: fixed;
+      bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(16px);
+      padding: 7px 16px;
+      border-radius: 9999px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary-light);
+      transform: scale(1.08);
+    }
+
+    .ctrl-btn:active {
+      transform: scale(0.95);
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--slate-300);
+      padding: 0 8px;
+    }
+
+    .ctrl-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .ctrl-text-btn {
+      background: none;
+      border: none;
+      color: var(--slate-400);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .ctrl-text-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* OVERVIEW MODAL */
+    .overview-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 13, 24, 0.95);
+      backdrop-filter: blur(20px);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .overview-modal.open {
+      display: flex;
+    }
+
+    .overview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      max-width: 1300px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .overview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .overview-card:hover {
+      border-color: var(--primary-light);
+      background: var(--bg-card-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px -5px var(--primary-glow);
+    }
+
+    .overview-card.active-thumb {
+      border-color: var(--emerald);
+      box-shadow: 0 0 15px var(--emerald-glow);
+    }
+
+    .overview-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--primary-light);
+      font-weight: 700;
+    }
+
+    .overview-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* PRINT STYLING */
+    @media print {
+      body {
+        overflow: visible;
+        height: auto;
+        background: #ffffff;
+        color: #000000;
+      }
+      .progress-bar-container, .controls-bar, .overview-modal {
+        display: none !important;
+      }
+      .presentation-stage {
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: none !important;
+      }
+      .slides-wrapper {
+        height: auto !important;
+        overflow: visible !important;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        height: 100vh !important;
+        padding: 40px !important;
+        color: #000000 !important;
+      }
+      .card, .slide-table, .stat-hero-card {
+        background: #f8fafc !important;
+        color: #000000 !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+      .slide-title, .card-title, .stat-hero-val {
+        color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar-container">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
+
+  <!-- PRESENTATION MAIN STAGE -->
+  <div class="presentation-stage">
+    <div class="slides-wrapper">
+
+      <!-- SLIDE 1: COVER / TITLE -->
+      <section class="slide active" data-title="Cover & Identitas">
+        <div style="margin: auto 0; text-align: left; max-width: 960px;">
+          <div class="slide-badge-wrap" style="margin-bottom: 14px;">
+            <span class="slide-badge badge-gold">LAN Datathon 2026</span>
+            <span class="slide-badge badge-blue">Subtopik: Pengentasan Kemiskinan Berbasis Data</span>
+            <span class="slide-badge badge-green">Evidence-Based Policy</span>
+          </div>
+          <h1 style="font-size: 38px; font-weight: 800; line-height: 1.2; margin-bottom: 12px;">
+            Penguatan Substansi Proyek <span style="background: linear-gradient(90deg, #60a5fa, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BRANTAS</span>
+          </h1>
+          <p style="font-size: 16.5px; color: var(--slate-300); margin-bottom: 24px; line-height: 1.55;">
+            <strong>Basis Rekomendasi & Analisis Terpadu Anggaran Sosial:</strong> Menyatukan Data, Menghilangkan Bantuan Salah Sasaran, dan Memastikan Anggaran Kemiskinan Tepat ke Warga yang Membutuhkan.
+          </p>
+
+          <div class="grid-4" style="margin-top: 10px;">
+            <div class="stat-hero-card">
+              <div class="stat-hero-lbl">Anggaran Perlinsos APBN 2026</div>
+              <div class="stat-hero-val">Rp 508,2 T</div>
+              <div class="stat-hero-sub">Alokasi Tertinggi dalam Sejarah</div>
+            </div>
+            <div class="stat-hero-card" style="border-color: rgba(16, 185, 129, 0.4);">
+              <div class="stat-hero-lbl">Tingkat Kemiskinan (BPS)</div>
+              <div class="stat-hero-val" style="color: #6ee7b7;">8,07%</div>
+              <div class="stat-hero-sub">22,93 Juta Jiwa Masih Rentan</div>
+            </div>
+            <div class="stat-hero-card" style="border-color: rgba(245, 158, 11, 0.4);">
+              <div class="stat-hero-lbl">Potensi Efisiensi Anggaran</div>
+              <div class="stat-hero-val" style="color: #fde047;">Rp 10 - 25 T</div>
+              <div class="stat-hero-sub">Penghematan Salah Sasaran / th</div>
+            </div>
+            <div class="stat-hero-card" style="border-color: rgba(168, 85, 247, 0.4);">
+              <div class="stat-hero-lbl">Keterpaduan Data</div>
+              <div class="stat-hero-val" style="color: #d8b4fe;">5 Sumber</div>
+              <div class="stat-hero-sub">BPS, DJPK, Bappenas, BIG, BNPB</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: EXECUTIVE SUMMARY -->
+      <section class="slide" data-title="Ringkasan Eksekutif">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-blue">Ringkasan Utama</span>
+            </div>
+            <h2 class="slide-title">Mengapa <span>BRANTAS</span> Sangat Dibutuhkan?</h2>
+            <div class="slide-subtitle">Solusi Nyata Mengatasi Anggaran Besar yang Belum Efektif Menurunkan Kemiskinan</div>
+          </div>
+          <div class="slide-num-tag">02 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="card card-rose">
+              <div class="card-title">
+                <span>1. Masalah: Anggaran Naik, Kemiskinan Lambat Turun</span>
+                <span class="slide-badge badge-rose">Kondisi Lapangan</span>
+              </div>
+              <div class="card-desc">
+                Anggaran bantuan sosial mencapai <strong>Rp508,2 Triliun</strong>, namun penurunan kemiskinan melambat karena <strong>banyak bantuan salah sasaran</strong> (kelompok mampu menerima, warga sangat miskin terlewat) serta data yang terlambat diperbarui.
+              </div>
+              <div class="highlight-pill highlight-pill-rose">Inefisiensi Anggaran & Eror Data</div>
+            </div>
+
+            <div class="card card-green">
+              <div class="card-title">
+                <span>2. Solusi: 5 Pilar Terpadu BRANTAS</span>
+                <span class="slide-badge badge-green">Inovasi Terpadu</span>
+              </div>
+              <div class="card-desc">
+                BRANTAS hadir sebagai platform cerdas yang <strong>menggabungkan 5 data instansi pemerintah</strong>, otomatis mendeteksi bantuan salah sasaran, memetakan kantong kemiskinan di peta, dan memberi rekomendasi alokasi dana yang pas.
+              </div>
+              <div class="highlight-pill highlight-pill-green">Sistem Cerdas & Terintegrasi</div>
+            </div>
+          </div>
+
+          <div class="highlight-box highlight-box-green">
+            <span class="highlight-icon">&#128161;</span>
+            <span><strong>Inti Solusi:</strong> Mengubah cara pembagian anggaran dari sekadar "kebiasaan tahun lalu" menjadi <strong>berdasarkan data nyata di lapangan</strong>, sehingga setiap rupiah APBN tepat sasaran ke warga yang paling membutuhkan.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: PROBLEM STATEMENT TAJAM -->
+      <section class="slide" data-title="Problem Statement Tajam">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-gold">Fakta Data Lapangan</span>
+            </div>
+            <h2 class="slide-title">Problem Statement: <span>Paradoks Anggaran Bansos</span></h2>
+            <div class="slide-subtitle">Belanja Negara Meningkat Drastis, Namun Efektivitas Penurunan Kemiskinan Menurun</div>
+          </div>
+          <div class="slide-num-tag">03 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <div>
+              <table class="slide-table">
+                <thead>
+                  <tr>
+                    <th>Tahun Anggaran</th>
+                    <th>Anggaran Perlinsos (APBN)</th>
+                    <th>Persentase Kemiskinan (BPS)</th>
+                    <th>Jumlah Penduduk Miskin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>2024</strong></td>
+                    <td>Rp 493,5 Triliun</td>
+                    <td>9,03% (Maret 2024)</td>
+                    <td>25,22 Juta Jiwa</td>
+                  </tr>
+                  <tr>
+                    <td><strong>2025</strong></td>
+                    <td>Rp 504,7 Triliun</td>
+                    <td>8,25% (September 2025)</td>
+                    <td>23,36 Juta Jiwa</td>
+                  </tr>
+                  <tr>
+                    <td><strong>2026 (RAPBN)</strong></td>
+                    <td><strong style="color:#60a5fa;">Rp 508,2 Triliun</strong></td>
+                    <td><strong style="color:#fde047;">8,07% (Maret 2026)</strong></td>
+                    <td><strong>22,93 Juta Jiwa</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="card card-blue" style="margin-top: 10px; padding: 12px 16px;">
+                <div class="card-desc" style="font-size:12.5px;">
+                  <strong>Mengapa Ini Terjadi?</strong> Kenaikan anggaran Rp14 Triliun lebih dalam 2 tahun terakhir hanya mampu mengurangi sedikit angka kemiskinan karena penyaluran dana belum berbasis kebutuhan riil di tingkat kecamatan/desa.
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="card card-rose" style="padding: 12px 16px;">
+                <div class="card-title"><span>1. Salah Sasaran Masif</span></div>
+                <div class="card-desc">Bantuan sering kali dinikmati oleh keluarga mampu, sementara warga lansia dan miskin ekstrem di pelosok tidak terdata.</div>
+                <div class="highlight-pill highlight-pill-rose">Eror Inklusi & Eksklusi</div>
+              </div>
+
+              <div class="card card-amber" style="padding: 12px 16px;">
+                <div class="card-title"><span>2. Respon Data Terlalu Lambat</span></div>
+                <div class="card-desc">Pembaruan data membutuhkan waktu 6–12 bulan, sehingga warga yang tiba-tiba jatuh miskin akibat gagal panen atau inflasi tidak tertolong.</div>
+                <div class="highlight-pill highlight-pill-amber">Keterlambatan Data (Data Lag)</div>
+              </div>
+
+              <div class="card card-purple" style="padding: 12px 16px;">
+                <div class="card-title"><span>3. Pembagian Dana Masih Manual</span></div>
+                <div class="card-desc">Daerah yang kemiskinannya parah sering menerima porsi dana yang sama dengan daerah yang sudah relatif sejahtera.</div>
+                <div class="highlight-pill highlight-pill-purple">Alokasi Belum Adil</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: 3 AKAR MASALAH LAPANGAN -->
+      <section class="slide" data-title="3 Masalah Nyata Lapangan">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-purple">Bukti Nyata</span>
+            </div>
+            <h2 class="slide-title">3 Masalah Utama yang Dihadapi di <span>Lapangan</span></h2>
+            <div class="slide-subtitle">Berdasarkan Temuan Resmi BPK RI dan Realitas Tata Kelola Daerah</div>
+          </div>
+          <div class="slide-num-tag">04 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card card-rose">
+              <div class="card-title">
+                <span>1. Bantuan Salah Sasaran</span>
+                <span class="slide-badge badge-rose">Audit BPK</span>
+              </div>
+              <div class="card-desc">
+                <p>• <strong>Temuan BPK RI:</strong> Puluhan ribu ASN, anggota TNI/Polri, dan pekerja berpenghasilan tetap terdaftar menerima bansos (PKH/Sembako).</p>
+                <p style="margin-top: 6px;">• <strong>Warga Miskin Terlewat:</strong> Sekitar <strong>2,3 juta keluarga sangat miskin</strong> di pelosok tidak dapat bantuan karena kendala KTP/KK.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-rose">Ketidaktepatan Penerima Bantuan</div>
+            </div>
+
+            <div class="card card-amber">
+              <div class="card-title">
+                <span>2. Data Terpisah Antar-Instansi</span>
+                <span class="slide-badge badge-gold">Ego Sektoral</span>
+              </div>
+              <div class="card-desc">
+                <p>• <strong>Beda Lembaga, Beda Data:</strong> Kemensos punya DTKS, Kemenko PMK punya P3KE, Bappenas punya Regsosek, dan Kemenkeu punya data anggaran.</p>
+                <p style="margin-top: 6px;">• Data tidak saling terhubung, menyulitkan pemerintah daerah melihat gambaran utuh.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-amber">Fragmentasi & Silo Data</div>
+            </div>
+
+            <div class="card card-blue">
+              <div class="card-title">
+                <span>3. Alokasi Anggaran Belum Berbasis Bukti</span>
+                <span class="slide-badge badge-blue">Metode Lama</span>
+              </div>
+              <div class="card-desc">
+                <p>• <strong>Formula Statis:</strong> Pembagian Dana Desa dan bantuan daerah masih mengikuti pola tahun-tahun sebelumnya tanpa analisis kebutuhan riil.</p>
+                <p style="margin-top: 6px;">• Tidak ada alat untuk menguji program apa yang benar-benar menurunkan angka kemiskinan.</p>
+              </div>
+              <div class="highlight-pill">Kebijakan Belum Berbasis Bukti</div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <span class="highlight-icon">&#10004;</span>
+            <span><strong>Jawaban BRANTAS:</strong> Mencocokkan data secara otomatis dengan kecerdasan buatan (AI) &rarr; memetakan lokasi kantong kemiskinan &rarr; merekomendasikan alokasi anggaran yang adil.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: TARGET PENERIMA MANFAAT BRANTAS -->
+      <section class="slide" data-title="Target Penerima Manfaat BRANTAS">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-blue">Penerima Manfaat</span>
+            </div>
+            <h2 class="slide-title">Target Penerima Manfaat <span>BRANTAS</span></h2>
+            <div class="slide-subtitle">Membantu Pemerintah dari Pusat hingga Desa, Melindungi 22,9 Juta Warga Rentan</div>
+          </div>
+          <div class="slide-num-tag">05 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-4">
+            <div class="card card-blue">
+              <div class="card-title">
+                <span>1. Kementerian Pusat</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Siapa:</strong> Kemenkeu, Bappenas, Kemensos, Kemenko PMK.</p>
+                <p style="margin-top: 6px;"><strong>Manfaat:</strong> Mengetahui secara pasti ke mana anggaran Transfer Daerah (TKDD) dan Dana Desa harus difokuskan.</p>
+              </div>
+              <div class="highlight-pill">Kebijakan Makro Presisi</div>
+            </div>
+
+            <div class="card card-green">
+              <div class="card-title">
+                <span>2. Pemerintah Daerah</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Siapa:</strong> Bappeda, Dinas Sosial, Pemerintah Desa.</p>
+                <p style="margin-top: 6px;"><strong>Manfaat:</strong> Memiliki peta detail keluarga miskin di wilayahnya dan rekomendasi program bantuan yang pas.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-green">Eksekusi Tepat Sasaran</div>
+            </div>
+
+            <div class="card card-amber">
+              <div class="card-title">
+                <span>3. Pengawas & Auditor</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Siapa:</strong> BPK RI, BPKP, Inspektorat Daerah.</p>
+                <p style="margin-top: 6px;"><strong>Manfaat:</strong> Mudah mengaudit penyaluran dana dan mendeteksi lebih awal jika ada bantuan yang salah sasaran.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-amber">Audit Trail Transparan</div>
+            </div>
+
+            <div class="card card-purple">
+              <div class="card-title">
+                <span>4. Warga Miskin & Rentan</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Siapa:</strong> 22,93 Juta Warga Miskin & Keluarga Desil 1–4.</p>
+                <p style="margin-top: 6px;"><strong>Manfaat:</strong> Menerima bantuan tepat waktu, tepat jumlah, dan tidak lagi terlewat dari jaring pengaman sosial.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-purple">Zero Exclusion Error</div>
+            </div>
+          </div>
+
+          <div class="highlight-box highlight-box-green">
+            <span class="highlight-icon">&#128101;</span>
+            <span><strong>Tujuan Utama:</strong> Memastikan tidak ada satu pun warga miskin yang tertinggal dan setiap rupiah uang rakyat dipakai untuk kesejahteraan nyata.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: 5 PILAR SOLUSI BRANTAS -->
+      <section class="slide" data-title="5 Solusi Praktis BRANTAS">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-green">Solusi Unggulan</span>
+            </div>
+            <h2 class="slide-title">5 Solusi Praktis yang Disediakan <span>BRANTAS</span></h2>
+            <div class="slide-subtitle">Alur Kerja Cerdas dari Pengumpulan Data Hingga Rekomendasi Kebijakan</div>
+          </div>
+          <div class="slide-num-tag">06 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card card-blue">
+              <div class="card-title">
+                <span>1. Menyatukan Semua Data</span>
+                <span class="slide-badge badge-blue">Pilar 1</span>
+              </div>
+              <div class="card-desc">
+                Menggabungkan data warga dari BPS, Kemenkeu, Bappenas, dan BIG ke dalam satu pintu secara otomatis tanpa perlu input manual yang berulang.
+              </div>
+              <div class="highlight-pill">Integrasi Satu Data</div>
+            </div>
+
+            <div class="card card-rose">
+              <div class="card-title">
+                <span>2. Deteksi Salah Sasaran</span>
+                <span class="slide-badge badge-rose">Pilar 2</span>
+              </div>
+              <div class="card-desc">
+                Kecerdasan Buatan (AI) otomatis menyaring dan memberi peringatan jika ada warga mampu atau ASN yang masuk dalam daftar penerima bansos.
+              </div>
+              <div class="highlight-pill highlight-pill-rose">Deteksi Anomali AI</div>
+            </div>
+
+            <div class="card card-green">
+              <div class="card-title">
+                <span>3. Peta Kantong Kemiskinan</span>
+                <span class="slide-badge badge-green">Pilar 3</span>
+              </div>
+              <div class="card-desc">
+                Menampilkan peta interaktif warna-warni yang menunjukkan titik-titik kecamatan/desa dengan tingkat kemiskinan dan kebutuhan paling mendesak.
+              </div>
+              <div class="highlight-pill highlight-pill-green">Peta Spasial Interaktif</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card card-amber">
+              <div class="card-title">
+                <span>4. Hitung Porsi Anggaran yang Pas</span>
+                <span class="slide-badge badge-gold">Pilar 4</span>
+              </div>
+              <div class="card-desc">
+                Sistem menghitung skor kerentanan wilayah dan menyarankan nominal anggaran yang adil untuk setiap kabupaten/kota sesuai kebutuhan riil.
+              </div>
+              <div class="highlight-pill highlight-pill-amber">Pembagian Anggaran Adil</div>
+            </div>
+
+            <div class="card card-purple">
+              <div class="card-title">
+                <span>5. Asisten Cerdas "JUSI" & Rekomendasi Praktis</span>
+                <span class="slide-badge badge-purple">Pilar 5</span>
+              </div>
+              <div class="card-desc">
+                Menyediakan asisten tanya-jawab cerdas berbahasa Indonesia <strong>"JUSI"</strong> serta cetak ringkasan kebijakan (Policy Brief PDF) instan.
+              </div>
+              <div class="highlight-pill highlight-pill-purple">Asisten AI "JUSI" & PDF Siap Pakai</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: 5 SUMBER DATA YANG DIGUNAKAN (SESUAI CAPTURE) -->
+      <section class="slide" data-title="5 Sumber Data yang Digunakan">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-blue">Arsitektur Data</span>
+            </div>
+            <h2 class="slide-title">5 Sumber Data yang <span>Digunakan</span></h2>
+            <div class="slide-subtitle">Konsolidasi Data Resmi Nasional dan Jaminan Kedaulatan Data Sesuai UU PDP</div>
+          </div>
+          <div class="slide-num-tag">07 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <!-- 5 SUMBER DATA LIST -->
+            <div class="data-source-list">
+              <div class="data-source-item">
+                • <strong>Badan Pusat Statistik (BPS):</strong> Angka kemiskinan resmi, garis kemiskinan, Indeks Pembangunan Manusia (IPM), dan pendapatan daerah.
+              </div>
+              <div class="data-source-item">
+                • <strong>DJPK Kemenkeu RI:</strong> Realisasi Dana Desa, Dana Alokasi Umum (DAU), DAK, dan belanja bansos daerah.
+              </div>
+              <div class="data-source-item">
+                • <strong>P3KE / Bappenas:</strong> Data keluarga prasejahtera (Desil 1–4), kondisi rumah tidak layak huni, dan sanitasi.
+              </div>
+              <div class="data-source-item">
+                • <strong>Badan Informasi Geospasial (BIG):</strong> Batas wilayah peta Indonesia dan peta jaringan transportasi daerah.
+              </div>
+              <div class="data-source-item">
+                • <strong>Badan Penanggulangan Bencana (BNPB):</strong> Indeks risiko bencana daerah untuk antisipasi darurat.
+              </div>
+            </div>
+
+            <!-- SECURITY & PRIVACY CARD -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div class="card card-green">
+                <div class="card-title">
+                  <span>100% Aman & Tersimpan di Server Pemerintah</span>
+                  <span class="slide-badge badge-green">Privasi Terjaga</span>
+                </div>
+                <div class="card-desc">
+                  Sistem AI BRANTAS berjalan di server internal lokal (*On-Premise*). <strong>Tidak ada data KTP/KK warga yang bocor atau dikirim ke server luar negeri.</strong>
+                </div>
+                <div class="highlight-pill highlight-pill-green">Kedaulatan Data Terjamin</div>
+              </div>
+
+              <div class="card card-blue">
+                <div class="card-title">
+                  <span>Taat UU Perlindungan Data Pribadi (UU PDP)</span>
+                  <span class="slide-badge badge-blue">Kepatuhan Hukum</span>
+                </div>
+                <div class="card-desc">
+                  Identitas pribadi dienkripsi ketat. Yang ditampilkan di layar analisis hanya berupa <strong>angka agregat wilayah dan peta sebaran</strong> tanpa membuka privasi warga.
+                </div>
+                <div class="highlight-pill">Kepatuhan UU No. 27/2022</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 8: KONTEKS KEBIJAKAN BANSOS INDONESIA -->
+      <section class="slide" data-title="Konteks Kebijakan Bansos">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-gold">Konteks Kebijakan</span>
+            </div>
+            <h2 class="slide-title">Kesesuaian dengan <span>Kebijakan Bansos Nasional</span></h2>
+            <div class="slide-subtitle">Menyelaraskan Program Pemerintah Pusat dan Daerah Menuju Penghapusan Kemiskinan Ekstrem</div>
+          </div>
+          <div class="slide-num-tag">08 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card card-blue">
+              <div class="card-title">
+                <span>1. Optimasi Alokasi Fiskal & TKDD</span>
+                <span class="slide-badge badge-blue">Fiskal Daerah</span>
+              </div>
+              <div class="card-desc">
+                Menyelaraskan alokasi <strong>Dana Desa, DAU, dan DAK</strong> berbasis bukti riil kantong kemiskinan untuk memastikan dana transfer daerah efektif mengurangi ketimpangan fiskal antar-wilayah.
+              </div>
+              <div class="highlight-pill">Alokasi Transfer Daerah Tepat Sasaran</div>
+            </div>
+
+            <div class="card card-green">
+              <div class="card-title">
+                <span>2. Mandat Inpres No. 4/2022</span>
+                <span class="slide-badge badge-green">Kemiskinan Ekstrem</span>
+              </div>
+              <div class="card-desc">
+                Mendukung 3 strategi utama pemerintah:
+                <br>• <strong>Kurangi Beban:</strong> Bansos tepat waktu.
+                <br>• <strong>Tambah Pendapatan:</strong> Bantuan usaha desa.
+                <br>• <strong>Kurangi Kantong Kemiskinan:</strong> Sanitasi & air.
+              </div>
+              <div class="highlight-pill highlight-pill-green">3 Strategi Beban, Usaha & Lingkungan</div>
+            </div>
+
+            <div class="card card-purple">
+              <div class="card-title">
+                <span>3. UU HKPD & Satu Data Indonesia</span>
+                <span class="slide-badge badge-purple">Regulasi Fiskal</span>
+              </div>
+              <div class="card-desc">
+                Sesuai <strong>UU No. 1/2022 (HKPD)</strong> agar transfer dana ke daerah berbasis kinerja pengentasan kemiskinan, serta <strong>Perpres No. 39/2019</strong> untuk standardisasi Satu Data Indonesia.
+              </div>
+              <div class="highlight-pill highlight-pill-purple">Payung Hukum Kuat</div>
+            </div>
+          </div>
+
+          <div class="highlight-box highlight-box-green">
+            <span class="highlight-icon">&#128196;</span>
+            <span><strong>Peran Strategis BRANTAS:</strong> Menjadi jembatan agar kementerian (Kemenkeu, Kemensos, Bappenas) dan Pemda tidak jalan sendiri-sendiri dalam menyalurkan bantuan sosial.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 9: DAMPAK NYATA SISTEM BRANTAS (FOKUS DAMPAK & DASAR PERHITUNGAN) -->
+      <section class="slide" data-title="Dampak Nyata Sistem BRANTAS">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-green">Dampak Terukur</span>
+            </div>
+            <h2 class="slide-title">Dampak Nyata <span>Sistem BRANTAS</span></h2>
+            <div class="slide-subtitle">Rincian Dampak yang Diharapkan Beserta Dasar Perhitungan & Sumber Metodologi Resmi</div>
+          </div>
+          <div class="slide-num-tag">09 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <!-- DAMPAK 1: EFISIENSI ANGGARAN -->
+            <div class="card card-rose">
+              <div class="card-title">
+                <span>1. Efisiensi Fiskal: Rp 10 – 25 Triliun / Tahun</span>
+                <span class="slide-badge badge-rose">Penghematan</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Dampak Proyek:</strong> Menghentikan kebocoran bansos ke kelompok mampu (ASN/TNI/Polri/pekerja formal) sebelum dana dicairkan.</p>
+                <p style="margin-top: 6px; font-size: 12px; color: #cbd5e1;">
+                  <strong>Dasar Perhitungan:</strong> Penurunan 15%–25% <em>inclusion error</em> dari total belanja bansos operasional langsung (~Rp100 Triliun alokasi tunai & sembako) mengacu pada temuan berulang <strong>LHP BPK RI atas LKPP</strong>.
+                </p>
+              </div>
+              <div class="highlight-pill highlight-pill-rose">Rujukan: LHP BPK RI & Simulasi Fiskal APBN</div>
+            </div>
+
+            <!-- DAMPAK 2: PENINGKATAN EFEKTIVITAS -->
+            <div class="card card-green">
+              <div class="card-title">
+                <span>2. Efektivitas Anggaran Meningkat +30% s.d. +40%</span>
+                <span class="slide-badge badge-green">Daya Ungkit</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Dampak Proyek:</strong> Setiap rupiah APBN menghasilkan penurunan kemiskinan lebih cepat karena intervensi terkonsentrasi di kantong kemiskinan mikro.</p>
+                <p style="margin-top: 6px; font-size: 12px; color: #cbd5e1;">
+                  <strong>Dasar Analisis:</strong> Riset resmi <strong>Bank Dunia (*World Bank Indonesia Economic Prospects*)</strong> membuktikan integrasi data spasial mikro & eliminasi tumpang tindih melipatgandakan dampak belanja sosial.
+                </p>
+              </div>
+              <div class="highlight-pill highlight-pill-green">Rujukan: Riset Resmi Bank Dunia</div>
+            </div>
+
+            <!-- DAMPAK 3: PENURUNAN KEMISKINAN NASIONAL -->
+            <div class="card card-purple">
+              <div class="card-title">
+                <span>3. Percepatan Kemiskinan ke 5% – 6% di 2029</span>
+                <span class="slide-badge badge-purple">Target RPJMN</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Dampak Proyek:</strong> Mengentaskan ±7 juta jiwa dari kemiskinan dan menuntaskan kemiskinan ekstrem menuju 0%.</p>
+                <p style="margin-top: 6px; font-size: 12px; color: #cbd5e1;">
+                  <strong>Dasar Perhitungan:</strong> Mengurangi angka kemiskinan dari 8,07% (22,93 juta jiwa, BPS Maret 2026) dengan menghapus <em>exclusion error</em> pada 2,3 juta keluarga sangat miskin di pelosok sesuai target <strong>RPJMN 2025–2029 Bappenas</strong>.
+                </p>
+              </div>
+              <div class="highlight-pill highlight-pill-purple">Rujukan: BPS 2026 & RPJMN Bappenas</div>
+            </div>
+
+            <!-- DAMPAK 4: KECEPATAN RESPON KEBIJAKAN -->
+            <div class="card card-blue">
+              <div class="card-title">
+                <span>4. Kecepatan Respons Kebijakan (< 5 Menit)</span>
+                <span class="slide-badge badge-blue">Real-Time</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Dampak Proyek:</strong> Kementerian dan Pemda memformulasikan alokasi bansos darurat dan belanja APBD secara instan.</p>
+                <p style="margin-top: 6px; font-size: 12px; color: #cbd5e1;">
+                  <strong>Dasar Perhitungan:</strong> Mengeliminasi <em>data lag</em> 6–12 bulan dari proses survei dan rekonsiliasi manual berjenjang menjadi integrasi data otomatis multi-sumber API terstandarisasi.
+                </p>
+              </div>
+              <div class="highlight-pill">Akselerasi Respon dari 6 Bulan ke Real-Time</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 10: TANTANGAN LAPANGAN & SOLUSI KOMPREHENSIF -->
+      <section class="slide" data-title="Tantangan & Solusi Komprehensif">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-purple">Kesiapan Lapangan</span>
+            </div>
+            <h2 class="slide-title">Tantangan Lapangan & <span>Solusi Komprehensif</span></h2>
+            <div class="slide-subtitle">Pemetaan Hambatan Nyata di Lapangan Beserta Solusi Mitigasi yang Proporsional</div>
+          </div>
+          <div class="slide-num-tag">10 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-3">
+            <!-- TANTANGAN 1 -->
+            <div class="card card-amber">
+              <div class="card-title">
+                <span>1. Ego Sektoral & Silo Data</span>
+                <span class="slide-badge badge-gold">Tantangan 1</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Hambatan:</strong> Setiap K/L dan dinas daerah menjaga basis datanya masing-masing, sehingga data tidak saling terhubung.</p>
+                <p style="margin-top: 8px; color: #6ee7b7;"><strong>Solusi BRANTAS:</strong> Integrasi multi-sumber otomatis via API terstandarisasi dengan payung hukum Satu Data Indonesia.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-green">Integrasi Data Otomatis & Terstandar</div>
+            </div>
+
+            <!-- TANTANGAN 2 -->
+            <div class="card card-rose">
+              <div class="card-title">
+                <span>2. Kendala Sinyal & Adminduk 3T</span>
+                <span class="slide-badge badge-rose">Tantangan 2</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Hambatan:</strong> Daerah tertinggal/terluar sering mengalami kendala internet dan kelengkapan KTP/KK warga miskin.</p>
+                <p style="margin-top: 8px; color: #6ee7b7;"><strong>Solusi BRANTAS:</strong> Sistem mendukung input/analisis offline dan pemetaan kantong kemiskinan berbasis poligon spasial.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-green">Mode Offline & Peta Spasial Geografis</div>
+            </div>
+
+            <!-- TANTANGAN 3 -->
+            <div class="card card-blue">
+              <div class="card-title">
+                <span>3. Kapasitas SDM Aparatur Daerah</span>
+                <span class="slide-badge badge-blue">Tantangan 3</span>
+              </div>
+              <div class="card-desc">
+                <p><strong>Hambatan:</strong> Analis Bappeda dan Dinsos daerah memiliki latar belakang beragam dan kesulitan mengolah data statistik rumit.</p>
+                <p style="margin-top: 8px; color: #6ee7b7;"><strong>Solusi BRANTAS:</strong> Asisten AI "JUSI" berbahasa natural Indonesia dan pembuatan ringkasan kebijakan (Policy Brief PDF) 1-klik.</p>
+              </div>
+              <div class="highlight-pill highlight-pill-green">Asisten AI "JUSI" & Dokumen Instan</div>
+            </div>
+          </div>
+
+          <div class="highlight-box highlight-box-green">
+            <span class="highlight-icon">&#128737;</span>
+            <span><strong>Komitmen Mitigasi:</strong> Setiap tantangan tata kelola dan teknis di lapangan telah memiliki jawaban solusi konkret yang teruji di dalam sistem BRANTAS.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 11: KESIMPULAN (KESIAPAN POTENSI IMPLEMENTASI) -->
+      <section class="slide" data-title="Kesimpulan">
+        <div class="slide-header">
+          <div>
+            <div class="slide-badge-wrap">
+              <span class="slide-badge badge-gold">Penutup & Kesiapan</span>
+            </div>
+            <h2 class="slide-title"><span>Kesimpulan</span></h2>
+            <div class="slide-subtitle">Kesiapan Potensi Implementasi Proyek BRANTAS Menuju Keadilan Fiskal Nasional</div>
+          </div>
+          <div class="slide-num-tag">11 / 11</div>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-4">
+            <!-- 1. KESIAPAN TEKNOLOGI -->
+            <div class="card card-blue">
+              <div class="card-title">
+                <span>1. Kesiapan Teknologi Modern</span>
+              </div>
+              <div class="card-desc">
+                Arsitektur enterprise .NET 10 + Angular 21 yang ringan, super responsif, dan dapat diakses langsung via browser tanpa beban instalasi rumit di Pemda.
+              </div>
+              <div class="highlight-pill">Performa Cepat & Skalabel</div>
+            </div>
+
+            <!-- 2. KESIAPAN INTEGRASI & KEDAULATAN -->
+            <div class="card card-green">
+              <div class="card-title">
+                <span>2. Integrasi & Kedaulatan Data</span>
+              </div>
+              <div class="card-desc">
+                Pipeline 5 sumber data instansi nasional berjalan 100% di server lokal (*On-Premise*) pemerintah tanpa biaya cloud asing & taat UU No. 27/2022 (PDP).
+              </div>
+              <div class="highlight-pill highlight-pill-green">100% Aman & Mandiri</div>
+            </div>
+
+            <!-- 3. KESIAPAN REGULASI -->
+            <div class="card card-purple">
+              <div class="card-title">
+                <span>3. Keselarasan Regulasi Nasional</span>
+              </div>
+              <div class="card-desc">
+                Selaras dengan UU No. 1/2022 (HKPD), Inpres No. 4/2022 (Kemiskinan Ekstrem), dan Perpres No. 39/2019 (Satu Data Indonesia).
+              </div>
+              <div class="highlight-pill highlight-pill-purple">Payung Hukum Kuat</div>
+            </div>
+
+            <!-- 4. KESIAPAN PENGGUNA -->
+            <div class="card card-amber">
+              <div class="card-title">
+                <span>4. Kesiapan Pengguna & Operasional</span>
+              </div>
+              <div class="card-desc">
+                Didukung asisten AI bahasa alami "JUSI" dan Policy Brief PDF 1-klik yang mudah dipahami aparatur perencana di 514 Kabupaten/Kota.
+              </div>
+              <div class="highlight-pill highlight-pill-amber">Adopsi Cepat Pemda</div>
+            </div>
+          </div>
+
+          <div class="highlight-box highlight-box-green" style="justify-content: center; text-align: center;">
+            <span class="highlight-icon">&#128640;</span>
+            <span><strong>BRANTAS Siap Diterapkan:</strong> Menjadi modul <em>Decision Support System</em> (DSS) resmi pemerintah untuk memastikan setiap rupiah APBN tepat sasaran demi terwujudnya Indonesia Emas 2045.</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM CONTROLLER BAR -->
+  <div class="controls-bar">
+    <button id="prevBtn" class="ctrl-btn" title="Slide Sebelumnya (Panah Kiri / Up)">&#9664;</button>
+    <div id="slideCounter" class="slide-counter">01 / 11</div>
+    <button id="nextBtn" class="ctrl-btn" title="Slide Berikutnya (Panah Kanan / Space / Down)">&#9654;</button>
+    <div class="ctrl-divider"></div>
+    <button id="overviewBtn" class="ctrl-text-btn" title="Tampilkan Ringkasan Slide (O)">
+      <span>&#9638;</span> Overview
+    </button>
+    <button id="fullscreenBtn" class="ctrl-text-btn" title="Mode Layar Penuh (F)">
+      <span>&#9974;</span> Fullscreen
+    </button>
+    <button id="printBtn" class="ctrl-text-btn" title="Cetak / Ekspor ke PDF">
+      <span>&#128424;</span> PDF
+    </button>
+  </div>
+
+  <!-- OVERVIEW / THUMBNAIL MODAL -->
+  <div id="overviewModal" class="overview-modal">
+    <div class="overview-header">
+      <div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #ffffff;">Ringkasan Seluruh Slide Presentasi</h2>
+        <p style="font-size: 13px; color: var(--slate-400);">Pilih slide untuk langsung menuju halaman tersebut (atau tekan Esc untuk kembali)</p>
+      </div>
+      <button id="closeOverviewBtn" class="ctrl-btn" style="background: rgba(255,255,255,0.15);">✕</button>
+    </div>
+    <div id="overviewGrid" class="overview-grid">
+      <!-- Grid items injected by JS -->
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT CONTROLLER -->
+  <script>
+    (function() {
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      let currentIndex = 0;
+
+      const progressBar = document.getElementById('progressBar');
+      const slideCounter = document.getElementById('slideCounter');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const overviewBtn = document.getElementById('overviewBtn');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const printBtn = document.getElementById('printBtn');
+      const overviewModal = document.getElementById('overviewModal');
+      const closeOverviewBtn = document.getElementById('closeOverviewBtn');
+      const overviewGrid = document.getElementById('overviewGrid');
+
+      // Populate Overview Grid
+      slides.forEach((slide, index) => {
+        const title = slide.getAttribute('data-title') || `Slide ${index + 1}`;
+        const card = document.createElement('div');
+        card.className = `overview-card ${index === 0 ? 'active-thumb' : ''}`;
+        card.innerHTML = `
+          <div class="overview-num">SLIDE ${String(index + 1).padStart(2, '0')}</div>
+          <div class="overview-title">${title}</div>
+        `;
+        card.addEventListener('click', () => {
+          goToSlide(index);
+          closeOverview();
+        });
+        overviewGrid.appendChild(card);
+      });
+
+      function updateSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.classList.remove('active', 'prev');
+          if (i === index) {
+            slide.classList.add('active');
+          } else if (i < index) {
+            slide.classList.add('prev');
+          }
+        });
+
+        // Update progress bar
+        const progress = ((index + 1) / totalSlides) * 100;
+        progressBar.style.width = progress + '%';
+
+        // Update counter
+        slideCounter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+
+        // Update overview active highlight
+        const cards = overviewGrid.querySelectorAll('.overview-card');
+        cards.forEach((c, i) => {
+          if (i === index) {
+            c.classList.add('active-thumb');
+          } else {
+            c.classList.remove('active-thumb');
+          }
+        });
+      }
+
+      function nextSlide() {
+        if (currentIndex < totalSlides - 1) {
+          currentIndex++;
+          updateSlide(currentIndex);
+        }
+      }
+
+      function prevSlide() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlide(currentIndex);
+        }
+      }
+
+      function goToSlide(index) {
+        if (index >= 0 && index < totalSlides) {
+          currentIndex = index;
+          updateSlide(currentIndex);
+        }
+      }
+
+      function toggleOverview() {
+        overviewModal.classList.toggle('open');
+      }
+
+      function closeOverview() {
+        overviewModal.classList.remove('open');
+      }
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Fullscreen error: ${err.message}`);
+          });
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        }
+      }
+
+      // Event Listeners
+      nextBtn.addEventListener('click', nextSlide);
+      prevBtn.addEventListener('click', prevSlide);
+      overviewBtn.addEventListener('click', toggleOverview);
+      closeOverviewBtn.addEventListener('click', closeOverview);
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
+      printBtn.addEventListener('click', () => window.print());
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (overviewModal.classList.contains('open')) {
+          if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') {
+            closeOverview();
+          }
+          return;
+        }
+
+        switch(e.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+          case ' ':
+          case 'PageDown':
+            e.preventDefault();
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+          case 'PageUp':
+            e.preventDefault();
+            prevSlide();
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToSlide(0);
+            break;
+          case 'End':
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+            break;
+          case 'f':
+          case 'F':
+            toggleFullscreen();
+            break;
+          case 'o':
+          case 'O':
+            toggleOverview();
+            break;
+        }
+      });
+
+      // Touch swipe support
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, false);
+
+      document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 50) {
+          nextSlide(); // swipe left
+        }
+        if (touchEndX - touchStartX > 50) {
+          prevSlide(); // swipe right
+        }
+      }, false);
+
+      // Initial call
+      updateSlide(currentIndex);
+    })();
+  </script>
+</body>
+</html>

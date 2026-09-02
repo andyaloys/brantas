@@ -1,0 +1,22 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+
+export interface EventStudyPoint { year: number; effectPercentagePoints: number; }
+export interface CausalResult {
+  treatedRegionCount: number;
+  controlRegionCount: number;
+  treatmentStartYear: number;
+  effectPercentagePoints: number;
+  standardError: number;
+  confidenceInterval95: { lower: number; upper: number };
+  pValue: number;
+  effectivenessPerTrillion: number;
+  parallelTrendPassed: boolean;
+  eventStudy: EventStudyPoint[];
+}
+
+@Injectable({ providedIn: 'root' })
+export class CausalDataService {
+  private readonly http = inject(HttpClient);
+  getDid() { return this.http.get<CausalResult>('http://localhost:5025/api/v1/causal/did'); }
+}

@@ -1,0 +1,59 @@
+﻿<section class="page-header">
+  <div>
+    <p class="eyebrow">PUSAT PELAPORAN & EKSPOR DATA</p>
+    <h1>Naskah Kebijakan & Berkas Analitik</h1>
+    <p class="subtitle">Seluruh berkas telaahan kebijakan dan ekspor data dihasilkan secara deterministik dari dataset aktif BRANTAS dengan sertifikasi integritas checksum.</p>
+  </div>
+  <div class="dataset-pill">
+    <i class="pi pi-check-circle"></i>
+    <span>Data Simulasi Terverifikasi</span>
+  </div>
+</section>
+
+@if (error()) {
+  <section class="state error">
+    <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+    <p>{{ error() }}</p>
+  </section>
+}
+
+<section class="documents-grid">
+  <article class="doc-card">
+    <div class="card-icon pdf"><i class="pi pi-file-pdf" aria-hidden="true"></i></div>
+    <div class="card-content">
+      <div class="format-badge pdf">FORMAT RESMI PDF</div>
+      <h2>Policy Brief / Naskah Telaahan</h2>
+      <p>Format resmi Kementerian Keuangan RI lengkap dengan kop surat, nomor telaahan, ringkasan eksekutif, bukti ekonometrika Difference-in-Differences, tabel wilayah prioritas, rekomendasi kebijakan, dan metadata reproduksibilitas.</p>
+      <button type="button" class="btn-download primary" (click)="download('pdf')" [disabled]="isDownloading()">
+        <i class="pi pi-download" aria-hidden="true"></i>
+        <span>Unduh Policy Brief (PDF)</span>
+      </button>
+    </div>
+  </article>
+
+  <article class="doc-card">
+    <div class="card-icon excel"><i class="pi pi-file-excel" aria-hidden="true"></i></div>
+    <div class="card-content">
+      <div class="format-badge csv">DATA TABULAR CSV</div>
+      <h2>Simulasi Alokasi Anggaran (IKW)</h2>
+      <p>Data lengkap hasil optimasi linier Google OR-Tools untuk 38 provinsi: alokasi baseline APBN, rekomendasi formulasi IKW, pergeseran anggaran (delta), dan jumlah penduduk miskin.</p>
+      <button type="button" class="btn-download" (click)="download('allocations')" [disabled]="isDownloading()">
+        <i class="pi pi-download" aria-hidden="true"></i>
+        <span>Unduh Data Alokasi (CSV)</span>
+      </button>
+    </div>
+  </article>
+
+  <article class="doc-card">
+    <div class="card-icon table"><i class="pi pi-table" aria-hidden="true"></i></div>
+    <div class="card-content">
+      <div class="format-badge csv">DATA TABULAR CSV</div>
+      <h2>Daftar Temuan Anomali Fiskal</h2>
+      <p>Daftar temuan mismatch alokasi dan kebutuhan per wilayah: kategori under/over-allocation, tingkat keparahan (Critical/High), residual z-score, nilai berisiko (Rp at risk), dan dasar temuan.</p>
+      <button type="button" class="btn-download" (click)="download('csv')" [disabled]="isDownloading()">
+        <i class="pi pi-download" aria-hidden="true"></i>
+        <span>Unduh Temuan Anomali (CSV)</span>
+      </button>
+    </div>
+  </article>
+</section>
