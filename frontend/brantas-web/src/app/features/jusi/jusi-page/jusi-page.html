@@ -11,25 +11,63 @@
 </section>
 
 <section class="chat-layout">
-  <aside class="suggestion-panel">
-    <p class="panel-kicker">CONTOH PERTANYAAN ANALISIS</p>
-    <div class="prompt-chips">
-      <button type="button" class="chip" (click)="useQuestion('Berapa rata-rata kemiskinan nasional?')">
-        <i class="pi pi-chart-line"></i>
-        <span>Rata-rata Kemiskinan Nasional</span>
-      </button>
-      <button type="button" class="chip" (click)="useQuestion('Berapa nilai anomali fiskal?')">
-        <i class="pi pi-exclamation-triangle"></i>
-        <span>Ringkasan Anomali Fiskal</span>
-      </button>
-      <button type="button" class="chip" (click)="useQuestion('Bagaimana dampak kebijakan?')">
-        <i class="pi pi-bolt"></i>
-        <span>Evaluasi Dampak Intervensi (DiD)</span>
-      </button>
-      <button type="button" class="chip" (click)="useQuestion('Berapa total alokasi anggaran?')">
-        <i class="pi pi-dollar"></i>
-        <span>Total Alokasi Perlindungan Sosial</span>
-      </button>
+  <!-- Left Panel: Session History & Prompts -->
+  <aside class="sidebar-panel">
+    <button type="button" class="btn-new-chat" (click)="startNewSession()">
+      <i class="pi pi-plus"></i>
+      <span>Obrolan Baru</span>
+    </button>
+
+    <div class="panel-section">
+      <div class="section-head">
+        <span class="panel-kicker">RIWAYAT TOPIK OBROLAN</span>
+        <span class="session-count">{{ sessions().length }} Topik</span>
+      </div>
+      <div class="session-list">
+        @for (s of sessions(); track s.id) {
+          <div
+            class="session-item"
+            [class.active]="s.id === activeSessionId()"
+            (click)="selectSession(s.id)"
+          >
+            <i class="pi pi-comment session-icon"></i>
+            <div class="session-info">
+              <strong class="session-title">{{ s.title }}</strong>
+              <small class="session-time">{{ s.updatedAt | date:'dd MMM, HH:mm' }}</small>
+            </div>
+            <button
+              type="button"
+              class="btn-delete-session"
+              (click)="deleteSession(s.id, $event)"
+              title="Hapus topik ini"
+            >
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="panel-section prompts-section">
+      <span class="panel-kicker">CONTOH PERTANYAAN</span>
+      <div class="prompt-chips">
+        <button type="button" class="chip" (click)="useQuestion('Berapa rata-rata kemiskinan nasional?')">
+          <i class="pi pi-chart-line"></i>
+          <span>Rata-rata Kemiskinan</span>
+        </button>
+        <button type="button" class="chip" (click)="useQuestion('Berapa nilai anomali fiskal yang berisiko?')">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>Ringkasan Anomali Fiskal</span>
+        </button>
+        <button type="button" class="chip" (click)="useQuestion('Bagaimana hasil evaluasi dampak kebijakan bansos (DiD)?')">
+          <i class="pi pi-bolt"></i>
+          <span>Evaluasi Dampak (DiD)</span>
+        </button>
+        <button type="button" class="chip" (click)="useQuestion('Berapa total alokasi anggaran bansos?')">
+          <i class="pi pi-dollar"></i>
+          <span>Alokasi Anggaran Bansos</span>
+        </button>
+      </div>
     </div>
 
     <div class="safety-box">
@@ -38,25 +76,40 @@
     </div>
   </aside>
 
+  <!-- Right Panel: Conversation Stream & Input -->
   <div class="conversation-container">
+    <header class="chat-header-bar">
+      <div class="chat-header-info">
+        <div class="active-topic-tag">TOPIK AKTIF</div>
+        <h2>{{ activeSession() ? activeSession()!.title : 'Obrolan Baru' }}</h2>
+      </div>
+      <div class="chat-header-meta">
+        <span class="msg-counter">
+          <i class="pi pi-comments"></i>
+          {{ activeMessages().length }} Pesan
+        </span>
+      </div>
+    </header>
+
     <div #scrollContainer class="message-stream">
-      @for (msg of messages(); track msg.id) {
+      @for (msg of activeMessages(); track msg.id) {
         @if (msg.sender === 'user') {
           <div class="chat-bubble user-bubble">
             <div class="bubble-content user-content">
               <div class="bubble-title user-title">Anda</div>
               <p class="user-text">{{ msg.text }}</p>
+              <span class="bubble-time user-time">{{ msg.timestamp | date:'HH:mm' }}</span>
             </div>
             <div class="avatar user-avatar"><i class="pi pi-user"></i></div>
           </div>
         } @else {
-          <div class="chat-bubble" [class.assistant-welcome]="msg.id === 'welcome'" [class.answer-bubble]="msg.id !== 'welcome' && !msg.isError" [class.error-bubble]="msg.isError">
-            <div class="avatar" [class.active]="msg.id !== 'welcome' && !msg.isError" [class.error]="msg.isError">
-              <i class="pi" [class.pi-sparkles]="msg.id === 'welcome'" [class.pi-check-circle]="msg.id !== 'welcome' && !msg.isError" [class.pi-exclamation-circle]="msg.isError"></i>
+          <div class="chat-bubble" [class.assistant-welcome]="msg.id.startsWith('welcome')" [class.answer-bubble]="!msg.id.startsWith('welcome') && !msg.isError" [class.error-bubble]="msg.isError">
+            <div class="avatar" [class.active]="!msg.id.startsWith('welcome') && !msg.isError" [class.error]="msg.isError">
+              <i class="pi" [class.pi-sparkles]="msg.id.startsWith('welcome')" [class.pi-check-circle]="!msg.id.startsWith('welcome') && !msg.isError" [class.pi-exclamation-circle]="msg.isError"></i>
             </div>
             <div class="bubble-content">
               <div class="bubble-title">
-                {{ msg.id === 'welcome' ? 'JUSI Assistant' : msg.isError ? 'Peringatan Sistem' : 'Hasil Jawaban Terverifikasi' }}
+                {{ msg.id.startsWith('welcome') ? 'JUSI Assistant' : msg.isError ? 'Peringatan Sistem' : 'Hasil Jawaban Terverifikasi' }}
               </div>
               <p class="answer-text">{{ msg.text }}</p>
               @if (msg.source) {
@@ -65,6 +118,7 @@
                   <span>Sumber: <strong>{{ msg.source }}</strong> · Periode {{ msg.period }} · {{ msg.usedFallback ? 'Grounding Deterministik' : 'LLM Gateway Terhubung' }}</span>
                 </div>
               }
+              <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
             </div>
           </div>
         }
@@ -75,7 +129,7 @@
           <div class="avatar active"><i class="pi pi-spin pi-spinner"></i></div>
           <div class="bubble-content">
             <div class="bubble-title">JUSI sedang menganalisis data...</div>
-            <p class="loading-dots">Mengolah data kemiskinan dan menyusun justifikasi kebijakan...</p>
+            <p class="loading-dots">Mengekstraksi data kemiskinan dan menyusun justifikasi kebijakan...</p>
           </div>
         </div>
       }
