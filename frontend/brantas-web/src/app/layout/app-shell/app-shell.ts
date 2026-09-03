@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { KioskModeService } from '../../core/services/kiosk-mode.service';
@@ -14,6 +14,11 @@ import { ExecutiveTickerComponent } from '../executive-ticker/executive-ticker.c
 })
 export class AppShellComponent {
   protected readonly kiosk = inject(KioskModeService);
+  protected readonly isSidebarCollapsed = signal(false);
+
+  protected toggleSidebar(): void {
+    this.isSidebarCollapsed.update(val => !val);
+  }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {

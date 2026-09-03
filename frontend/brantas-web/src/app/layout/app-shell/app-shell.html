@@ -1,62 +1,89 @@
 <div class="shell" [class.kiosk-mode]="kiosk.isKioskActive()">
-  <!-- Modern Executive Sidebar (Hidden in Kiosk Mode for Fullscreen View) -->
+  <!-- Modern Executive Sidebar with Collapse/Expand -->
   @if (!kiosk.isKioskActive()) {
-    <aside class="sidebar" aria-label="Navigasi utama">
+    <aside class="sidebar" [class.collapsed]="isSidebarCollapsed()" aria-label="Navigasi utama">
       <div class="sidebar-header">
         <a class="brand" routerLink="/beranda" aria-label="BRANTAS beranda">
           <img src="logo/brantas-emblem.jpg" alt="Logo BRANTAS" class="brand-logo-img" />
-          <div class="brand-text">
-            <strong>BRANTAS</strong>
-            <small>Sovereign Fiscal Analytics</small>
-          </div>
+          @if (!isSidebarCollapsed()) {
+            <div class="brand-text">
+              <strong>BRANTAS</strong>
+              <small>Sovereign Fiscal Analytics</small>
+            </div>
+          }
         </a>
+        <button
+          type="button"
+          class="btn-toggle-sidebar"
+          (click)="toggleSidebar()"
+          [title]="isSidebarCollapsed() ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
+          <i class="pi" [class.pi-angle-left]="!isSidebarCollapsed()" [class.pi-angle-right]="isSidebarCollapsed()"></i>
+        </button>
       </div>
 
-      <div class="nav-section-title">MODUL EKSEKUTIF</div>
+      @if (!isSidebarCollapsed()) {
+        <div class="nav-section-title">MODUL EKSEKUTIF</div>
+      }
       <nav class="nav-list">
-        <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+        <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item" [title]="'Beranda'">
           <div class="nav-icon-wrap"><i class="pi pi-th-large" aria-hidden="true"></i></div>
-          <span>Beranda</span>
+          @if (!isSidebarCollapsed()) {
+            <span>Beranda</span>
+          }
         </a>
-        <a routerLink="/anomali" routerLinkActive="active" class="nav-item">
+        <a routerLink="/anomali" routerLinkActive="active" class="nav-item" [title]="'Anomali Fiskal (ML)'">
           <div class="nav-icon-wrap"><i class="pi pi-shield" aria-hidden="true"></i></div>
-          <span>Anomali Fiskal</span>
-          <span class="nav-badge-warn">ML</span>
+          @if (!isSidebarCollapsed()) {
+            <span>Anomali Fiskal</span>
+            <span class="nav-badge-warn">ML</span>
+          }
         </a>
-        <a routerLink="/peta-spasial" routerLinkActive="active" class="nav-item">
+        <a routerLink="/peta-spasial" routerLinkActive="active" class="nav-item" [title]="'Peta Spasial (GIS)'">
           <div class="nav-icon-wrap"><i class="pi pi-map" aria-hidden="true"></i></div>
-          <span>Peta Spasial</span>
-          <span class="nav-badge-gis">GIS</span>
+          @if (!isSidebarCollapsed()) {
+            <span>Peta Spasial</span>
+            <span class="nav-badge-gis">GIS</span>
+          }
         </a>
-        <a routerLink="/simulasi-alokasi" routerLinkActive="active" class="nav-item">
+        <a routerLink="/simulasi-alokasi" routerLinkActive="active" class="nav-item" [title]="'Simulasi Alokasi'">
           <div class="nav-icon-wrap"><i class="pi pi-sliders-h" aria-hidden="true"></i></div>
-          <span>Simulasi Alokasi</span>
+          @if (!isSidebarCollapsed()) {
+            <span>Simulasi Alokasi</span>
+          }
         </a>
-        <a routerLink="/dampak" routerLinkActive="active" class="nav-item">
+        <a routerLink="/dampak" routerLinkActive="active" class="nav-item" [title]="'Dampak Kebijakan'">
           <div class="nav-icon-wrap"><i class="pi pi-chart-line" aria-hidden="true"></i></div>
-          <span>Dampak Kebijakan</span>
+          @if (!isSidebarCollapsed()) {
+            <span>Dampak Kebijakan</span>
+          }
         </a>
-        <a routerLink="/jusi" routerLinkActive="active" class="nav-item">
+        <a routerLink="/jusi" routerLinkActive="active" class="nav-item" [title]="'Asisten JUSI (AI Copilot)'">
           <div class="nav-icon-wrap"><i class="pi pi-sparkles" aria-hidden="true"></i></div>
-          <span>Asisten JUSI</span>
-          <span class="nav-badge-ai">AI Copilot</span>
+          @if (!isSidebarCollapsed()) {
+            <span>Asisten JUSI</span>
+            <span class="nav-badge-ai">AI Copilot</span>
+          }
         </a>
-        <a routerLink="/laporan" routerLinkActive="active" class="nav-item">
+        <a routerLink="/laporan" routerLinkActive="active" class="nav-item" [title]="'Pelaporan'">
           <div class="nav-icon-wrap"><i class="pi pi-file-pdf" aria-hidden="true"></i></div>
-          <span>Pelaporan</span>
+          @if (!isSidebarCollapsed()) {
+            <span>Pelaporan</span>
+          }
         </a>
       </nav>
 
       <div class="sidebar-footer">
-        <div class="role-card">
+        <div class="role-card" [title]="'Sistem Intelijen Nasional · BRANTAS Core v2026.1'">
           <div class="role-icon"><i class="pi pi-verified"></i></div>
-          <div class="role-info">
-            <div class="role-top">
-              <strong>Kemenkeu Core</strong>
-              <span class="status-indicator"></span>
+          @if (!isSidebarCollapsed()) {
+            <div class="role-info">
+              <div class="role-top">
+                <strong>Sistem Nasional</strong>
+                <span class="status-indicator"></span>
+              </div>
+              <small>BRANTAS Engine v2026.1</small>
             </div>
-            <small>Sovereign Engine v2026.1</small>
-          </div>
+          }
         </div>
       </div>
     </aside>

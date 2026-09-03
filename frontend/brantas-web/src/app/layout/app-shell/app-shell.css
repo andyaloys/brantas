@@ -23,25 +23,72 @@
   height: 100vh;
   z-index: 100;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.collapsed {
+  width: 80px;
+  min-width: 80px;
 }
 
 .sidebar-header {
-  padding: 24px 20px 22px;
+  padding: 20px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: radial-gradient(circle at 10% 10%, rgba(20, 184, 166, 0.12) 0%, transparent 80%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  position: relative;
+}
+
+.sidebar.collapsed .sidebar-header {
+  padding: 20px 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
   text-decoration: none;
   color: inherit;
+  overflow: hidden;
+}
+
+.btn-toggle-sidebar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-toggle-sidebar:hover {
+  background: rgba(45, 212, 191, 0.2);
+  border-color: #2dd4bf;
+  color: #2dd4bf;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.3);
+}
+
+.btn-toggle-sidebar i {
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .brand-logo-img {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   border-radius: var(--radius-sm);
   object-fit: cover;
   border: 1px solid rgba(45, 212, 191, 0.45);
@@ -198,6 +245,24 @@
 .sidebar-footer {
   padding: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar.collapsed .sidebar-footer {
+  padding: 12px 8px;
+}
+
+.sidebar.collapsed .nav-list {
+  padding: 0 8px;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 11px;
+}
+
+.sidebar.collapsed .role-card {
+  justify-content: center;
+  padding: 10px;
 }
 
 .role-card {
