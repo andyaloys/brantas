@@ -124,22 +124,191 @@ app.MapGet("/api/v1/dashboard/summary", async (BrantasDbContext database, Cancel
         return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
     }
 
-    var indicators = database.PovertyIndicators.Where(item =>
-        item.DatasetVersionId == version.Id && item.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province);
-    var summary = await indicators.GroupBy(_ => 1).Select(group => new
+    var provIndicators = await database.PovertyIndicators
+        .Include(item => item.Region)
+        .Where(item => item.DatasetVersionId == version.Id && item.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province)
+        .ToListAsync(cancellationToken);
+
+    var regencyIndicators = await database.PovertyIndicators
+        .Where(item => item.DatasetVersionId == version.Id && item.Region!.Level == Brantas.Domain.Entities.RegionLevel.Regency)
+        .ToListAsync(cancellationToken);
+
+    var totalBudget = await database.FiscalAllocations
+        .Where(item => item.DatasetVersionId == version.Id)
+        .SumAsync(item => (decimal?)item.TotalAllocation, cancellationToken) ?? 0m;
+
+    var anomalyMetrics = await database.Anomalies
+        .Where(item => item.DatasetVersionId == version.Id)
+        .GroupBy(_ => 1)
+        .Select(group => new { Count = group.Count(), ValueAtRisk = group.Sum(item => item.ValueAtRisk) })
+        .FirstOrDefaultAsync(cancellationToken);
+
+    var highestProv = provIndicators.OrderByDescending(i => i.PovertyRate).FirstOrDefault();
+    var lowestProv = provIndicators.OrderBy(i => i.PovertyRate).FirstOrDefault();
+
+    var summary = new
     {
         datasetVersionId = version.Id,
         period = version.Period,
-        regionCount = group.Count(),
-        averagePovertyRate = Math.Round(group.Average(item => item.PovertyRate), 2),
-        totalPoorPopulation = group.Sum(item => item.PoorPopulation),
-        highestPovertyRate = Math.Round(group.Max(item => item.PovertyRate), 2)
-    }).SingleAsync(cancellationToken);
+        provinceCount = provIndicators.Count,
+        regencyCount = regencyIndicators.Count,
+        averagePovertyRate = Math.Round(provIndicators.Average(i => i.PovertyRate), 2),
+        totalPoorPopulation = provIndicators.Sum(i => i.PoorPopulation),
+        highestPovertyRate = highestProv?.PovertyRate ?? 0m,
+        highestProvinceName = highestProv?.Region?.Name ?? "—",
+        lowestPovertyRate = lowestProv?.PovertyRate ?? 0m,
+        lowestProvinceName = lowestProv?.Region?.Name ?? "—",
+        averagePovertyDepth = Math.Round(provIndicators.Average(i => i.PovertyDepthIndex), 3),
+        averagePovertySeverity = Math.Round(provIndicators.Average(i => i.PovertySeverityIndex), 3),
+        averageHumanDevelopmentIndex = Math.Round(provIndicators.Average(i => i.HumanDevelopmentIndex), 2),
+        totalBudget = Math.Round(totalBudget, 2),
+        totalAnomalies = anomalyMetrics?.Count ?? 0,
+        totalValueAtRisk = Math.Round(anomalyMetrics?.ValueAtRisk ?? 0m, 2)
+    };
 
     return Results.Ok(summary);
 })
     .WithName("GetDashboardSummary")
-    .WithSummary("Mengambil ringkasan indikator dari dataset aktif.")
+    .WithSummary("Mengambil ringkasan indikator makro dan fiskal nasional.")
+    .WithTags("Dashboard")
+    .AllowAnonymous();
+
+app.MapGet("/api/v1/dashboard/corridors", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var version = await database.DatasetVersions
+        .Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed)
+        .OrderByDescending(item => item.IngestedAt)
+        .FirstOrDefaultAsync(cancellationToken);
+
+    if (version is null) return Results.NotFound(new { title = "Data belum tersedia" });
+
+    var provinces = await (
+        from indicator in database.PovertyIndicators
+        join region in database.Regions on indicator.RegionId equals region.Id
+        join allocation in database.FiscalAllocations on new { indicator.RegionId, indicator.DatasetVersionId } equals new { allocation.RegionId, allocation.DatasetVersionId } into allocGroup
+        from alloc in allocGroup.DefaultIfEmpty()
+        where indicator.DatasetVersionId == version.Id && region.Level == Brantas.Domain.Entities.RegionLevel.Province
+        select new
+        {
+            Code = region.BpsCode,
+            Name = region.Name,
+            indicator.PovertyRate,
+            indicator.PoorPopulation,
+            indicator.HumanDevelopmentIndex,
+            indicator.PovertyDepthIndex,
+            Allocation = alloc != null ? alloc.TotalAllocation : 0m
+        }).ToListAsync(cancellationToken);
+
+    var regencyCounts = await database.Regions
+        .Where(r => r.Level == Brantas.Domain.Entities.RegionLevel.Regency && r.ParentId != null)
+        .GroupBy(r => r.ParentId)
+        .Select(g => new { ParentId = g.Key, Count = g.Count() })
+        .ToDictionaryAsync(g => g.ParentId!.Value, g => g.Count, cancellationToken);
+
+    string GetCorridor(string code) =>
+        code.StartsWith("1") || code.StartsWith("2") ? "Sumatera" :
+        code.StartsWith("3") || code == "51" ? "Jawa - Bali" :
+        code.StartsWith("5") ? "Nusa Tenggara" :
+        code.StartsWith("6") ? "Kalimantan" :
+        code.StartsWith("7") ? "Sulawesi" : "Maluku - Papua";
+
+    var corridors = provinces
+        .GroupBy(p => GetCorridor(p.Code))
+        .Select(group => new
+        {
+            corridor = group.Key,
+            provinceCount = group.Count(),
+            averagePovertyRate = Math.Round(group.Average(p => p.PovertyRate), 2),
+            totalPoorPopulation = group.Sum(p => p.PoorPopulation),
+            totalAllocation = Math.Round(group.Sum(p => p.Allocation), 2),
+            averageHdi = Math.Round(group.Average(p => p.HumanDevelopmentIndex), 1),
+            averageP1 = Math.Round(group.Average(p => p.PovertyDepthIndex), 2),
+            highestPovertyProvince = group.OrderByDescending(p => p.PovertyRate).First().Name,
+            highestPovertyRate = group.Max(p => p.PovertyRate)
+        })
+        .OrderByDescending(c => c.averagePovertyRate)
+        .ToList();
+
+    return Results.Ok(corridors);
+})
+    .WithName("GetDashboardCorridors")
+    .WithSummary("Mengambil agregasi indikator kemiskinan dan anggaran berdasarkan 6 koridor kepulauan.")
+    .WithTags("Dashboard")
+    .AllowAnonymous();
+
+app.MapGet("/api/v1/dashboard/regency-ranks", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var version = await database.DatasetVersions
+        .Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed)
+        .OrderByDescending(item => item.IngestedAt)
+        .FirstOrDefaultAsync(cancellationToken);
+
+    if (version is null) return Results.NotFound(new { title = "Data belum tersedia" });
+
+    var regencies = await (
+        from indicator in database.PovertyIndicators
+        join region in database.Regions on indicator.RegionId equals region.Id
+        join parent in database.Regions on region.ParentId equals parent.Id
+        where indicator.DatasetVersionId == version.Id && region.Level == Brantas.Domain.Entities.RegionLevel.Regency
+        select new
+        {
+            regencyName = region.Name,
+            provinceName = parent.Name,
+            povertyRate = indicator.PovertyRate,
+            poorPopulation = indicator.PoorPopulation,
+            humanDevelopmentIndex = indicator.HumanDevelopmentIndex,
+            povertyDepthIndex = indicator.PovertyDepthIndex,
+            povertySeverityIndex = indicator.PovertySeverityIndex,
+            gdpPerCapita = indicator.GdpPerCapita
+        }).ToListAsync(cancellationToken);
+
+    var topPoverty = regencies.OrderByDescending(r => r.povertyRate).Take(15).ToList();
+    var lowestPoverty = regencies.OrderBy(r => r.povertyRate).Take(10).ToList();
+
+    return Results.Ok(new
+    {
+        totalRegencies = regencies.Count,
+        topPoverty,
+        lowestPoverty
+    });
+})
+    .WithName("GetDashboardRegencyRanks")
+    .WithSummary("Mengambil peringkat kabupaten/kota dengan tingkat kemiskinan tertinggi dan terendah nasional.")
+    .WithTags("Dashboard")
+    .AllowAnonymous();
+
+app.MapGet("/api/v1/dashboard/distribution", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var version = await database.DatasetVersions
+        .Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed)
+        .OrderByDescending(item => item.IngestedAt)
+        .FirstOrDefaultAsync(cancellationToken);
+
+    if (version is null) return Results.NotFound(new { title = "Data belum tersedia" });
+
+    var regencyRates = await database.PovertyIndicators
+        .Where(item => item.DatasetVersionId == version.Id && item.Region!.Level == Brantas.Domain.Entities.RegionLevel.Regency)
+        .Select(item => item.PovertyRate)
+        .ToListAsync(cancellationToken);
+
+    var distribution = new[]
+    {
+        new { label = "< 5% (Sangat Rendah)", count = regencyRates.Count(r => r < 5m), color = "#0f766e" },
+        new { label = "5% - 10% (Rendah)", count = regencyRates.Count(r => r >= 5m && r < 10m), color = "#14b8a6" },
+        new { label = "10% - 15% (Sedang)", count = regencyRates.Count(r => r >= 10m && r < 15m), color = "#f59e0b" },
+        new { label = "15% - 20% (Tinggi)", count = regencyRates.Count(r => r >= 15m && r < 20m), color = "#ea580c" },
+        new { label = "20% - 25% (Sangat Tinggi)", count = regencyRates.Count(r => r >= 20m && r < 25m), color = "#e11d48" },
+        new { label = "> 25% (Kritis)", count = regencyRates.Count(r => r >= 25m), color = "#9f1239" }
+    };
+
+    return Results.Ok(new
+    {
+        totalEvaluated = regencyRates.Count,
+        distribution
+    });
+})
+    .WithName("GetDashboardDistribution")
+    .WithSummary("Mengambil distribusi sebaran kelas kemiskinan 514 kabupaten/kota se-Indonesia.")
     .WithTags("Dashboard")
     .AllowAnonymous();
 

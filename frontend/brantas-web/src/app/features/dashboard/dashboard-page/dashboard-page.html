@@ -1,153 +1,246 @@
-<section class="page-header">
-  <div class="header-titles">
-    <div class="kicker">
-      <span class="pulse-dot-sm"></span>
-      RINGKASAN EKSEKUTIF NASIONAL
+﻿<!-- Command Center Hero Header -->
+<section class="executive-hero">
+  <div class="hero-content">
+    <div class="hero-badges">
+      <span class="pulse-pill">
+        <span class="live-dot"></span>
+        SISTEM INTELIJEN FISKAL AKTIF
+      </span>
+      <span class="meta-tag">LAN DATATHON 2026</span>
+      <span class="meta-tag">PERIODE: <strong>{{ summary()?.period ?? '2026-03' }}</strong></span>
+      <span class="meta-tag">SEED: <strong>20260101</strong></span>
     </div>
-    <h1>Beranda Analitik</h1>
-    <p class="subtitle">
-      @if (summary(); as data) {
-        Pembacaan kondisi kemiskinan makro, alokasi anggaran perlindungan sosial, dan prioritas intervensi 38 provinsi · Periode <strong>{{ data.period }}</strong>.
-      } @else {
-        Jalankan pipeline untuk membangun indikator dan temuan awal.
-      }
-    </p>
+    <div class="hero-main">
+      <div>
+        <h1>Executive Poverty & Budget Command Center</h1>
+        <p class="hero-desc">
+          Platform analitik komprehensif <strong>38 Provinsi</strong>, <strong>514 Kabupaten/Kota</strong>, <strong>2.000.000 data mikro kepesertaan</strong>, dan optimalisasi <strong>Rp473,8 Triliun</strong> anggaran perlindungan sosial nasional.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button type="button" class="btn-sync" [disabled]="isRunning()" (click)="runPipeline()">
+          <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
+          <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Sinkronisasi Pipeline' }}</span>
+        </button>
+      </div>
+    </div>
   </div>
-  <button type="button" class="btn-refresh" [disabled]="isRunning()" (click)="runPipeline()">
-    <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
-    <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Perbarui Dataset' }}</span>
-  </button>
 </section>
 
-<section class="metrics" aria-label="Indikator utama">
-  <article class="metric-card teal">
-    <div class="card-head">
-      <span>Rata-rata Kemiskinan</span>
-      <div class="card-icon"><i class="pi pi-chart-line" aria-hidden="true"></i></div>
-    </div>
-    <div class="card-body">
-      <strong>{{ summary()?.averagePovertyRate ?? '—' }}@if (summary()) { <small>%</small> }</strong>
-      <div class="trend-badge positive">
-        <i class="pi pi-check"></i> Rerata Nasional (38 Prov)
+@if (summary(); as sum) {
+  <!-- 6 High-Impact Executive KPI Grid -->
+  <section class="kpi-matrix" aria-label="Indikator Kunci Nasional">
+    <article class="kpi-card kpi-teal">
+      <div class="kpi-top">
+        <span class="kpi-title">Rerata Kemiskinan</span>
+        <div class="kpi-icon"><i class="pi pi-chart-line"></i></div>
       </div>
-    </div>
-  </article>
-
-  <article class="metric-card blue">
-    <div class="card-head">
-      <span>Penduduk Miskin</span>
-      <div class="card-icon"><i class="pi pi-users" aria-hidden="true"></i></div>
-    </div>
-    <div class="card-body">
-      <strong>{{ summary()?.totalPoorPopulation?.toLocaleString('id-ID') ?? '—' }}</strong>
-      <small class="unit-label">Estimasi data simulasi</small>
-    </div>
-  </article>
-
-  <article class="metric-card indigo">
-    <div class="card-head">
-      <span>Wilayah Terpetakan</span>
-      <div class="card-icon"><i class="pi pi-map-marker" aria-hidden="true"></i></div>
-    </div>
-    <div class="card-body">
-      <strong>{{ summary()?.regionCount ?? '—' }}</strong>
-      <small class="unit-label">Cakupan provinsi nasional</small>
-    </div>
-  </article>
-
-  <article class="metric-card rose">
-    <div class="card-head">
-      <span>Tingkat Tertinggi</span>
-      <div class="card-icon"><i class="pi pi-arrow-up-right" aria-hidden="true"></i></div>
-    </div>
-    <div class="card-body">
-      <strong>{{ summary()?.highestPovertyRate ?? '—' }}@if (summary()) { <small>%</small> }</strong>
-      <div class="trend-badge critical">
-        <i class="pi pi-exclamation-triangle"></i> Perhatian Segera
+      <div class="kpi-num">{{ sum.averagePovertyRate }}<small>%</small></div>
+      <div class="kpi-progress">
+        <div class="kpi-bar-fill" [style.width.%]="(sum.averagePovertyRate / 35) * 100"></div>
       </div>
-    </div>
-  </article>
-</section>
+      <div class="kpi-sub">
+        <span>Min: <strong>{{ sum.lowestPovertyRate }}%</strong> ({{ sum.lowestProvinceName }})</span>
+        <span>Max: <strong>{{ sum.highestPovertyRate }}%</strong> ({{ sum.highestProvinceName }})</span>
+      </div>
+    </article>
 
-@if (error()) {
+    <article class="kpi-card kpi-blue">
+      <div class="kpi-top">
+        <span class="kpi-title">Penduduk Miskin</span>
+        <div class="kpi-icon"><i class="pi pi-users"></i></div>
+      </div>
+      <div class="kpi-num">{{ sum.totalPoorPopulation.toLocaleString('id-ID') }}</div>
+      <div class="kpi-tag-sub">
+        <i class="pi pi-info-circle"></i> Target Penerima Bansos
+      </div>
+      <div class="kpi-sub">
+        <span>Cakupan 38 Provinsi & 514 Daerah</span>
+      </div>
+    </article>
+
+    <article class="kpi-card kpi-emerald">
+      <div class="kpi-top">
+        <span class="kpi-title">Pagu Alokasi APBN</span>
+        <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
+      </div>
+      <div class="kpi-num">Rp{{ sum.totalBudget.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }}<small> jt</small></div>
+      <div class="kpi-tag-sub emerald">
+        <i class="pi pi-check"></i> Baseline Terverifikasi
+      </div>
+      <div class="kpi-sub">
+        <span>Total Belanja Perlindungan Sosial</span>
+      </div>
+    </article>
+
+    <article class="kpi-card kpi-indigo">
+      <div class="kpi-top">
+        <span class="kpi-title">Kedalaman & Keparahan</span>
+        <div class="kpi-icon"><i class="pi pi-sliders-v"></i></div>
+      </div>
+      <div class="kpi-num">{{ sum.averagePovertyDepth }} <span class="divider">/</span> {{ sum.averagePovertySeverity }}</div>
+      <div class="kpi-sub two-col">
+        <span>P1 (Jarak Pengeluaran): <strong>{{ sum.averagePovertyDepth }}</strong></span>
+        <span>P2 (Ketimpangan Miskin): <strong>{{ sum.averagePovertySeverity }}</strong></span>
+      </div>
+    </article>
+
+    <article class="kpi-card kpi-cyan">
+      <div class="kpi-top">
+        <span class="kpi-title">IPM Rata-Rata</span>
+        <div class="kpi-icon"><i class="pi pi-star"></i></div>
+      </div>
+      <div class="kpi-num">{{ sum.averageHumanDevelopmentIndex }}</div>
+      <div class="kpi-tag-sub blue">
+        <i class="pi pi-sparkles"></i> Status Tinggi (70-80)
+      </div>
+      <div class="kpi-sub">
+        <span>Indeks Pembangunan Manusia Nasional</span>
+      </div>
+    </article>
+
+    <article class="kpi-card kpi-rose">
+      <div class="kpi-top">
+        <span class="kpi-title">Temuan Anomali</span>
+        <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
+      </div>
+      <div class="kpi-num">{{ sum.totalAnomalies }} <small class="text-rose">Kasus</small></div>
+      <div class="kpi-tag-sub rose">
+        <i class="pi pi-shield"></i> Nilai Berisiko Tinggi
+      </div>
+      <div class="kpi-sub">
+        <span>Rp at Risk: <strong>Rp{{ sum.totalValueAtRisk.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }} jt</strong></span>
+      </div>
+    </article>
+  </section>
+
+  <!-- Dual Interactive Chart Command Grid -->
+  <section class="command-grid">
+    <!-- Left Widget: Regional Corridor Analysis -->
+    <article class="command-panel corridor-widget">
+      <header class="panel-head">
+        <div class="panel-titles">
+          <span class="badge-accent">DISPARITAS WILAYAH MAKRO</span>
+          <h2>Komparasi Kemiskinan 6 Koridor Kepulauan</h2>
+        </div>
+        <div class="head-legend">
+          <span class="dot red"></span> &gt; 15%
+          <span class="dot amber"></span> 10-15%
+          <span class="dot teal"></span> &lt; 10%
+        </div>
+      </header>
+      <div #corridorChart class="chart-canvas"></div>
+    </article>
+
+    <!-- Right Widget: Distribution Stratification -->
+    <article class="command-panel dist-widget">
+      <header class="panel-head">
+        <div class="panel-titles">
+          <span class="badge-accent">STRATIFIKASI SOSIAL</span>
+          <h2>Distribusi 514 Kabupaten / Kota</h2>
+        </div>
+        <span class="head-total">514 Daerah</span>
+      </header>
+      <div #distChart class="chart-canvas"></div>
+    </article>
+  </section>
+
+  <!-- Deep Dive 514 Kab/Kota & 38 Provinsi Explorer Table -->
+  <section class="table-command-panel">
+    <header class="table-head-bar">
+      <div class="table-titles">
+        <span class="badge-accent">MATRIKS DAERAH NASIONAL</span>
+        <h2>Eksplorasi Profil Kemiskinan & Indikator Sosial</h2>
+      </div>
+
+      <div class="table-toolbar">
+        <div class="filter-pills">
+          <button type="button" class="pill-btn" [class.active]="regencyFilter() === 'top'" (click)="setRegencyFilter('top')">
+            <i class="pi pi-arrow-up-right"></i> Top 15 Rentan
+          </button>
+          <button type="button" class="pill-btn" [class.active]="regencyFilter() === 'lowest'" (click)="setRegencyFilter('lowest')">
+            <i class="pi pi-arrow-down-right"></i> Top 10 Sejahtera
+          </button>
+        </div>
+
+        <div class="search-input-wrap">
+          <i class="pi pi-search"></i>
+          <input type="text" placeholder="Filter daerah atau provinsi..." (input)="onSearchChange($event)">
+        </div>
+      </div>
+    </header>
+
+    <div class="table-scroll-container">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th class="col-rank">Rank</th>
+            <th>Kabupaten / Kota</th>
+            <th>Provinsi</th>
+            <th>Tingkat Kemiskinan</th>
+            <th class="col-num">Penduduk Miskin</th>
+            <th class="col-num">Kedalaman (P1)</th>
+            <th class="col-num">Keparahan (P2)</th>
+            <th>IPM</th>
+            <th class="col-num">PDRB / Kapita</th>
+            <th>Status Intervensi</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of filteredRegencies(); track r.regencyName; let idx = $index) {
+            <tr>
+              <td>
+                <span class="rank-tag" [class.danger]="regencyFilter() === 'top' && idx < 3" [class.success]="regencyFilter() === 'lowest'">
+                  {{ idx + 1 }}
+                </span>
+              </td>
+              <td>
+                <div class="region-name-cell">
+                  <strong>{{ r.regencyName }}</strong>
+                </div>
+              </td>
+              <td><span class="prov-name">{{ r.provinceName }}</span></td>
+              <td>
+                <div class="progress-cell">
+                  <span class="rate-val" [class.high-rate]="r.povertyRate >= 20">{{ r.povertyRate.toFixed(2) }}%</span>
+                  <div class="track">
+                    <div class="fill" [class.high]="r.povertyRate >= 20" [class.med]="r.povertyRate >= 10 && r.povertyRate < 20" [style.width.%]="(r.povertyRate / 35) * 100"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="col-num mono">{{ r.poorPopulation.toLocaleString('id-ID') }} jiwa</td>
+              <td class="col-num mono">{{ r.povertyDepthIndex.toFixed(3) }}</td>
+              <td class="col-num mono">{{ r.povertySeverityIndex.toFixed(3) }}</td>
+              <td>
+                <span class="ipm-badge" [class.high-ipm]="r.humanDevelopmentIndex >= 70">
+                  {{ r.humanDevelopmentIndex.toFixed(1) }}
+                </span>
+              </td>
+              <td class="col-num mono">Rp{{ r.gdpPerCapita.toFixed(1) }} jt</td>
+              <td>
+                @if (r.povertyRate >= 20) {
+                  <span class="status-chip critical">Prioritas Afirmatif</span>
+                } @else if (r.povertyRate >= 10) {
+                  <span class="status-chip moderate">Monitoring Rutin</span>
+                } @else {
+                  <span class="status-chip stable">Terkendali</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+} @else if (error()) {
   <section class="state error">
     <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
     <p>{{ error() }}</p>
   </section>
-}
-
-@if (priorityRegions().length > 0) {
-  <section class="dashboard-grid">
-    <article class="panel priority-panel">
-      <header class="panel-header">
-        <div>
-          <span class="panel-kicker">FOKUS INTERVENSI FISKAL</span>
-          <h2>Top 5 Wilayah Prioritas Kemiskinan</h2>
-        </div>
-        <span class="panel-tag warning">Perlu Alokasi Afirmatif</span>
-      </header>
-      <div class="region-list">
-        @for (region of priorityRegions(); track region.region; let index = $index) {
-          <div class="region-row">
-            <span class="rank" [class.top]="index < 3">{{ index + 1 }}</span>
-            <div class="region-detail">
-              <div class="region-head">
-                <strong>{{ region.region }}</strong>
-                <span class="ipm-chip">IPM {{ region.humanDevelopmentIndex.toFixed(1) }}</span>
-              </div>
-              <span class="pop-sub">{{ region.poorPopulation.toLocaleString('id-ID') }} jiwa</span>
-              <div class="bar">
-                <i [style.width.%]="(region.povertyRate / (summary()?.highestPovertyRate ?? 1)) * 100"></i>
-              </div>
-            </div>
-            <strong class="rate">{{ region.povertyRate.toFixed(2) }}%</strong>
-          </div>
-        }
-      </div>
-    </article>
-
-    <article class="panel data-panel">
-      <header class="panel-header">
-        <div>
-          <span class="panel-kicker">METADATA SISTEM</span>
-          <h2>Status Dataset Aktif</h2>
-        </div>
-        <span class="panel-tag success">Terverifikasi</span>
-      </header>
-      <dl class="dataset-meta">
-        <div>
-          <dt>Mode Sumber</dt>
-          <dd><span class="badge-subtle">Data Simulasi Terkontrol</span></dd>
-        </div>
-        <div>
-          <dt>Versi Dataset</dt>
-          <dd class="mono-text">{{ summary()?.datasetVersionId?.slice(0, 8) ?? '—' }}</dd>
-        </div>
-        <div>
-          <dt>Periode Observasi</dt>
-          <dd><strong>{{ summary()?.period ?? '—' }}</strong></dd>
-        </div>
-        <div>
-          <dt>Integritas Pipeline</dt>
-          <dd><i class="pi pi-check-circle" style="color: #059669;"></i> Idempoten (Seed 20260101)</dd>
-        </div>
-        <div>
-          <dt>Standar Keamanan</dt>
-          <dd>Hashed PII (SHA-256)</dd>
-        </div>
-      </dl>
-      <div class="method-note">
-        <i class="pi pi-shield" aria-hidden="true"></i>
-        <p>Dataset sintetis bersifat deterministik agar setiap hasil analitik dapat direproduksi dan tidak memuat data pribadi warga.</p>
-      </div>
-    </article>
-  </section>
-}
-
-@if (!summary()) {
-  <section class="empty-state">
+} @else {
+  <section class="state empty">
     <i class="pi pi-database" aria-hidden="true"></i>
     <h2>Data Belum Tersedia</h2>
-    <p>Pipeline data sintetis akan membangkitkan indikator kemiskinan, alokasi anggaran, struktur spasial, dan anomali terukur.</p>
+    <p>Pipeline data sintetis akan membangkitkan indikator 38 provinsi dan 514 kabupaten/kota.</p>
   </section>
 }

@@ -4,10 +4,20 @@ import { Injectable, inject } from '@angular/core';
 export interface DashboardSummary {
   datasetVersionId: string;
   period: string;
-  regionCount: number;
+  provinceCount: number;
+  regencyCount: number;
   averagePovertyRate: number;
   totalPoorPopulation: number;
   highestPovertyRate: number;
+  highestProvinceName: string;
+  lowestPovertyRate: number;
+  lowestProvinceName: string;
+  averagePovertyDepth: number;
+  averagePovertySeverity: number;
+  averageHumanDevelopmentIndex: number;
+  totalBudget: number;
+  totalAnomalies: number;
+  totalValueAtRisk: number;
 }
 
 export interface PriorityRegion {
@@ -15,6 +25,46 @@ export interface PriorityRegion {
   povertyRate: number;
   poorPopulation: number;
   humanDevelopmentIndex: number;
+}
+
+export interface RegionalCorridor {
+  corridor: string;
+  provinceCount: number;
+  averagePovertyRate: number;
+  totalPoorPopulation: number;
+  totalAllocation: number;
+  averageHdi: number;
+  averageP1: number;
+  highestPovertyProvince: string;
+  highestPovertyRate: number;
+}
+
+export interface RegencyRankItem {
+  regencyName: string;
+  provinceName: string;
+  povertyRate: number;
+  poorPopulation: number;
+  humanDevelopmentIndex: number;
+  povertyDepthIndex: number;
+  povertySeverityIndex: number;
+  gdpPerCapita: number;
+}
+
+export interface RegencyRanksResponse {
+  totalRegencies: number;
+  topPoverty: RegencyRankItem[];
+  lowestPoverty: RegencyRankItem[];
+}
+
+export interface DistributionBucket {
+  label: string;
+  count: number;
+  color: string;
+}
+
+export interface DistributionResponse {
+  totalEvaluated: number;
+  distribution: DistributionBucket[];
 }
 
 interface PipelineResult {
@@ -32,6 +82,18 @@ export class DashboardDataService {
 
   getPriorityRegions() {
     return this.http.get<PriorityRegion[]>(`${this.apiUrl}/dashboard/priority-regions`);
+  }
+
+  getCorridors() {
+    return this.http.get<RegionalCorridor[]>(`${this.apiUrl}/dashboard/corridors`);
+  }
+
+  getRegencyRanks() {
+    return this.http.get<RegencyRanksResponse>(`${this.apiUrl}/dashboard/regency-ranks`);
+  }
+
+  getDistribution() {
+    return this.http.get<DistributionResponse>(`${this.apiUrl}/dashboard/distribution`);
   }
 
   runPipeline() {
