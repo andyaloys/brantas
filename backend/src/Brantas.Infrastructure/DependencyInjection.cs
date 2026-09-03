@@ -18,7 +18,7 @@ public static class DependencyInjection
 
         services.AddDbContext<BrantasDbContext>(options => options.UseNpgsql(connectionString, npgsql => npgsql.UseNetTopologySuite()));
         services.AddScoped<ISyntheticDataSeeder, SyntheticDataSeeder>();
-        services.AddScoped<IBrantasAssistant, DatabaseGroundedAssistant>();
+        services.AddHttpClient<IBrantasAssistant, LlmGatewayAssistant>();
         return services;
     }
 }
