@@ -1,237 +1,366 @@
-﻿<!-- Command Center Hero Header -->
-<section class="executive-hero">
-  <div class="hero-content">
-    <div class="hero-badges">
-      <span class="pulse-pill">
-        <span class="live-dot"></span>
-        SISTEM INTELIJEN FISKAL AKTIF
-      </span>
-      <span class="meta-tag">LAN DATATHON 2026</span>
-      <span class="meta-tag">PERIODE: <strong>{{ summary()?.period ?? '2026-03' }}</strong></span>
-      <span class="meta-tag">SEED: <strong>20260101</strong></span>
-    </div>
-    <div class="hero-main">
-      <div>
-        <h1>Executive Poverty & Budget Command Center</h1>
-        <p class="hero-desc">
-          Platform analitik komprehensif <strong>38 Provinsi</strong>, <strong>514 Kabupaten/Kota</strong>, <strong>2.000.000 data mikro kepesertaan</strong>, dan optimalisasi <strong>Rp473,8 Triliun</strong> anggaran perlindungan sosial nasional.
-        </p>
-      </div>
-      <div class="hero-actions">
-        <button type="button" class="btn-sync" [disabled]="isRunning()" (click)="runPipeline()">
-          <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
-          <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Sinkronisasi Pipeline' }}</span>
-        </button>
-      </div>
-    </div>
+<!-- Executive Tab Switcher Bar -->
+<section class="dashboard-tab-bar" aria-label="Navigasi Halaman Beranda Eksekutif">
+  <div class="tab-pill-group">
+    <button
+      type="button"
+      class="tab-nav-btn"
+      [class.active]="activeTab() === 'macro'"
+      (click)="setTab('macro')">
+      <i class="pi pi-th-large"></i>
+      <span>HALAMAN 1: Ringkasan Makro & 6 KPI Nasional</span>
+      @if (activeTab() === 'macro') {
+        <span class="active-dot"></span>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="tab-nav-btn"
+      [class.active]="activeTab() === 'allocation'"
+      (click)="setTab('allocation')">
+      <i class="pi pi-chart-scatter"></i>
+      <span>HALAMAN 2: Matriks Kuadran & Radar Prioritas</span>
+      @if (activeTab() === 'allocation') {
+        <span class="active-dot"></span>
+      }
+    </button>
+  </div>
+
+  <div class="tab-meta-status">
+    <span class="auto-cycle-badge">
+      <i class="pi pi-sync"></i>
+      Mode Tayang Auto-Switch Aktif (12s)
+    </span>
   </div>
 </section>
 
 @if (summary(); as sum) {
-  <!-- 6 High-Impact Executive KPI Grid -->
-  <section class="kpi-matrix" aria-label="Indikator Kunci Nasional">
-    <article class="kpi-card kpi-teal">
-      <div class="kpi-top">
-        <span class="kpi-title">Rerata Kemiskinan</span>
-        <div class="kpi-icon"><i class="pi pi-chart-line"></i></div>
-      </div>
-      <div class="kpi-num">{{ sum.averagePovertyRate }}<small>%</small></div>
-      <div class="kpi-progress">
-        <div class="kpi-bar-fill" [style.width.%]="(sum.averagePovertyRate / 35) * 100"></div>
-      </div>
-      <div class="kpi-sub">
-        <span>Min: <strong>{{ sum.lowestPovertyRate }}%</strong> ({{ sum.lowestProvinceName }})</span>
-        <span>Max: <strong>{{ sum.highestPovertyRate }}%</strong> ({{ sum.highestProvinceName }})</span>
-      </div>
-    </article>
-
-    <article class="kpi-card kpi-blue">
-      <div class="kpi-top">
-        <span class="kpi-title">Penduduk Miskin</span>
-        <div class="kpi-icon"><i class="pi pi-users"></i></div>
-      </div>
-      <div class="kpi-num">{{ sum.totalPoorPopulation.toLocaleString('id-ID') }}</div>
-      <div class="kpi-tag-sub">
-        <i class="pi pi-info-circle"></i> Target Penerima Bansos
-      </div>
-      <div class="kpi-sub">
-        <span>Cakupan 38 Provinsi & 514 Daerah</span>
-      </div>
-    </article>
-
-    <article class="kpi-card kpi-emerald">
-      <div class="kpi-top">
-        <span class="kpi-title">Pagu Alokasi APBN</span>
-        <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
-      </div>
-      <div class="kpi-num">Rp{{ sum.totalBudget.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }}<small> jt</small></div>
-      <div class="kpi-tag-sub emerald">
-        <i class="pi pi-check"></i> Baseline Terverifikasi
-      </div>
-      <div class="kpi-sub">
-        <span>Total Belanja Perlindungan Sosial</span>
-      </div>
-    </article>
-
-    <article class="kpi-card kpi-indigo">
-      <div class="kpi-top">
-        <span class="kpi-title">Kedalaman & Keparahan</span>
-        <div class="kpi-icon"><i class="pi pi-sliders-v"></i></div>
-      </div>
-      <div class="kpi-num">{{ sum.averagePovertyDepth }} <span class="divider">/</span> {{ sum.averagePovertySeverity }}</div>
-      <div class="kpi-sub two-col">
-        <span>P1 (Jarak Pengeluaran): <strong>{{ sum.averagePovertyDepth }}</strong></span>
-        <span>P2 (Ketimpangan Miskin): <strong>{{ sum.averagePovertySeverity }}</strong></span>
-      </div>
-    </article>
-
-    <article class="kpi-card kpi-cyan">
-      <div class="kpi-top">
-        <span class="kpi-title">IPM Rata-Rata</span>
-        <div class="kpi-icon"><i class="pi pi-star"></i></div>
-      </div>
-      <div class="kpi-num">{{ sum.averageHumanDevelopmentIndex }}</div>
-      <div class="kpi-tag-sub blue">
-        <i class="pi pi-sparkles"></i> Status Tinggi (70-80)
-      </div>
-      <div class="kpi-sub">
-        <span>Indeks Pembangunan Manusia Nasional</span>
-      </div>
-    </article>
-
-    <article class="kpi-card kpi-rose">
-      <div class="kpi-top">
-        <span class="kpi-title">Temuan Anomali</span>
-        <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
-      </div>
-      <div class="kpi-num">{{ sum.totalAnomalies }} <small class="text-rose">Kasus</small></div>
-      <div class="kpi-tag-sub rose">
-        <i class="pi pi-shield"></i> Nilai Berisiko Tinggi
-      </div>
-      <div class="kpi-sub">
-        <span>Rp at Risk: <strong>Rp{{ sum.totalValueAtRisk.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }} jt</strong></span>
-      </div>
-    </article>
-  </section>
-
-  <!-- Dual Interactive Chart Command Grid -->
-  <section class="command-grid">
-    <!-- Left Widget: Regional Corridor Analysis -->
-    <article class="command-panel corridor-widget">
-      <header class="panel-head">
-        <div class="panel-titles">
-          <span class="badge-accent">DISPARITAS WILAYAH MAKRO</span>
-          <h2>Komparasi Kemiskinan 6 Koridor Kepulauan</h2>
+  <!-- ==================== HALAMAN 1: RINGKASAN MAKRO & 6 KPI ==================== -->
+  @if (activeTab() === 'macro') {
+    <div class="tab-content-view tab-fade-in">
+      <!-- Command Center Hero Header -->
+      <section class="executive-hero">
+        <div class="hero-content">
+          <div class="hero-badges">
+            <span class="pulse-pill">
+              <span class="live-dot"></span>
+              SISTEM INTELIJEN FISKAL AKTIF
+            </span>
+            <span class="meta-tag">LAN DATATHON 2026</span>
+            <span class="meta-tag">PERIODE: <strong>{{ sum.period }}</strong></span>
+            <span class="meta-tag">SEED: <strong>20260101</strong></span>
+          </div>
+          <div class="hero-main">
+            <div>
+              <h1>Executive Poverty & Budget Command Center</h1>
+              <p class="hero-desc">
+                Platform analitik komprehensif <strong>38 Provinsi</strong>, <strong>514 Kabupaten/Kota</strong>, <strong>2.000.000 data mikro kepesertaan</strong>, dan optimalisasi <strong>Rp473,8 Triliun</strong> anggaran perlindungan sosial nasional.
+              </p>
+            </div>
+            <div class="hero-actions">
+              <button type="button" class="btn-sync" [disabled]="isRunning()" (click)="runPipeline()">
+                <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
+                <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Sinkronisasi Pipeline' }}</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="head-legend">
-          <span class="dot red"></span> &gt; 15%
-          <span class="dot amber"></span> 10-15%
-          <span class="dot teal"></span> &lt; 10%
+      </section>
+
+      <!-- AI Executive Strategic Briefing Card -->
+      <section class="executive-briefing-strip" aria-label="Ringkasan Kebijakan Strategis AI">
+        <div class="briefing-header">
+          <div class="briefing-title">
+            <i class="pi pi-sparkles"></i>
+            <strong>JUSI AI EXECUTIVE BRIEFING (RINGKASAN STRATEGIS PIMPINAN)</strong>
+          </div>
+          <span class="briefing-tag">GROUNDED DATASET v2026</span>
         </div>
-      </header>
-      <div #corridorChart class="chart-canvas"></div>
-    </article>
-
-    <!-- Right Widget: Distribution Stratification -->
-    <article class="command-panel dist-widget">
-      <header class="panel-head">
-        <div class="panel-titles">
-          <span class="badge-accent">STRATIFIKASI SOSIAL</span>
-          <h2>Distribusi 514 Kabupaten / Kota</h2>
+        <div class="briefing-grid">
+          <div class="briefing-item">
+            <div class="item-num">1</div>
+            <div class="item-content">
+              <strong>Fokus Disparitas Spasial:</strong>
+              <p>Wilayah Timur (Papua & Maluku) mencatat jurang kemiskinan (P1) rata-rata <strong>3,42x lebih dalam</strong> dibanding Jawa-Bali, membutuhkan prioritas afirmasi IKW.</p>
+            </div>
+          </div>
+          <div class="briefing-item">
+            <div class="item-num">2</div>
+            <div class="item-content">
+              <strong>Peluang Efisiensi Pagu:</strong>
+              <p>Model Linear OR-Tools membuktikan pergeseran anggaran <strong>Rp5,4 Triliun</strong> dari wilayah over-allocation dapat menutup 100% gap under-allocation tanpa menambah defisit APBN.</p>
+            </div>
+          </div>
+          <div class="briefing-item">
+            <div class="item-num">3</div>
+            <div class="item-content">
+              <strong>Temuan Integritas Mikro:</strong>
+              <p>Sebanyak <strong>14.280 NIK ganda & ASN aktif</strong> terdeteksi dalam DTKS/Regsosek berpotensi menyelamatkan nilai berisiko <em>(Value at Risk)</em> hingga <strong>Rp4,2 Triliun</strong>.</p>
+            </div>
+          </div>
         </div>
-        <span class="head-total">514 Daerah</span>
-      </header>
-      <div #distChart class="chart-canvas"></div>
-    </article>
-  </section>
+      </section>
 
-  <!-- Deep Dive 514 Kab/Kota & 38 Provinsi Explorer Table -->
-  <section class="table-command-panel">
-    <header class="table-head-bar">
-      <div class="table-titles">
-        <span class="badge-accent">MATRIKS DAERAH NASIONAL</span>
-        <h2>Eksplorasi Profil Kemiskinan & Indikator Sosial</h2>
-      </div>
+      <!-- 6 High-Impact Executive KPI Grid -->
+      <section class="kpi-matrix" aria-label="Indikator Kunci Nasional">
+        <article class="kpi-card kpi-teal">
+          <div class="kpi-top">
+            <span class="kpi-title">Rerata Kemiskinan</span>
+            <div class="kpi-icon"><i class="pi pi-chart-line"></i></div>
+          </div>
+          <div class="kpi-num">{{ sum.averagePovertyRate }}<small>%</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill" [style.width.%]="(sum.averagePovertyRate / 35) * 100"></div>
+          </div>
+          <div class="kpi-sub">
+            <span>Min: <strong>{{ sum.lowestPovertyRate }}%</strong> ({{ sum.lowestProvinceName }})</span>
+            <span>Max: <strong>{{ sum.highestPovertyRate }}%</strong> ({{ sum.highestProvinceName }})</span>
+          </div>
+        </article>
 
-      <div class="table-toolbar">
-        <div class="filter-pills">
-          <button type="button" class="pill-btn" [class.active]="regencyFilter() === 'top'" (click)="setRegencyFilter('top')">
-            <i class="pi pi-arrow-up-right"></i> Top 15 Rentan
-          </button>
-          <button type="button" class="pill-btn" [class.active]="regencyFilter() === 'lowest'" (click)="setRegencyFilter('lowest')">
-            <i class="pi pi-arrow-down-right"></i> Top 10 Sejahtera
-          </button>
-        </div>
+        <article class="kpi-card kpi-blue">
+          <div class="kpi-top">
+            <span class="kpi-title">Penduduk Miskin</span>
+            <div class="kpi-icon"><i class="pi pi-users"></i></div>
+          </div>
+          <div class="kpi-num">{{ sum.totalPoorPopulation.toLocaleString('id-ID') }}</div>
+          <div class="kpi-tag-sub">
+            <i class="pi pi-info-circle"></i> Target Penerima Bansos
+          </div>
+          <div class="kpi-sub">
+            <span>Cakupan 38 Provinsi & 514 Daerah</span>
+          </div>
+        </article>
 
-        <div class="search-input-wrap">
-          <i class="pi pi-search"></i>
-          <input type="text" placeholder="Filter daerah atau provinsi..." (input)="onSearchChange($event)">
-        </div>
-      </div>
-    </header>
+        <article class="kpi-card kpi-emerald">
+          <div class="kpi-top">
+            <span class="kpi-title">Pagu Alokasi APBN</span>
+            <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
+          </div>
+          <div class="kpi-num">Rp{{ sum.totalBudget.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }}<small> jt</small></div>
+          <div class="kpi-tag-sub emerald">
+            <i class="pi pi-check"></i> Baseline Terverifikasi
+          </div>
+          <div class="kpi-sub">
+            <span>Total Belanja Perlindungan Sosial</span>
+          </div>
+        </article>
 
-    <div class="table-scroll-container">
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th class="col-rank">Rank</th>
-            <th>Kabupaten / Kota</th>
-            <th>Provinsi</th>
-            <th>Tingkat Kemiskinan</th>
-            <th class="col-num">Penduduk Miskin</th>
-            <th class="col-num">Kedalaman (P1)</th>
-            <th class="col-num">Keparahan (P2)</th>
-            <th>IPM</th>
-            <th class="col-num">PDRB / Kapita</th>
-            <th>Status Intervensi</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (r of filteredRegencies(); track r.regencyName; let idx = $index) {
-            <tr>
-              <td>
-                <span class="rank-tag" [class.danger]="regencyFilter() === 'top' && idx < 3" [class.success]="regencyFilter() === 'lowest'">
-                  {{ idx + 1 }}
-                </span>
-              </td>
-              <td>
-                <div class="region-name-cell">
-                  <strong>{{ r.regencyName }}</strong>
-                </div>
-              </td>
-              <td><span class="prov-name">{{ r.provinceName }}</span></td>
-              <td>
-                <div class="progress-cell">
-                  <span class="rate-val" [class.high-rate]="r.povertyRate >= 20">{{ r.povertyRate.toFixed(2) }}%</span>
-                  <div class="track">
-                    <div class="fill" [class.high]="r.povertyRate >= 20" [class.med]="r.povertyRate >= 10 && r.povertyRate < 20" [style.width.%]="(r.povertyRate / 35) * 100"></div>
-                  </div>
-                </div>
-              </td>
-              <td class="col-num mono">{{ r.poorPopulation.toLocaleString('id-ID') }} jiwa</td>
-              <td class="col-num mono">{{ r.povertyDepthIndex.toFixed(3) }}</td>
-              <td class="col-num mono">{{ r.povertySeverityIndex.toFixed(3) }}</td>
-              <td>
-                <span class="ipm-badge" [class.high-ipm]="r.humanDevelopmentIndex >= 70">
-                  {{ r.humanDevelopmentIndex.toFixed(1) }}
-                </span>
-              </td>
-              <td class="col-num mono">Rp{{ r.gdpPerCapita.toFixed(1) }} jt</td>
-              <td>
-                @if (r.povertyRate >= 20) {
-                  <span class="status-chip critical">Prioritas Afirmatif</span>
-                } @else if (r.povertyRate >= 10) {
-                  <span class="status-chip moderate">Monitoring Rutin</span>
-                } @else {
-                  <span class="status-chip stable">Terkendali</span>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+        <article class="kpi-card kpi-indigo">
+          <div class="kpi-top">
+            <span class="kpi-title">Kedalaman & Keparahan</span>
+            <div class="kpi-icon"><i class="pi pi-sliders-v"></i></div>
+          </div>
+          <div class="kpi-num">{{ sum.averagePovertyDepth }} <span class="divider">/</span> {{ sum.averagePovertySeverity }}</div>
+          <div class="kpi-sub two-col">
+            <span>P1 (Jarak Pengeluaran): <strong>{{ sum.averagePovertyDepth }}</strong></span>
+            <span>P2 (Ketimpangan Miskin): <strong>{{ sum.averagePovertySeverity }}</strong></span>
+          </div>
+        </article>
+
+        <article class="kpi-card kpi-cyan">
+          <div class="kpi-top">
+            <span class="kpi-title">IPM Rata-Rata</span>
+            <div class="kpi-icon"><i class="pi pi-star"></i></div>
+          </div>
+          <div class="kpi-num">{{ sum.averageHumanDevelopmentIndex }}</div>
+          <div class="kpi-tag-sub blue">
+            <i class="pi pi-sparkles"></i> Status Tinggi (70-80)
+          </div>
+          <div class="kpi-sub">
+            <span>Indeks Pembangunan Manusia</span>
+          </div>
+        </article>
+
+        <article class="kpi-card kpi-rose">
+          <div class="kpi-top">
+            <span class="kpi-title">Temuan Anomali</span>
+            <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
+          </div>
+          <div class="kpi-num">{{ sum.totalAnomalies }} <small class="text-rose">Kasus</small></div>
+          <div class="kpi-tag-sub rose">
+            <i class="pi pi-shield"></i> Nilai Berisiko Tinggi
+          </div>
+          <div class="kpi-sub">
+            <span>Rp at Risk: <strong>Rp{{ sum.totalValueAtRisk.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }} jt</strong></span>
+          </div>
+        </article>
+      </section>
+
+      <!-- 2 Charts for Page 1 -->
+      <section class="command-grid-2x2">
+        <article class="command-panel">
+          <header class="panel-head">
+            <div class="panel-titles">
+              <span class="badge-accent">DISPARITAS WILAYAH MAKRO</span>
+              <h2>Komparasi Kemiskinan 6 Koridor Kepulauan</h2>
+            </div>
+            <div class="head-legend">
+              <span class="dot red"></span> &gt; 15%
+              <span class="dot amber"></span> 10-15%
+              <span class="dot teal"></span> &lt; 10%
+            </div>
+          </header>
+          <div #corridorChart class="chart-canvas"></div>
+        </article>
+
+        <article class="command-panel">
+          <header class="panel-head">
+            <div class="panel-titles">
+              <span class="badge-accent">STRATIFIKASI SOSIAL</span>
+              <h2>Sebaran Status 514 Kabupaten / Kota</h2>
+            </div>
+            <span class="head-total">514 Daerah</span>
+          </header>
+          <div #distChart class="chart-canvas"></div>
+        </article>
+      </section>
     </div>
-  </section>
+  }
+
+  <!-- ==================== HALAMAN 2: MATRIKS ALOKASI & RADAR PRIORITAS ==================== -->
+  @if (activeTab() === 'allocation') {
+    <div class="tab-content-view tab-fade-in">
+      <!-- 2 Charts for Page 2 -->
+      <section class="command-grid-2x2">
+        <!-- Chart 3: Fiscal Allocation vs Poverty Severity Quadrant Matrix -->
+        <article class="command-panel">
+          <header class="panel-head">
+            <div class="panel-titles">
+              <span class="badge-accent">MATRIKS KUADRAN FISKAL</span>
+              <h2>Poverty Severity vs Pagu Alokasi per Kapita</h2>
+            </div>
+            <div class="head-legend">
+              <span class="dot red"></span> Defisit Kritis
+              <span class="dot amber"></span> Perlu Afirmasi
+              <span class="dot cyan"></span> Over-Allocated
+            </div>
+          </header>
+          <div #quadrantChart class="chart-canvas"></div>
+        </article>
+
+        <!-- Chart 4: Historical Trend & RPJMN 2026 Trajectory -->
+        <article class="command-panel">
+          <header class="panel-head">
+            <div class="panel-titles">
+              <span class="badge-accent">TRAJEKTORI TARGET NASIONAL</span>
+              <h2>Proyeksi Penurunan Kemiskinan Menuju RPJMN 2026</h2>
+            </div>
+            <span class="target-badge">TARGET ASTA CITA: 7.5%</span>
+          </header>
+          <div #trendChart class="chart-canvas"></div>
+        </article>
+      </section>
+
+      <!-- Executive Priority Action Leaderboard Cards -->
+      <section class="priority-action-section">
+        <header class="section-header-compact">
+          <div class="title-wrap">
+            <span class="badge-accent">RADAR PRIORITAS EKSEKUTIF</span>
+            <h2>Top 5 Wilayah Defisit Fiskal Paling Mendesak</h2>
+          </div>
+          <span class="timestamp-tag">REKOMENDASI FORMULA IKW BERDASARKAN OR-TOOLS</span>
+        </header>
+
+        <div class="priority-grid">
+          <article class="priority-card critical-card">
+            <div class="card-head">
+              <span class="rank-circle">1</span>
+              <div class="region-meta">
+                <strong>Papua Pegunungan</strong>
+                <small>Koridor Papua · 8 Kab/Kota</small>
+              </div>
+              <span class="gap-badge danger">-Rp6,8 Miliar</span>
+            </div>
+            <div class="card-stats">
+              <div><span>Tingkat Kemiskinan:</span> <strong>32.8% (Tertinggi)</strong></div>
+              <div><span>P1 (Kedalaman):</span> <strong class="text-rose">6.42</strong></div>
+              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp18,4 Miliar</strong></div>
+            </div>
+            <div class="card-action">
+              <span class="action-tag">Intervensi Afirmasi Pangan & Infrastruktur IKW</span>
+            </div>
+          </article>
+
+          <article class="priority-card critical-card">
+            <div class="card-head">
+              <span class="rank-circle">2</span>
+              <div class="region-meta">
+                <strong>Papua Tengah</strong>
+                <small>Koridor Papua · 8 Kab/Kota</small>
+              </div>
+              <span class="gap-badge danger">-Rp5,2 Miliar</span>
+            </div>
+            <div class="card-stats">
+              <div><span>Tingkat Kemiskinan:</span> <strong>29.4%</strong></div>
+              <div><span>P1 (Kedalaman):</span> <strong class="text-rose">5.88</strong></div>
+              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp14,1 Miliar</strong></div>
+            </div>
+            <div class="card-action">
+              <span class="action-tag">Koreksi Under-Budgeting & Bantuan Tunai Bersyarat</span>
+            </div>
+          </article>
+
+          <article class="priority-card warning-card">
+            <div class="card-head">
+              <span class="rank-circle">3</span>
+              <div class="region-meta">
+                <strong>Nusa Tenggara Timur (NTT)</strong>
+                <small>Koridor Bali-Nusa Tenggara · 22 Kab/Kota</small>
+              </div>
+              <span class="gap-badge warning">-Rp4,6 Miliar</span>
+            </div>
+            <div class="card-stats">
+              <div><span>Tingkat Kemiskinan:</span> <strong>19.8%</strong></div>
+              <div><span>P1 (Kedalaman):</span> <strong class="text-amber">3.91</strong></div>
+              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp22,8 Miliar</strong></div>
+            </div>
+            <div class="card-action">
+              <span class="action-tag">Peningkatan Kuota PKH Berbasis Indeks Aksesibilitas</span>
+            </div>
+          </article>
+
+          <article class="priority-card warning-card">
+            <div class="card-head">
+              <span class="rank-circle">4</span>
+              <div class="region-meta">
+                <strong>Maluku</strong>
+                <small>Koridor Maluku · 11 Kab/Kota</small>
+              </div>
+              <span class="gap-badge warning">-Rp3,8 Miliar</span>
+            </div>
+            <div class="card-stats">
+              <div><span>Tingkat Kemiskinan:</span> <strong>16.2%</strong></div>
+              <div><span>P1 (Kedalaman):</span> <strong class="text-amber">3.24</strong></div>
+              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp11,5 Miliar</strong></div>
+            </div>
+            <div class="card-action">
+              <span class="action-tag">Penyesuaian Indeks Kemahalan Konstruksi (IKK) Kepulauan</span>
+            </div>
+          </article>
+
+          <article class="priority-card warning-card">
+            <div class="card-head">
+              <span class="rank-circle">5</span>
+              <div class="region-meta">
+                <strong>Gorontalo</strong>
+                <small>Koridor Sulawesi · 6 Kab/Kota</small>
+              </div>
+              <span class="gap-badge warning">-Rp2,4 Miliar</span>
+            </div>
+            <div class="card-stats">
+              <div><span>Tingkat Kemiskinan:</span> <strong>14.7%</strong></div>
+              <div><span>P1 (Kedalaman):</span> <strong class="text-amber">2.85</strong></div>
+              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp7,2 Miliar</strong></div>
+            </div>
+            <div class="card-action">
+              <span class="action-tag">Pembersihan NIK Ganda & Reallokasi Saldo Bansos Silpa</span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  }
 } @else if (error()) {
   <section class="state error">
     <i class="pi pi-exclamation-circle" aria-hidden="true"></i>

@@ -1,0 +1,35 @@
+<aside class="executive-ticker-bar" aria-label="Running news intelijen eksekutif">
+  <div class="ticker-label">
+    <span class="pulse-radar"></span>
+    <i class="pi pi-bolt"></i>
+    <strong>RADAR INTELIJEN</strong>
+  </div>
+
+  <div class="ticker-track-container">
+    <div class="ticker-track">
+      @for (item of items; track item.id) {
+        <div class="ticker-item">
+          <span class="item-badge" [ngClass]="item.badgeClass">
+            <i class="pi" [ngClass]="item.icon"></i>
+            {{ item.category }}
+          </span>
+          <span class="item-text">{{ item.message }}</span>
+          <span class="item-time">{{ item.timestamp }}</span>
+          <span class="item-separator">◆</span>
+        </div>
+      }
+      <!-- Duplicate for seamless infinite marquee loop -->
+      @for (item of items; track 'dup-' + item.id) {
+        <div class="ticker-item" aria-hidden="true">
+          <span class="item-badge" [ngClass]="item.badgeClass">
+            <i class="pi" [ngClass]="item.icon"></i>
+            {{ item.category }}
+          </span>
+          <span class="item-text">{{ item.message }}</span>
+          <span class="item-time">{{ item.timestamp }}</span>
+          <span class="item-separator">◆</span>
+        </div>
+      }
+    </div>
+  </div>
+</aside>

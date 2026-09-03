@@ -1,83 +1,152 @@
-<div class="shell">
-  <aside class="sidebar" aria-label="Navigasi utama">
-    <div class="sidebar-header">
-      <a class="brand" routerLink="/beranda" aria-label="BRANTAS beranda">
-        <div class="brand-mark">
-          <span>B</span>
-        </div>
-        <div class="brand-text">
-          <strong>BRANTAS</strong>
-          <small>Sistem Analitik Anggaran</small>
-        </div>
-      </a>
-    </div>
+<div class="shell" [class.kiosk-mode]="kiosk.isKioskActive()">
+  <!-- Modern Executive Sidebar (Hidden in Kiosk Mode for Fullscreen View) -->
+  @if (!kiosk.isKioskActive()) {
+    <aside class="sidebar" aria-label="Navigasi utama">
+      <div class="sidebar-header">
+        <a class="brand" routerLink="/beranda" aria-label="BRANTAS beranda">
+          <div class="brand-mark">
+            <span>B</span>
+          </div>
+          <div class="brand-text">
+            <strong>BRANTAS</strong>
+            <small>Sovereign Fiscal Analytics</small>
+          </div>
+        </a>
+      </div>
 
-    <div class="nav-section-title">MODUL UTAMA</div>
-    <nav class="nav-list">
-      <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
-        <i class="pi pi-chart-bar" aria-hidden="true"></i>
-        <span>Beranda</span>
-      </a>
-      <a routerLink="/anomali" routerLinkActive="active" class="nav-item">
-        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
-        <span>Anomali Fiskal</span>
-      </a>
-      <a routerLink="/peta-spasial" routerLinkActive="active" class="nav-item">
-        <i class="pi pi-map" aria-hidden="true"></i>
-        <span>Peta Spasial</span>
-      </a>
-      <a routerLink="/simulasi-alokasi" routerLinkActive="active" class="nav-item">
-        <i class="pi pi-sliders-h" aria-hidden="true"></i>
-        <span>Simulasi Alokasi</span>
-      </a>
-      <a routerLink="/dampak" routerLinkActive="active" class="nav-item">
-        <i class="pi pi-chart-line" aria-hidden="true"></i>
-        <span>Dampak Kebijakan</span>
-      </a>
-      <a routerLink="/jusi" routerLinkActive="active" class="nav-item">
-        <i class="pi pi-comments" aria-hidden="true"></i>
-        <span>Asisten JUSI</span>
-        <span class="nav-badge">AI</span>
-      </a>
-      <a routerLink="/laporan" routerLinkActive="active" class="nav-item">
-        <i class="pi pi-file-pdf" aria-hidden="true"></i>
-        <span>Pelaporan</span>
-      </a>
-    </nav>
+      <div class="nav-section-title">MODUL EKSEKUTIF</div>
+      <nav class="nav-list">
+        <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+          <div class="nav-icon-wrap"><i class="pi pi-th-large" aria-hidden="true"></i></div>
+          <span>Beranda</span>
+        </a>
+        <a routerLink="/anomali" routerLinkActive="active" class="nav-item">
+          <div class="nav-icon-wrap"><i class="pi pi-shield" aria-hidden="true"></i></div>
+          <span>Anomali Fiskal</span>
+          <span class="nav-badge-warn">ML</span>
+        </a>
+        <a routerLink="/peta-spasial" routerLinkActive="active" class="nav-item">
+          <div class="nav-icon-wrap"><i class="pi pi-map" aria-hidden="true"></i></div>
+          <span>Peta Spasial</span>
+          <span class="nav-badge-gis">GIS</span>
+        </a>
+        <a routerLink="/simulasi-alokasi" routerLinkActive="active" class="nav-item">
+          <div class="nav-icon-wrap"><i class="pi pi-sliders-h" aria-hidden="true"></i></div>
+          <span>Simulasi Alokasi</span>
+        </a>
+        <a routerLink="/dampak" routerLinkActive="active" class="nav-item">
+          <div class="nav-icon-wrap"><i class="pi pi-chart-line" aria-hidden="true"></i></div>
+          <span>Dampak Kebijakan</span>
+        </a>
+        <a routerLink="/jusi" routerLinkActive="active" class="nav-item">
+          <div class="nav-icon-wrap"><i class="pi pi-sparkles" aria-hidden="true"></i></div>
+          <span>Asisten JUSI</span>
+          <span class="nav-badge-ai">AI Copilot</span>
+        </a>
+        <a routerLink="/laporan" routerLinkActive="active" class="nav-item">
+          <div class="nav-icon-wrap"><i class="pi pi-file-pdf" aria-hidden="true"></i></div>
+          <span>Pelaporan</span>
+        </a>
+      </nav>
 
-    <div class="sidebar-footer">
-      <div class="role-card">
-        <div class="role-icon"><i class="pi pi-shield"></i></div>
-        <div class="role-info">
-          <small>Otoritas Pengguna</small>
-          <strong>Kemenkeu Pusat</strong>
+      <div class="sidebar-footer">
+        <div class="role-card">
+          <div class="role-icon"><i class="pi pi-verified"></i></div>
+          <div class="role-info">
+            <div class="role-top">
+              <strong>Kemenkeu Core</strong>
+              <span class="status-indicator"></span>
+            </div>
+            <small>Sovereign Engine v2026.1</small>
+          </div>
         </div>
       </div>
-    </div>
-  </aside>
+    </aside>
+  }
 
   <div class="main-wrapper">
-    <header class="topbar">
-      <div class="topbar-left">
-        <span class="portal-badge">
-          <i class="pi pi-building"></i>
-          LAN DATATHON 2026
-        </span>
-      </div>
-      <div class="topbar-right">
-        <div class="period-chip">
-          <i class="pi pi-calendar"></i>
-          <span>Periode: <strong>2026-03</strong></span>
+    <!-- Topbar: Normal or War Room Kiosk Bar -->
+    @if (!kiosk.isKioskActive()) {
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="portal-tag">
+            <i class="pi pi-compass"></i>
+            <span>LAN DATATHON 2026</span>
+          </div>
+          <div class="search-command-pill">
+            <i class="pi pi-search"></i>
+            <span>Telusuri indikator / wilayah...</span>
+            <kbd>Ctrl K</kbd>
+          </div>
         </div>
-        <div class="dataset-badge">
-          <span class="pulse-dot"></span>
-          <span>Data Simulasi Terverifikasi</span>
-        </div>
-      </div>
-    </header>
 
-    <main class="workspace">
+        <div class="topbar-right">
+          <!-- Real-Time Executive Clock -->
+          <div class="clock-chip">
+            <i class="pi pi-clock"></i>
+            <span>{{ kiosk.currentDateTime() | date:'EEEE, dd MMM yyyy · HH:mm:ss' }} WIB</span>
+          </div>
+
+          <div class="period-chip">
+            <i class="pi pi-calendar"></i>
+            <span>Periode: <strong>2026-03</strong></span>
+          </div>
+
+          <!-- Kiosk Trigger Button -->
+          <button type="button" class="btn-kiosk-trigger" (click)="kiosk.startKiosk()" title="Aktifkan Mode Layar Penuh War Room">
+            <i class="pi pi-desktop"></i>
+            <span>Mode Tayang Eksekutif</span>
+          </button>
+        </div>
+      </header>
+    } @else {
+      <!-- Dedicated War Room Header Toolbar -->
+      <header class="kiosk-topbar">
+        <div class="kiosk-brand">
+          <div class="brand-mark small"><span>B</span></div>
+          <div class="kiosk-title-box">
+            <strong>BRANTAS WAR ROOM</strong>
+            <span class="slide-indicator">
+              SLIDE {{ kiosk.currentSlideIndex() + 1 }}/{{ kiosk.slides.length }}: {{ kiosk.slides[kiosk.currentSlideIndex()].title }}
+            </span>
+          </div>
+        </div>
+
+        <div class="kiosk-controls">
+          <div class="kiosk-timer-pill">
+            <span class="pulse-emerald"></span>
+            <span>Ganti otomatis dlm <strong>{{ kiosk.remainingSeconds() }}s</strong></span>
+          </div>
+
+          <div class="btn-kiosk-group">
+            <button type="button" class="btn-kiosk-ctrl" (click)="kiosk.prevSlide()" title="Slide Sebelumnya (Left Arrow)">
+              <i class="pi pi-step-backward"></i>
+            </button>
+            <button type="button" class="btn-kiosk-ctrl play-btn" (click)="kiosk.togglePlay()" title="Jeda/Lanjut (Spasi)">
+              <i class="pi" [class.pi-pause]="kiosk.isPlaying()" [class.pi-play]="!kiosk.isPlaying()"></i>
+            </button>
+            <button type="button" class="btn-kiosk-ctrl" (click)="kiosk.nextSlide()" title="Slide Selanjutnya (Right Arrow)">
+              <i class="pi pi-step-forward"></i>
+            </button>
+            <button type="button" class="btn-kiosk-ctrl exit-btn" (click)="kiosk.stopKiosk()" title="Keluar Mode Tayang (Esc)">
+              <i class="pi pi-times"></i>
+              <span>Tutup Mode Tayang</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="kiosk-clock">
+          <i class="pi pi-clock"></i>
+          <span>{{ kiosk.currentDateTime() | date:'HH:mm:ss' }} WIB</span>
+        </div>
+      </header>
+    }
+
+    <main class="workspace" [class.workspace-kiosk]="kiosk.isKioskActive()">
       <router-outlet />
     </main>
+
+    <!-- Global Executive Intelligence Running Ticker -->
+    <app-executive-ticker />
   </div>
-</div>
+</div>

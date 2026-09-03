@@ -12,7 +12,7 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
 {
     private const int Seed = 20260101;
     private const string Period = "2026-03";
-    private const string GeneratorVersion = "v3-beneficiaries";
+    private const string GeneratorVersion = "v4-real-geo-coords";
     private const int RegencyTargetCount = 514;
     private const int BeneficiaryTargetCount = 2_000_000;
     private const string SyntheticIdentitySalt = "brantas-synthetic-identity-v1";
@@ -21,21 +21,46 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
     private static readonly HashSet<string> OverAllocatedProvinceCodes = ["19", "21", "31", "64"];
     private static readonly HashSet<string> TreatedProvinceCodes = ["11", "17", "18", "52", "53", "75", "81", "91", "94", "95"];
 
-    private static readonly (string Code, string Name, decimal PovertyRate)[] Provinces =
+    private static readonly (string Code, string Name, decimal PovertyRate, decimal Lat, decimal Lng)[] Provinces =
     [
-        ("11", "Aceh", 14.39m), ("12", "Sumatera Utara", 8.15m), ("13", "Sumatera Barat", 5.95m),
-        ("14", "Riau", 6.68m), ("15", "Jambi", 7.58m), ("16", "Sumatera Selatan", 11.95m),
-        ("17", "Bengkulu", 13.75m), ("18", "Lampung", 10.69m), ("19", "Kepulauan Bangka Belitung", 4.17m),
-        ("21", "Kepulauan Riau", 5.37m), ("31", "DKI Jakarta", 4.14m), ("32", "Jawa Barat", 7.08m),
-        ("33", "Jawa Tengah", 9.58m), ("34", "DI Yogyakarta", 10.12m), ("35", "Jawa Timur", 9.79m),
-        ("36", "Banten", 5.84m), ("51", "Bali", 3.80m), ("52", "Nusa Tenggara Barat", 11.91m),
-        ("53", "Nusa Tenggara Timur", 19.48m), ("61", "Kalimantan Barat", 6.30m), ("62", "Kalimantan Tengah", 5.12m),
-        ("63", "Kalimantan Selatan", 4.70m), ("64", "Kalimantan Timur", 5.17m), ("65", "Kalimantan Utara", 6.32m),
-        ("71", "Sulawesi Utara", 7.25m), ("72", "Sulawesi Tengah", 11.04m), ("73", "Sulawesi Selatan", 8.06m),
-        ("74", "Sulawesi Tenggara", 10.43m), ("75", "Gorontalo", 14.57m), ("76", "Sulawesi Barat", 11.21m),
-        ("81", "Maluku", 15.78m), ("82", "Maluku Utara", 6.32m), ("91", "Papua Barat", 21.66m),
-        ("92", "Papua", 26.03m), ("93", "Papua Selatan", 18.90m), ("94", "Papua Tengah", 29.76m),
-        ("95", "Papua Pegunungan", 30.03m), ("96", "Papua Barat Daya", 17.17m)
+        ("11", "Aceh", 14.39m, 4.695m, 96.749m),
+        ("12", "Sumatera Utara", 8.15m, 2.115m, 99.545m),
+        ("13", "Sumatera Barat", 5.95m, -0.739m, 100.800m),
+        ("14", "Riau", 6.68m, 0.293m, 101.706m),
+        ("15", "Jambi", 7.58m, -1.610m, 103.613m),
+        ("16", "Sumatera Selatan", 11.95m, -3.319m, 104.914m),
+        ("17", "Bengkulu", 13.75m, -3.577m, 102.346m),
+        ("18", "Lampung", 10.69m, -4.558m, 105.406m),
+        ("19", "Kepulauan Bangka Belitung", 4.17m, -2.741m, 106.440m),
+        ("21", "Kepulauan Riau", 5.37m, 3.945m, 108.142m),
+        ("31", "DKI Jakarta", 4.14m, -6.208m, 106.845m),
+        ("32", "Jawa Barat", 7.08m, -6.917m, 107.619m),
+        ("33", "Jawa Tengah", 9.58m, -7.150m, 110.140m),
+        ("34", "DI Yogyakarta", 10.12m, -7.795m, 110.369m),
+        ("35", "Jawa Timur", 9.79m, -7.536m, 112.238m),
+        ("36", "Banten", 5.84m, -6.405m, 106.064m),
+        ("51", "Bali", 3.80m, -8.409m, 115.188m),
+        ("52", "Nusa Tenggara Barat", 11.91m, -8.652m, 117.361m),
+        ("53", "Nusa Tenggara Timur", 19.48m, -8.657m, 121.079m),
+        ("61", "Kalimantan Barat", 6.30m, -0.000m, 109.333m),
+        ("62", "Kalimantan Tengah", 5.12m, -1.681m, 113.382m),
+        ("63", "Kalimantan Selatan", 4.70m, -3.092m, 115.283m),
+        ("64", "Kalimantan Timur", 5.17m, 0.538m, 116.419m),
+        ("65", "Kalimantan Utara", 6.32m, 3.073m, 116.041m),
+        ("71", "Sulawesi Utara", 7.25m, 0.624m, 123.975m),
+        ("72", "Sulawesi Tengah", 11.04m, -1.430m, 121.445m),
+        ("73", "Sulawesi Selatan", 8.06m, -3.668m, 119.974m),
+        ("74", "Sulawesi Tenggara", 10.43m, -4.144m, 122.174m),
+        ("75", "Gorontalo", 14.57m, 0.699m, 122.446m),
+        ("76", "Sulawesi Barat", 11.21m, -2.844m, 119.232m),
+        ("81", "Maluku", 15.78m, -3.238m, 130.145m),
+        ("82", "Maluku Utara", 6.32m, 1.570m, 127.808m),
+        ("91", "Papua Barat", 21.66m, -1.336m, 133.174m),
+        ("92", "Papua", 26.03m, -4.269m, 138.081m),
+        ("93", "Papua Selatan", 18.90m, -7.500m, 139.500m),
+        ("94", "Papua Tengah", 29.76m, -3.700m, 136.500m),
+        ("95", "Papua Pegunungan", 30.03m, -4.100m, 139.000m),
+        ("96", "Papua Barat Daya", 17.17m, -0.880m, 131.250m)
     ];
 
     public async Task<SyntheticDatasetResult> SeedAsync(CancellationToken cancellationToken)
@@ -74,8 +99,8 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
                 item => item.BpsCode == province.Code && item.Level == RegionLevel.Province,
                 cancellationToken);
 
-            var provinceLatitude = -8m + provinceIndex / 8 * 3.1m;
-            var provinceLongitude = 96m + provinceIndex % 8 * 5.6m;
+            var provinceLatitude = province.Lat;
+            var provinceLongitude = province.Lng;
             if (region is null)
             {
                 region = new Region
@@ -112,13 +137,16 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
             var regencyPopulationBase = population / regencyCount;
             for (var regencyIndex = 0; regencyIndex < regencyCount; regencyIndex++)
             {
-                var row = regencyIndex / 4;
-                var column = regencyIndex % 4;
+                var angle = (double)regencyIndex / regencyCount * 2.0 * Math.PI;
+                var dist = 0.12 + (random.NextDouble() * 0.38);
+                var regencyLat = province.Lat + (decimal)(Math.Sin(angle) * dist);
+                var regencyLng = province.Lng + (decimal)(Math.Cos(angle) * dist);
+
                 var regencyCode = $"{province.Code}{regencyIndex + 1:000}";
                 var regency = await database.Regions.SingleOrDefaultAsync(
                     item => item.BpsCode == regencyCode && item.Level == RegionLevel.Regency,
                     cancellationToken);
-                var localSignal = ((row - 1.2m) + (column - 1.5m)) * 0.42m;
+                var localSignal = (decimal)Math.Sin(angle) * 0.85m;
                 var localNoise = ((decimal)random.NextDouble() - 0.5m) * 0.55m;
                 var regencyPovertyRate = Math.Clamp(province.PovertyRate + 0.6m * localSignal + localNoise, 2m, 35m);
 
@@ -130,10 +158,15 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
                         Name = $"{province.Name} {regencyIndex + 1:00}",
                         Level = RegionLevel.Regency,
                         ParentId = region.Id,
-                        Latitude = provinceLatitude + (row - 1.2m) * 0.32m,
-                        Longitude = provinceLongitude + (column - 1.5m) * 0.32m
+                        Latitude = regencyLat,
+                        Longitude = regencyLng
                     };
                     database.Regions.Add(regency);
+                }
+                else
+                {
+                    regency.Latitude = regencyLat;
+                    regency.Longitude = regencyLng;
                 }
 
                 database.PovertyIndicators.Add(new PovertyIndicator

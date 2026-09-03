@@ -619,15 +619,8 @@ app.MapGet("/api/v1/spatial/regions.geojson", async (BrantasDbContext database, 
             },
             geometry = new
             {
-                type = "Polygon",
-                coordinates = new[] { new[]
-                {
-                    new[] { region.Longitude!.Value - .14m, region.Latitude!.Value - .14m },
-                    new[] { region.Longitude!.Value + .14m, region.Latitude!.Value - .14m },
-                    new[] { region.Longitude!.Value + .14m, region.Latitude!.Value + .14m },
-                    new[] { region.Longitude!.Value - .14m, region.Latitude!.Value + .14m },
-                    new[] { region.Longitude!.Value - .14m, region.Latitude!.Value - .14m }
-                } }
+                type = "Point",
+                coordinates = new[] { region.Longitude!.Value, region.Latitude!.Value }
             }
         })
     });

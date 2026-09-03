@@ -1,12 +1,12 @@
-﻿<section class="page-header">
+<section class="page-header">
   <div>
-    <p class="eyebrow">EVALUASI KAUSAL (DIFFERENCE-IN-DIFFERENCES)</p>
-    <h1>Dampak Intervensi Fiskal</h1>
+    <p class="eyebrow">EVALUASI KAUSAL (DIFFERENCE-IN-DIFFERENCES & TWFE)</p>
+    <h1>Evaluasi Dampak Kebijakan Fiskal</h1>
     <p class="subtitle">Estimasi ekonometrika Difference-in-Differences panel provinsi 2020–2026 dengan Two-Way Fixed Effects (TWFE) & galat baku cluster-robust.</p>
   </div>
   <div class="method-chip">
     <i class="pi pi-check-circle" aria-hidden="true"></i>
-    <span>MathNet.Numerics TWFE</span>
+    <span>MathNet.Numerics TWFE Engine</span>
   </div>
 </section>
 
@@ -18,30 +18,41 @@
 } @else if (result(); as data) {
   <section class="metrics" aria-label="Ringkasan dampak kebijakan">
     <article class="metric-card teal">
-      <span>Dampak Estimasi (ATT)</span>
-      <strong>{{ data.effectPercentagePoints.toFixed(2) }} pp</strong>
-      <em>Penurunan kemiskinan perlakuan</em>
+      <div class="card-icon"><i class="pi pi-bolt"></i></div>
+      <div class="card-body">
+        <span>Dampak Estimasi (ATT)</span>
+        <strong>{{ data.effectPercentagePoints.toFixed(2) }} <small>pp</small></strong>
+        <em>Penurunan kemiskinan perlakuan</em>
+      </div>
     </article>
 
     <article class="metric-card blue">
-      <span>Selang Kepercayaan 95%</span>
-      <strong>{{ data.confidenceInterval95.lower.toFixed(2) }} s.d. {{ data.confidenceInterval95.upper.toFixed(2) }}</strong>
-      <em>Interval estimasi presisi</em>
+      <div class="card-icon"><i class="pi pi-sliders-h"></i></div>
+      <div class="card-body">
+        <span>Selang Kepercayaan 95%</span>
+        <strong class="ci-num">[{{ data.confidenceInterval95.lower.toFixed(2) }}, {{ data.confidenceInterval95.upper.toFixed(2) }}]</strong>
+        <em>Interval estimasi presisi</em>
+      </div>
     </article>
 
     <article class="metric-card indigo">
-      <span>Efektivitas Biaya</span>
-      <strong>{{ data.effectivenessPerTrillion.toFixed(3) }} pp</strong>
-      <em>Penurunan per Rp1 Triliun</em>
+      <div class="card-icon"><i class="pi pi-chart-line"></i></div>
+      <div class="card-body">
+        <span>Efektivitas Biaya</span>
+        <strong>{{ data.effectivenessPerTrillion.toFixed(3) }} <small>pp/T</small></strong>
+        <em>Penurunan per Rp1 Triliun APBN</em>
+      </div>
     </article>
 
     <article class="metric-card emerald">
-      <span>Uji Tren Paralel</span>
-      <strong class="pass-status" [class.pass]="data.parallelTrendPassed">
-        <i class="pi" [class.pi-check-circle]="data.parallelTrendPassed" [class.pi-times-circle]="!data.parallelTrendPassed"></i>
-        {{ data.parallelTrendPassed ? 'Lulus Valid' : 'Gagal' }}
-      </strong>
-      <em>{{ data.treatedRegionCount }} perlakuan · {{ data.controlRegionCount }} kontrol</em>
+      <div class="card-icon"><i class="pi pi-verified"></i></div>
+      <div class="card-body">
+        <span>Uji Tren Paralel</span>
+        <strong class="pass-status" [class.pass]="data.parallelTrendPassed">
+          {{ data.parallelTrendPassed ? 'Lulus Valid' : 'Gagal' }}
+        </strong>
+        <em>{{ data.treatedRegionCount }} perlakuan · {{ data.controlRegionCount }} kontrol</em>
+      </div>
     </article>
   </section>
 
@@ -49,10 +60,10 @@
     <article class="panel chart-panel">
       <header class="panel-head">
         <div>
-          <p class="panel-kicker">EVENT STUDY PLOT</p>
+          <p class="panel-kicker">EVENT STUDY DYNAMICS</p>
           <h2>Dinamika Koefisien terhadap Baseline 2023</h2>
         </div>
-        <span class="badge-tag">Mulai Intervensi {{ data.treatmentStartYear }}</span>
+        <span class="badge-tag"><i class="pi pi-calendar"></i> Mulai Intervensi {{ data.treatmentStartYear }}</span>
       </header>
       
       <div class="chart-container">
@@ -66,30 +77,36 @@
           </div>
         }
       </div>
+
+      <div class="chart-legend-bar">
+        <div class="legend-item"><span class="dot-teal"></span> Pra-Intervensi (Uji Tren Paralel)</div>
+        <div class="legend-item"><span class="dot-rose"></span> Pasca-Intervensi (Treatment Effect)</div>
+      </div>
     </article>
 
     <article class="panel evidence-panel">
       <header class="panel-head">
         <div>
           <p class="panel-kicker">DASAR BUKTI EKONOMETRIKA</p>
-          <h2>Interpretasi Hasil Estimasi</h2>
+          <h2>Justifikasi Ilmiah Kebijakan</h2>
         </div>
       </header>
       
       <p class="narrative">
-        Wilayah kelompok perlakuan (10 provinsi) menerima kenaikan alokasi anggaran mulai tahun {{ data.treatmentStartYear }}. Berdasarkan estimasi TWFE, tingkat kemiskinan turun signifikan sebesar <strong>{{ data.effectPercentagePoints.toFixed(2) }} poin persentase</strong> lebih besar dibanding kelompok pembanding.
+        Wilayah kelompok perlakuan ({{ data.treatedRegionCount }} provinsi) menerima penyesuaian alokasi belanja bansos berbasis IKW mulai tahun {{ data.treatmentStartYear }}. Berdasarkan estimasi TWFE, tingkat kemiskinan turun signifikan sebesar <strong>{{ data.effectPercentagePoints.toFixed(2) }} poin persentase</strong> lebih cepat dibanding kelompok pembanding.
       </p>
 
       <dl class="stat-dl">
-        <div><dt>Galat Baku (Cluster-Robust)</dt><dd class="mono">{{ data.standardError.toFixed(4) }}</dd></div>
-        <div><dt>Nilai-p (Signifikansi)</dt><dd class="mono">{{ data.pValue.toFixed(6) }} (p &lt; 0.01)</dd></div>
+        <div><dt>Galat Baku (Cluster-Robust SE)</dt><dd class="mono font-bold">{{ data.standardError.toFixed(4) }}</dd></div>
+        <div><dt>Nilai Signifikansi (p-value)</dt><dd class="mono font-bold text-teal">{{ data.pValue.toFixed(6) }} (p &lt; 0.01)</dd></div>
         <div><dt>Status Asumsi Paralel</dt><dd class="text-green"><i class="pi pi-check"></i> Terpenuhi (Pra-2024 stabil)</dd></div>
       </dl>
 
       <div class="sim-note">
         <i class="pi pi-shield"></i>
-        <p>Efek ditanam pada panel data simulasi untuk menguji akurasi model Difference-in-Differences sesuai spesifikasi BRD LAN Datathon 2026.</p>
+        <p>Efek ditanam pada panel data simulasi untuk menguji akurasi model Difference-in-Differences sesuai spesifikasi LAN Datathon 2026.</p>
       </div>
     </article>
   </section>
 }
+

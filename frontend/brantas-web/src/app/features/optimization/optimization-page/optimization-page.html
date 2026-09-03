@@ -1,8 +1,8 @@
-﻿<section class="page-header">
+<section class="page-header">
   <div>
-    <p class="eyebrow">OPTIMASI BERKENDALA (OR-TOOLS)</p>
-    <h1>Simulasi Alokasi Anggaran</h1>
-    <p class="subtitle">Rekomendasi alokasi perlindungan sosial berbasis Indeks Kerentanan Wilayah (IKW) dengan batas stabilitas fiskal.</p>
+    <p class="eyebrow">OPTIMASI LINIER BERKENDALA (GOOGLE OR-TOOLS)</p>
+    <h1>Simulasi Alokasi Anggaran & Formula IKW</h1>
+    <p class="subtitle">Penyesuaian rekomendasi alokasi perlindungan sosial berbasis Indeks Kerentanan Wilayah (IKW) dengan batas stabilitas fiskal.</p>
   </div>
   <div class="header-actions">
     <button type="button" class="btn-secondary" (click)="exportCsv()"><i class="pi pi-download" aria-hidden="true"></i> Ekspor CSV</button>
@@ -11,57 +11,85 @@
 </section>
 
 <section class="simulation-grid">
+  <!-- Controls Aside -->
   <aside class="controls">
-    <p class="panel-kicker">PARAMETER MODEL</p>
-    <h2>Bobot & Kendala Stabilitas</h2>
+    <div class="aside-head">
+      <p class="panel-kicker">PARAMETER MODEL</p>
+      <h2>Bobot & Kendala Stabilitas</h2>
+    </div>
     
     <div class="slider-group">
       <div class="slider-label">
         <span>Bobot Tingkat Kemiskinan</span>
-        <strong>{{ povertyWeight() }}%</strong>
+        <strong class="slider-val">{{ povertyWeight() }}%</strong>
       </div>
-      <input type="range" min="10" max="60" [value]="povertyWeight()" (input)="updatePovertyWeight($event)">
+      <input type="range" min="10" max="60" [value]="povertyWeight()" (input)="updatePovertyWeight($event)" class="modern-slider">
+      <div class="slider-range-labels">
+        <small>10% (Konservatif)</small>
+        <small>60% (Afirmatif Ekstrem)</small>
+      </div>
     </div>
 
     <div class="slider-group">
       <div class="slider-label">
         <span>Batas Deviasi Maksimal (Cap)</span>
-        <strong>{{ capPercent() }}%</strong>
+        <strong class="slider-val">{{ capPercent() }}%</strong>
       </div>
-      <input type="range" min="10" max="40" [value]="capPercent()" (input)="updateCap($event)">
+      <input type="range" min="10" max="40" [value]="capPercent()" (input)="updateCap($event)" class="modern-slider">
+      <div class="slider-range-labels">
+        <small>±10% (Stabilitas Tinggi)</small>
+        <small>±40% (Reorientasi Total)</small>
+      </div>
     </div>
 
     <dl class="constraints-list">
-      <div><dt>Pagu Total APBN</dt><dd>{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</dd></div>
-      <div><dt>Alokasi Minimum (Floor)</dt><dd>Rp500 juta / Prov</dd></div>
-      <div><dt>Solver Optimasi</dt><dd>Google OR-Tools (GLOP)</dd></div>
+      <div>
+        <dt>Pagu Total APBN</dt>
+        <dd>{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</dd>
+      </div>
+      <div>
+        <dt>Alokasi Minimum (Floor)</dt>
+        <dd>Rp500 juta / Prov</dd>
+      </div>
+      <div>
+        <dt>Solver Optimasi</dt>
+        <dd class="text-teal">Google OR-Tools (GLOP)</dd>
+      </div>
     </dl>
 
     <div class="save-scenario">
       <label for="scenario-name">Simpan Skenario Analisis</label>
-      <input id="scenario-name" [value]="scenarioName()" (input)="updateScenarioName($event)" placeholder="Nama skenario...">
-      <button type="button" class="btn-save" (click)="saveScenario()"><i class="pi pi-save" aria-hidden="true"></i> Simpan Skenario</button>
-      @if (saveMessage()) { <p class="save-feedback">{{ saveMessage() }}</p> }
+      <div class="save-input-group">
+        <input id="scenario-name" [value]="scenarioName()" (input)="updateScenarioName($event)" placeholder="Nama skenario (mis: Afirmatif 2026)...">
+        <button type="button" class="btn-save" (click)="saveScenario()"><i class="pi pi-save" aria-hidden="true"></i> Simpan</button>
+      </div>
+      @if (saveMessage()) { <p class="save-feedback"><i class="pi pi-check-circle"></i> {{ saveMessage() }}</p> }
     </div>
 
     @if (scenarios().length > 0) {
       <div class="scenario-history">
         <p class="panel-kicker">RIWAYAT SKENARIO TERSIMPAN</p>
-        @for (scenario of scenarios().slice(0, 4); track scenario.id) {
-          <div class="history-item">
-            <strong>{{ scenario.name }}</strong>
-            <small>{{ scenario.createdAt | date:'dd MMM yyyy, HH:mm' }}</small>
-          </div>
-        }
+        <div class="history-list">
+          @for (scenario of scenarios().slice(0, 4); track scenario.id) {
+            <div class="history-item">
+              <i class="pi pi-bookmark"></i>
+              <div>
+                <strong>{{ scenario.name }}</strong>
+                <small>{{ scenario.createdAt | date:'dd MMM yyyy, HH:mm' }}</small>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     }
   </aside>
 
+  <!-- Results Table Section -->
   <section class="panel result-panel">
     <header class="panel-header">
       <div>
-        <p class="panel-kicker">HASIL OPTIMASI</p>
-        <h2>Rekomendasi Penyesuaian Alokasi</h2>
+        <p class="panel-kicker">HASIL FORMULASI LINEAR</p>
+        <h2>Rekomendasi Penyesuaian Alokasi Per Wilayah</h2>
       </div>
       <span class="badge-count">{{ recommendations().length }} Provinsi</span>
     </header>
@@ -74,10 +102,10 @@
           <thead>
             <tr>
               <th>Provinsi</th>
-              <th>Skor IKW</th>
-              <th>Alokasi Eksisting</th>
-              <th>Rekomendasi</th>
-              <th>Perubahan Alokasi (Delta)</th>
+              <th>Indeks Kerentanan (IKW)</th>
+              <th class="num">Alokasi Eksisting (APBN)</th>
+              <th class="num">Rekomendasi BRANTAS</th>
+              <th class="num">Pergeseran Anggaran (Delta)</th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +115,7 @@
                 <td><span class="ikw-pill">{{ item.vulnerabilityIndex.toFixed(3) }}</span></td>
                 <td class="num">{{ formatMoney(item.baselineAllocation) }}</td>
                 <td class="num font-bold">{{ formatMoney(item.recommendedAllocation) }}</td>
-                <td>
+                <td class="num">
                   <span class="delta-pill" [class.positive]="item.delta > 0" [class.negative]="item.delta < 0">
                     {{ item.delta > 0 ? '+' : '' }}{{ formatMoney(item.delta) }} ({{ (item.deltaPercent * 100).toFixed(1) }}%)
                   </span>
@@ -100,3 +128,4 @@
     }
   </section>
 </section>
+

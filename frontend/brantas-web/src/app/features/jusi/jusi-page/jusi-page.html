@@ -1,8 +1,8 @@
-﻿<section class="page-header">
+<section class="page-header">
   <div>
-    <p class="eyebrow">ASISTEN ANALITIK KEBIJAKAN</p>
-    <h1>JUSI (Justifikasi & Analitik Sosial Terintegrasi)</h1>
-    <p class="subtitle">Asisten cerdas berbasis data terverifikasi untuk analisis kemiskinan, alokasi anggaran, deteksi anomali, dan evaluasi dampak BRANTAS.</p>
+    <p class="eyebrow">ASISTEN ANALITIK KEBIJAKAN FISKAL</p>
+    <h1>JUSI (Juru Analitik Sosial Terpadu & Interaktif)</h1>
+    <p class="subtitle">Copilot cerdas berbasis data terverifikasi untuk analisis kemiskinan, formulasi alokasi APBN, deteksi anomali, dan evaluasi dampak BRANTAS.</p>
   </div>
   <div class="grounded-badge">
     <i class="pi pi-shield" aria-hidden="true"></i>
@@ -49,23 +49,23 @@
     </div>
 
     <div class="panel-section prompts-section">
-      <span class="panel-kicker">CONTOH PERTANYAAN</span>
+      <span class="panel-kicker">PROMPT CEPAT EKSEKUTIF</span>
       <div class="prompt-chips">
         <button type="button" class="chip" (click)="useQuestion('Berapa rata-rata kemiskinan nasional?')">
           <i class="pi pi-chart-line"></i>
-          <span>Rata-rata Kemiskinan</span>
+          <span>Rata-rata Kemiskinan Nasional</span>
         </button>
         <button type="button" class="chip" (click)="useQuestion('Berapa nilai anomali fiskal yang berisiko?')">
           <i class="pi pi-exclamation-triangle"></i>
-          <span>Ringkasan Anomali Fiskal</span>
+          <span>Ringkasan Nilai Anomali Berisiko</span>
         </button>
         <button type="button" class="chip" (click)="useQuestion('Bagaimana hasil evaluasi dampak kebijakan bansos (DiD)?')">
           <i class="pi pi-bolt"></i>
-          <span>Evaluasi Dampak (DiD)</span>
+          <span>Evaluasi Kausalitas Dampak (DiD)</span>
         </button>
         <button type="button" class="chip" (click)="useQuestion('Berapa total alokasi anggaran bansos?')">
-          <i class="pi pi-dollar"></i>
-          <span>Alokasi Anggaran Bansos</span>
+          <i class="pi pi-wallet"></i>
+          <span>Total Pagu Belanja Perlinsos</span>
         </button>
       </div>
     </div>
@@ -96,7 +96,7 @@
         @if (msg.sender === 'user') {
           <div class="chat-bubble user-bubble">
             <div class="bubble-content user-content">
-              <div class="bubble-title user-title">Anda</div>
+              <div class="bubble-title user-title">Otoritas Pengguna</div>
               <p class="user-text">{{ msg.text }}</p>
               <span class="bubble-time user-time">{{ msg.timestamp | date:'HH:mm' }}</span>
             </div>
@@ -104,18 +104,18 @@
           </div>
         } @else {
           <div class="chat-bubble" [class.assistant-welcome]="msg.id.startsWith('welcome')" [class.answer-bubble]="!msg.id.startsWith('welcome') && !msg.isError" [class.error-bubble]="msg.isError">
-            <div class="avatar" [class.active]="!msg.id.startsWith('welcome') && !msg.isError" [class.error]="msg.isError">
+            <div class="avatar ai-avatar" [class.active]="!msg.id.startsWith('welcome') && !msg.isError" [class.error]="msg.isError">
               <i class="pi" [class.pi-sparkles]="msg.id.startsWith('welcome')" [class.pi-check-circle]="!msg.id.startsWith('welcome') && !msg.isError" [class.pi-exclamation-circle]="msg.isError"></i>
             </div>
             <div class="bubble-content">
               <div class="bubble-title">
-                {{ msg.id.startsWith('welcome') ? 'JUSI Assistant' : msg.isError ? 'Peringatan Sistem' : 'Hasil Jawaban Terverifikasi' }}
+                {{ msg.id.startsWith('welcome') ? 'JUSI Copilot' : msg.isError ? 'Peringatan Sistem' : 'Rekomendasi Terverifikasi' }}
               </div>
               <p class="answer-text">{{ msg.text }}</p>
               @if (msg.source) {
                 <div class="citation-tag">
                   <i class="pi pi-database"></i>
-                  <span>Sumber: <strong>{{ msg.source }}</strong> · Periode {{ msg.period }} · {{ msg.usedFallback ? 'Grounding Deterministik' : 'LLM Gateway Terhubung' }}</span>
+                  <span>Basis Data: <strong>{{ msg.source }}</strong> · Periode {{ msg.period }} · {{ msg.usedFallback ? 'Grounding Deterministik' : 'LLM Gateway Terhubung' }}</span>
                 </div>
               }
               <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
@@ -126,7 +126,7 @@
 
       @if (isLoading()) {
         <div class="chat-bubble answer-bubble loading-bubble">
-          <div class="avatar active"><i class="pi pi-spin pi-spinner"></i></div>
+          <div class="avatar ai-avatar active"><i class="pi pi-spin pi-spinner"></i></div>
           <div class="bubble-content">
             <div class="bubble-title">JUSI sedang menganalisis data...</div>
             <p class="loading-dots">Mengekstraksi data kemiskinan dan menyusun justifikasi kebijakan...</p>
@@ -140,7 +140,7 @@
         [value]="question()"
         (input)="updateQuestion($event)"
         (keydown)="onKeydown($event)"
-        placeholder="Ketik pertanyaan untuk JUSI (mis: Berapa rata-rata kemiskinan nasional?)..."
+        placeholder="Ajukan pertanyaan analitik kepada JUSI (mis: Berapa rata-rata kemiskinan nasional?)..."
         aria-label="Pertanyaan untuk JUSI"
         rows="2"
       ></textarea>
@@ -151,3 +151,4 @@
     </div>
   </div>
 </section>
+
