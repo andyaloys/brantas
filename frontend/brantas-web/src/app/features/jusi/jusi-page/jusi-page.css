@@ -24,10 +24,19 @@ h1 { margin: 0; color: #0f172a; font-size: 26px; font-weight: 800; }
 .avatar.active { background: #059669; }
 .avatar.error { background: #e11d48; }
 
+.user-bubble { justify-content: flex-end; }
+.user-avatar { background: #0284c7 !important; }
+.user-content { background: #0f172a !important; color: #ffffff !important; border-color: #1e293b !important; max-width: 80%; }
+.user-title { color: #38bdf8 !important; text-align: right; }
+.user-text { color: #f8fafc !important; }
+
 .bubble-content { flex: 1; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
 .assistant-welcome .bubble-content { background: #f0fdfa; border-color: #ccfbf1; }
 .answer-bubble .bubble-content { background: #ffffff; border-color: #cbd5e1; box-shadow: var(--shadow-sm); }
 .error-bubble .bubble-content { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+
+.loading-bubble { opacity: 0.85; }
+.loading-dots { font-style: italic; color: #64748b !important; }
 
 .bubble-title { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; color: #0f766e; margin-bottom: 4px; }
 .answer-bubble .bubble-title { color: #0284c7; }

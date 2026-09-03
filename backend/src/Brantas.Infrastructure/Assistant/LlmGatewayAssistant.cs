@@ -107,7 +107,7 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
 
             return new AssistantResponse(
                 answer,
-                $"Pusdatin LLM Gateway ({_options.Model}) + Database BRANTAS",
+                $"LLM Gateway ({_options.Model}) + Database BRANTAS",
                 version.Id.ToString(),
                 version.Period,
                 false);

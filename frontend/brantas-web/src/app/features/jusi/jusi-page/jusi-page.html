@@ -39,35 +39,43 @@
   </aside>
 
   <div class="conversation-container">
-    <div class="message-stream">
-      <div class="chat-bubble assistant-welcome">
-        <div class="avatar"><i class="pi pi-sparkles"></i></div>
-        <div class="bubble-content">
-          <div class="bubble-title">JUSI Assistant</div>
-          <p>Halo, saya JUSI. Saya siap membantu menelaah data kemiskinan, menghitung simulasi anggaran, dan mengevaluasi efektivitas program perlindungan sosial berdasarkan data aktif BRANTAS.</p>
-        </div>
-      </div>
-
-      @if (response(); as data) {
-        <div class="chat-bubble answer-bubble">
-          <div class="avatar active"><i class="pi pi-check-circle"></i></div>
-          <div class="bubble-content">
-            <div class="bubble-title">Hasil Jawaban Terverifikasi</div>
-            <p class="answer-text">{{ data.answer }}</p>
-            <div class="citation-tag">
-              <i class="pi pi-database"></i>
-              <span>Sumber: <strong>{{ data.source }}</strong> · Periode {{ data.period }} · {{ data.usedFallback ? 'Grounding Deterministik' : 'LLM Gateway Terhubung' }}</span>
+    <div #scrollContainer class="message-stream">
+      @for (msg of messages(); track msg.id) {
+        @if (msg.sender === 'user') {
+          <div class="chat-bubble user-bubble">
+            <div class="bubble-content user-content">
+              <div class="bubble-title user-title">Anda</div>
+              <p class="user-text">{{ msg.text }}</p>
+            </div>
+            <div class="avatar user-avatar"><i class="pi pi-user"></i></div>
+          </div>
+        } @else {
+          <div class="chat-bubble" [class.assistant-welcome]="msg.id === 'welcome'" [class.answer-bubble]="msg.id !== 'welcome' && !msg.isError" [class.error-bubble]="msg.isError">
+            <div class="avatar" [class.active]="msg.id !== 'welcome' && !msg.isError" [class.error]="msg.isError">
+              <i class="pi" [class.pi-sparkles]="msg.id === 'welcome'" [class.pi-check-circle]="msg.id !== 'welcome' && !msg.isError" [class.pi-exclamation-circle]="msg.isError"></i>
+            </div>
+            <div class="bubble-content">
+              <div class="bubble-title">
+                {{ msg.id === 'welcome' ? 'JUSI Assistant' : msg.isError ? 'Peringatan Sistem' : 'Hasil Jawaban Terverifikasi' }}
+              </div>
+              <p class="answer-text">{{ msg.text }}</p>
+              @if (msg.source) {
+                <div class="citation-tag">
+                  <i class="pi pi-database"></i>
+                  <span>Sumber: <strong>{{ msg.source }}</strong> · Periode {{ msg.period }} · {{ msg.usedFallback ? 'Grounding Deterministik' : 'LLM Gateway Terhubung' }}</span>
+                </div>
+              }
             </div>
           </div>
-        </div>
+        }
       }
 
-      @if (error()) {
-        <div class="chat-bubble error-bubble">
-          <div class="avatar error"><i class="pi pi-exclamation-circle"></i></div>
+      @if (isLoading()) {
+        <div class="chat-bubble answer-bubble loading-bubble">
+          <div class="avatar active"><i class="pi pi-spin pi-spinner"></i></div>
           <div class="bubble-content">
-            <div class="bubble-title">Peringatan Keamanan / Parameter</div>
-            <p>{{ error() }}</p>
+            <div class="bubble-title">JUSI sedang menganalisis data...</div>
+            <p class="loading-dots">Mengolah data kemiskinan dan menyusun justifikasi kebijakan...</p>
           </div>
         </div>
       }
@@ -77,12 +85,12 @@
       <textarea
         [value]="question()"
         (input)="updateQuestion($event)"
-        (keydown.enter)="$event.preventDefault(); ask()"
-        placeholder="Tanyakan analisis anggaran sosial (mis: Berapa rata-rata kemiskinan nasional?)..."
+        (keydown)="onKeydown($event)"
+        placeholder="Ketik pertanyaan untuk JUSI (mis: Berapa rata-rata kemiskinan nasional?)..."
         aria-label="Pertanyaan untuk JUSI"
         rows="2"
       ></textarea>
-      <button type="button" class="btn-send" (click)="ask()" [disabled]="isLoading()">
+      <button type="button" class="btn-send" (click)="ask()" [disabled]="isLoading() || !question().trim()">
         <i class="pi" [class.pi-send]="!isLoading()" [class.pi-spin]="isLoading()" [class.pi-spinner]="isLoading()" aria-hidden="true"></i>
         <span>{{ isLoading() ? 'Menganalisis...' : 'Kirim' }}</span>
       </button>
