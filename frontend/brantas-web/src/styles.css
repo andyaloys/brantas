@@ -92,7 +92,274 @@ body {
   background-attachment: fixed;
 }
 
-/* Custom Sleek Dark Scrollbar */
+/* ==================== LIGHT MODE EXECUTIVE THEME ==================== */
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* Executive Light Palette */
+  --bg-app: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-glass: rgba(255, 255, 255, 0.9);
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-hover: #f8fafc;
+
+  --bg-sidebar: #ffffff;
+  --bg-sidebar-surface: #f8fafc;
+  --bg-sidebar-hover: #f1f5f9;
+  --bg-topbar: rgba(255, 255, 255, 0.92);
+
+  /* Primary Light Accents */
+  --primary-50: #f0fdfa;
+  --primary-100: #ccfbf1;
+  --primary-200: #99f6e4;
+  --primary-400: #2dd4bf;
+  --primary-500: #14b8a6;
+  --primary-600: #0d9488;
+  --primary-700: #0f766e;
+  --primary-900: #134e4a;
+  --primary-gradient: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+  --accent-cyan: #0891b2;
+
+  /* Semantic State Colors */
+  --accent-blue: #0284c7;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+  --accent-emerald: #059669;
+  --accent-indigo: #4f46e5;
+  --accent-purple: #7c3aed;
+
+  /* Text Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* Borders & Dividers */
+  --border-subtle: #e2e8f0;
+  --border-light: #f1f5f9;
+  --border-focus: #0d9488;
+  --border-glass: #e2e8f0;
+
+  /* Crisp Light Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-glow-teal: 0 0 20px rgba(13, 148, 136, 0.15);
+  --shadow-glow-blue: 0 0 20px rgba(2, 132, 199, 0.15);
+}
+
+body.theme-light {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(20, 184, 166, 0.05) 0px, transparent 60%),
+    radial-gradient(at 90% 10%, rgba(6, 182, 212, 0.05) 0px, transparent 60%),
+    linear-gradient(to bottom, #f8fafc, #f1f5f9);
+}
+
+/* Light Theme Component Overrides */
+[data-theme='light'] .sidebar {
+  background: #ffffff;
+  border-right-color: #e2e8f0;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme='light'] .sidebar-header {
+  border-bottom-color: #f1f5f9;
+  background: radial-gradient(circle at 10% 10%, rgba(20, 184, 166, 0.08) 0%, transparent 80%);
+}
+
+[data-theme='light'] .brand-text strong {
+  color: #0f172a;
+}
+
+[data-theme='light'] .brand-text small {
+  color: #64748b;
+}
+
+[data-theme='light'] .btn-toggle-sidebar {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme='light'] .btn-toggle-sidebar:hover {
+  background: #ccfbf1;
+  border-color: #0d9488;
+  color: #0d9488;
+}
+
+[data-theme='light'] .nav-section-title {
+  color: #94a3b8;
+}
+
+[data-theme='light'] .nav-item {
+  color: #475569;
+}
+
+[data-theme='light'] .nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-theme='light'] .nav-item.active {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.12) 0%, rgba(2, 132, 199, 0.1) 100%);
+  color: #0d9488;
+  border-left-color: #0d9488;
+}
+
+[data-theme='light'] .nav-icon-wrap {
+  background: #f1f5f9;
+}
+
+[data-theme='light'] .role-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme='light'] .role-info strong {
+  color: #0f172a;
+}
+
+[data-theme='light'] .role-info small {
+  color: #64748b;
+}
+
+[data-theme='light'] .topbar {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme='light'] .portal-tag {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0d9488;
+}
+
+[data-theme='light'] .search-command-pill {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme='light'] .clock-chip {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme='light'] .period-chip {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme='light'] .dashboard-tab-bar {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme='light'] .tab-nav-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+[data-theme='light'] .tab-nav-btn.active {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.15) 0%, rgba(2, 132, 199, 0.12) 100%);
+  border-color: #0d9488;
+  color: #0d9488;
+}
+
+[data-theme='light'] .kpi-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme='light'] .kpi-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: #cbd5e1;
+}
+
+[data-theme='light'] .kpi-title {
+  color: #64748b;
+}
+
+[data-theme='light'] .kpi-num {
+  color: #0f172a;
+}
+
+[data-theme='light'] .command-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme='light'] .command-panel h2 {
+  color: #0f172a;
+}
+
+[data-theme='light'] .priority-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme='light'] .priority-card strong {
+  color: #0f172a;
+}
+
+[data-theme='light'] .layer-bar {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme='light'] .province-select {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+[data-theme='light'] .province-select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme='light'] .layer-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme='light'] .panel, [data-theme='light'] .inspector-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme='light'] .inspector-panel h2 {
+  color: #0f172a;
+}
+
+[data-theme='light'] .ticker-container {
+  background: #ffffff !important;
+  border-top-color: #e2e8f0 !important;
+}
+
+[data-theme='light'] .ticker-text {
+  color: #334155 !important;
+}
+
+[data-theme='light'] .ticker-tag {
+  background: #0d9488 !important;
+}
+
+/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -101,12 +368,12 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: var(--radius-full);
   transition: background 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }
 
 /* Base form controls */
@@ -135,13 +402,13 @@ button, input, select, textarea {
   100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
 }
 
-/* Leaflet Customizations for Dark Command Center */
+/* Leaflet Customizations for Dark/Light Command Center */
 .leaflet-popup-content-wrapper {
-  background: #0b1120 !important;
-  color: #f8fafc !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
   border-radius: var(--radius-md) !important;
-  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.7) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: var(--shadow-xl) !important;
+  border: 1px solid var(--border-subtle) !important;
   padding: 4px !important;
 }
 .leaflet-popup-content {
@@ -150,31 +417,31 @@ button, input, select, textarea {
   line-height: 1.5 !important;
 }
 .leaflet-popup-content strong {
-  color: #38bdf8;
+  color: var(--primary-600);
   font-size: 14.5px;
   display: block;
   margin-bottom: 3px;
   font-weight: 700;
 }
 .leaflet-popup-tip {
-  background: #0b1120 !important;
+  background: var(--bg-surface) !important;
 }
 .leaflet-container {
   font-family: var(--font-main) !important;
-  background: #070c18 !important;
+  background: var(--bg-app) !important;
 }
 .leaflet-control-zoom {
   border: 0 !important;
   box-shadow: var(--shadow-lg) !important;
 }
 .leaflet-control-zoom a {
-  background: #0f172a !important;
-  color: #f8fafc !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
   border-radius: 8px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid var(--border-subtle) !important;
   transition: all 0.2s ease;
 }
 .leaflet-control-zoom a:hover {
-  background: #1e293b !important;
-  color: #2dd4bf !important;
+  background: var(--bg-surface-hover) !important;
+  color: var(--primary-600) !important;
 }

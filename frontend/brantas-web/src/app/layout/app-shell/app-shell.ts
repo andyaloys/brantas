@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { KioskModeService } from '../../core/services/kiosk-mode.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { ExecutiveTickerComponent } from '../executive-ticker/executive-ticker.component';
 
 @Component({
@@ -14,6 +15,7 @@ import { ExecutiveTickerComponent } from '../executive-ticker/executive-ticker.c
 })
 export class AppShellComponent {
   protected readonly kiosk = inject(KioskModeService);
+  protected readonly themeService = inject(ThemeService);
   protected readonly isSidebarCollapsed = signal(false);
 
   protected toggleSidebar(): void {

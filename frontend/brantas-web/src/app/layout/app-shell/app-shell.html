@@ -117,6 +117,16 @@
             <span>Periode: <strong>2026-03</strong></span>
           </div>
 
+          <!-- Light / Dark Mode Toggle Button -->
+          <button
+            type="button"
+            class="btn-theme-toggle"
+            (click)="themeService.toggleTheme()"
+            [title]="themeService.theme() === 'dark' ? 'Beralih ke Mode Terang (Light Mode)' : 'Beralih ke Mode Gelap (Dark Mode)'">
+            <i class="pi" [class.pi-sun]="themeService.theme() === 'dark'" [class.pi-moon]="themeService.theme() === 'light'"></i>
+            <span>{{ themeService.theme() === 'dark' ? 'Mode Terang' : 'Mode Gelap' }}</span>
+          </button>
+
           <!-- Kiosk Trigger Button -->
           <button type="button" class="btn-kiosk-trigger" (click)="kiosk.startKiosk()" title="Aktifkan Mode Layar Penuh War Room">
             <i class="pi pi-desktop"></i>
