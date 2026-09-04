@@ -15,6 +15,10 @@ export class OptimizationPageComponent {
   protected readonly saveMessage = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
 
+  protected readonly activeScenarioId = signal<string | null>(null);
+  protected readonly activeScenarioName = signal<string | null>(null);
+  protected readonly isLoadingScenario = signal<boolean>(false);
+
   async ngOnInit(): Promise<void> { await Promise.all([this.runSimulation(), this.loadScenarios()]); }
 
   protected async runSimulation(): Promise<void> {
@@ -26,17 +30,92 @@ export class OptimizationPageComponent {
     } catch { this.error.set('Simulasi belum dapat dihitung. Pastikan layanan BRANTAS aktif.'); }
   }
 
-  protected updatePovertyWeight(event: Event): void { this.povertyWeight.set(Number((event.target as HTMLInputElement).value)); }
-  protected updateCap(event: Event): void { this.capPercent.set(Number((event.target as HTMLInputElement).value)); }
+  protected updatePovertyWeight(event: Event): void {
+    this.povertyWeight.set(Number((event.target as HTMLInputElement).value));
+    this.activeScenarioId.set(null);
+    this.activeScenarioName.set(null);
+  }
+
+  protected updateCap(event: Event): void {
+    this.capPercent.set(Number((event.target as HTMLInputElement).value));
+    this.activeScenarioId.set(null);
+    this.activeScenarioName.set(null);
+  }
+
   protected updateScenarioName(event: Event): void { this.scenarioName.set((event.target as HTMLInputElement).value); }
+
   protected async saveScenario(): Promise<void> {
     this.saveMessage.set(null);
     try {
       const scenario = await firstValueFrom(this.optimizationData.saveScenario(this.scenarioName(), this.povertyWeight(), this.capPercent()));
-      this.saveMessage.set(`Skenario ${scenario.name} berhasil disimpan.`);
+      this.saveMessage.set(`Skenario "${scenario.name}" berhasil disimpan.`);
+      this.activeScenarioId.set(scenario.id);
+      this.activeScenarioName.set(scenario.name);
       await this.loadScenarios();
     } catch { this.saveMessage.set('Skenario tidak dapat disimpan.'); }
   }
+
+  protected async loadScenario(scenario: SimulationScenario): Promise<void> {
+    this.isLoadingScenario.set(true);
+    this.saveMessage.set(null);
+    this.error.set(null);
+    try {
+      const detail = await firstValueFrom(this.optimizationData.getScenarioById(scenario.id));
+      if (detail.povertyWeight !== undefined) {
+        this.povertyWeight.set(detail.povertyWeight);
+      }
+      if (detail.capPercent !== undefined) {
+        this.capPercent.set(detail.capPercent);
+      }
+      this.scenarioName.set(detail.name);
+      this.activeScenarioId.set(detail.id);
+      this.activeScenarioName.set(detail.name);
+      this.totalBudget.set(detail.totalBudget);
+      if (detail.recommendations && detail.recommendations.length > 0) {
+        this.recommendations.set(detail.recommendations);
+      } else {
+        await this.runSimulation();
+      }
+      this.saveMessage.set(`Skenario "${detail.name}" berhasil dimuat ke simulasi.`);
+    } catch {
+      // Fallback if detail fetch fails
+      if (scenario.povertyWeight !== undefined) this.povertyWeight.set(scenario.povertyWeight);
+      if (scenario.capPercent !== undefined) this.capPercent.set(scenario.capPercent);
+      this.scenarioName.set(scenario.name);
+      this.activeScenarioId.set(scenario.id);
+      this.activeScenarioName.set(scenario.name);
+      await this.runSimulation();
+      this.saveMessage.set(`Skenario "${scenario.name}" dimuat.`);
+    } finally {
+      this.isLoadingScenario.set(false);
+    }
+  }
+
+  protected async deleteScenario(id: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      await firstValueFrom(this.optimizationData.deleteScenario(id));
+      if (this.activeScenarioId() === id) {
+        this.activeScenarioId.set(null);
+        this.activeScenarioName.set(null);
+      }
+      this.saveMessage.set('Skenario berhasil dihapus.');
+      await this.loadScenarios();
+    } catch {
+      this.saveMessage.set('Gagal menghapus skenario.');
+    }
+  }
+
+  protected async resetParameters(): Promise<void> {
+    this.povertyWeight.set(30);
+    this.capPercent.set(25);
+    this.scenarioName.set('Skenario baru');
+    this.activeScenarioId.set(null);
+    this.activeScenarioName.set(null);
+    this.saveMessage.set('Parameter dikembalikan ke standar APBN (30% bobot, 25% cap).');
+    await this.runSimulation();
+  }
+
   protected formatMoney(value: number): string { return `Rp${value.toLocaleString('id-ID', { maximumFractionDigits: 0 })} juta`; }
 
   protected exportCsv(): void {
@@ -44,7 +123,7 @@ export class OptimizationPageComponent {
     if (list.length === 0) return;
     let csv = 'Provinsi,BaselineJuta,RekomendasiJuta,PergeseranJuta,PergeseranPersen,IndeksIKW,PendudukMiskin\n';
     for (const r of list) {
-      csv += `"${r.region}",${r.baselineAllocation},${r.recommendedAllocation},${r.delta},${r.deltaPercent},${r.vulnerabilityIndex},${r.poorPopulation}\n`;
+      csv += `"${r.region}",${r.baselineAllocation},${r.recommendedAllocation},${r.delta},${r.deltaPercent},${r.vulnerabilityIndex},${r.poorPopulation ?? ''}\n`;
     }
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -55,5 +134,11 @@ export class OptimizationPageComponent {
     URL.revokeObjectURL(url);
   }
 
-  private async loadScenarios(): Promise<void> { this.scenarios.set(await firstValueFrom(this.optimizationData.getScenarios())); }
+  protected async loadScenarios(): Promise<void> {
+    try {
+      this.scenarios.set(await firstValueFrom(this.optimizationData.getScenarios()));
+    } catch {
+      this.scenarios.set([]);
+    }
+  }
 }

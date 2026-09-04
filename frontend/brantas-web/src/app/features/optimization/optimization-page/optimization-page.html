@@ -14,9 +14,28 @@
   <!-- Controls Aside -->
   <aside class="controls">
     <div class="aside-head">
-      <p class="panel-kicker">PARAMETER MODEL</p>
-      <h2>Bobot & Kendala Stabilitas</h2>
+      <div class="aside-title-group">
+        <p class="panel-kicker">PARAMETER MODEL</p>
+        <h2>Bobot & Kendala Stabilitas</h2>
+      </div>
+      @if (activeScenarioName() || povertyWeight() !== 30 || capPercent() !== 25) {
+        <button type="button" class="btn-reset-param" (click)="resetParameters()" title="Kembalikan ke parameter default APBN">
+          <i class="pi pi-refresh"></i> Reset Default
+        </button>
+      }
     </div>
+
+    @if (activeScenarioName()) {
+      <div class="active-scenario-banner">
+        <div class="active-banner-info">
+          <i class="pi pi-bookmark-fill text-teal"></i>
+          <div>
+            <span class="active-tag">Skenario Aktif</span>
+            <strong class="active-name">{{ activeScenarioName() }}</strong>
+          </div>
+        </div>
+      </div>
+    }
     
     <div class="slider-group">
       <div class="slider-label">
@@ -68,14 +87,56 @@
 
     @if (scenarios().length > 0) {
       <div class="scenario-history">
-        <p class="panel-kicker">RIWAYAT SKENARIO TERSIMPAN</p>
+        <div class="history-header">
+          <p class="panel-kicker">RIWAYAT SKENARIO TERSIMPAN</p>
+          <span class="history-hint">Klik untuk memuat</span>
+        </div>
         <div class="history-list">
-          @for (scenario of scenarios().slice(0, 4); track scenario.id) {
-            <div class="history-item">
-              <i class="pi pi-bookmark"></i>
-              <div>
-                <strong>{{ scenario.name }}</strong>
-                <small>{{ scenario.createdAt | date:'dd MMM yyyy, HH:mm' }}</small>
+          @for (scenario of scenarios().slice(0, 6); track scenario.id) {
+            <div 
+              class="history-item" 
+              [class.active]="activeScenarioId() === scenario.id"
+              (click)="loadScenario(scenario)"
+              role="button"
+              tabindex="0"
+              title="Klik untuk memuat skenario {{ scenario.name }}">
+              <div class="history-item-main">
+                <i class="pi" [class.pi-bookmark-fill]="activeScenarioId() === scenario.id" [class.pi-bookmark]="activeScenarioId() !== scenario.id"></i>
+                <div class="history-info">
+                  <div class="history-title-row">
+                    <strong>{{ scenario.name }}</strong>
+                    @if (activeScenarioId() === scenario.id) {
+                      <span class="pill-active-badge">Aktif</span>
+                    }
+                  </div>
+                  <div class="history-meta">
+                    <small>{{ scenario.createdAt | date:'dd MMM yyyy, HH:mm' }}</small>
+                    @if (scenario.povertyWeight !== undefined) {
+                      <span class="meta-dot">·</span>
+                      <span class="meta-param">Bobot {{ scenario.povertyWeight }}%</span>
+                    }
+                    @if (scenario.capPercent !== undefined) {
+                      <span class="meta-dot">·</span>
+                      <span class="meta-param">Cap ±{{ scenario.capPercent }}%</span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="history-item-actions">
+                <button 
+                  type="button" 
+                  class="btn-icon-load" 
+                  (click)="loadScenario(scenario)" 
+                  title="Terapkan skenario ini">
+                  <i class="pi pi-arrow-right"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn-icon-del" 
+                  (click)="deleteScenario(scenario.id, $event)" 
+                  title="Hapus skenario">
+                  <i class="pi pi-trash"></i>
+                </button>
               </div>
             </div>
           }

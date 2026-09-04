@@ -830,9 +830,138 @@ app.MapPost("/api/v1/optimization/scenarios", async (CreateSimulationScenarioReq
     .AllowAnonymous();
 
 app.MapGet("/api/v1/optimization/scenarios", async (BrantasDbContext database, CancellationToken cancellationToken) =>
-    Results.Ok(await database.SimulationScenarios.OrderByDescending(item => item.CreatedAt).Take(20).Select(item => new { id = item.Id, name = item.Name, datasetVersionId = item.DatasetVersionId, totalBudget = item.TotalBudget, createdAt = item.CreatedAt }).ToListAsync(cancellationToken)))
+{
+    var list = await database.SimulationScenarios.OrderByDescending(item => item.CreatedAt).Take(20).ToListAsync(cancellationToken);
+    var results = list.Select(item =>
+    {
+        decimal povertyWeight = 30m;
+        decimal capPercent = 25m;
+        try
+        {
+            if (!string.IsNullOrEmpty(item.WeightsJson))
+            {
+                using var doc = JsonDocument.Parse(item.WeightsJson);
+                if (doc.RootElement.TryGetProperty("PovertyRate", out var pRate))
+                {
+                    var val = pRate.GetDecimal();
+                    povertyWeight = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+                }
+            }
+            if (!string.IsNullOrEmpty(item.ConstraintsJson))
+            {
+                using var doc = JsonDocument.Parse(item.ConstraintsJson);
+                if (doc.RootElement.TryGetProperty("capPercent", out var cVal))
+                {
+                    var val = cVal.GetDecimal();
+                    capPercent = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+                }
+            }
+        }
+        catch { }
+
+        return new
+        {
+            id = item.Id,
+            name = item.Name,
+            datasetVersionId = item.DatasetVersionId,
+            totalBudget = item.TotalBudget,
+            weightsJson = item.WeightsJson,
+            constraintsJson = item.ConstraintsJson,
+            povertyWeight,
+            capPercent,
+            createdAt = item.CreatedAt
+        };
+    });
+    return Results.Ok(results);
+})
     .WithName("GetSimulationScenarios")
     .WithSummary("Mengambil daftar skenario simulasi tersimpan.")
+    .WithTags("Optimasi")
+    .AllowAnonymous();
+
+app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var scenario = await database.SimulationScenarios
+        .Include(s => s.Results)
+        .ThenInclude(r => r.Region)
+        .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+    if (scenario is null) return Results.NotFound(new { title = "Skenario tidak ditemukan." });
+
+    decimal povertyWeight = 30m;
+    decimal capPercent = 25m;
+    try
+    {
+        if (!string.IsNullOrEmpty(scenario.WeightsJson))
+        {
+            using var doc = JsonDocument.Parse(scenario.WeightsJson);
+            if (doc.RootElement.TryGetProperty("PovertyRate", out var pRate))
+            {
+                var val = pRate.GetDecimal();
+                povertyWeight = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+            }
+        }
+        if (!string.IsNullOrEmpty(scenario.ConstraintsJson))
+        {
+            using var doc = JsonDocument.Parse(scenario.ConstraintsJson);
+            if (doc.RootElement.TryGetProperty("capPercent", out var cVal))
+            {
+                var val = cVal.GetDecimal();
+                capPercent = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+            }
+        }
+    }
+    catch { }
+
+    return Results.Ok(new
+    {
+        id = scenario.Id,
+        name = scenario.Name,
+        datasetVersionId = scenario.DatasetVersionId,
+        totalBudget = scenario.TotalBudget,
+        weightsJson = scenario.WeightsJson,
+        constraintsJson = scenario.ConstraintsJson,
+        povertyWeight,
+        capPercent,
+        createdAt = scenario.CreatedAt,
+        recommendations = scenario.Results.OrderByDescending(item => item.RecommendedAmount - item.BaselineAmount).Select(item => new
+        {
+            region = item.Region?.Name ?? "N/A",
+            baselineAllocation = item.BaselineAmount,
+            recommendedAllocation = item.RecommendedAmount,
+            delta = item.RecommendedAmount - item.BaselineAmount,
+            deltaPercent = item.BaselineAmount > 0 ? (item.RecommendedAmount - item.BaselineAmount) / item.BaselineAmount : 0m,
+            vulnerabilityIndex = item.VulnerabilityIndex
+        })
+    });
+})
+    .WithName("GetSimulationScenarioById")
+    .WithSummary("Mengambil detail skenario simulasi tersimpan beserta hasil rekomendasinya.")
+    .WithTags("Optimasi")
+    .AllowAnonymous();
+
+app.MapDelete("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, HttpContext context, BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var (role, userRegion) = GetClientContext(context);
+    var scenario = await database.SimulationScenarios.Include(s => s.Results).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+    if (scenario is null) return Results.NotFound(new { title = "Skenario tidak ditemukan." });
+
+    database.AllocationResults.RemoveRange(scenario.Results);
+    database.SimulationScenarios.Remove(scenario);
+
+    database.AuditLogs.Add(new Brantas.Domain.Entities.AuditLog
+    {
+        Action = "DeleteSimulationScenario",
+        ActorRole = role,
+        ActorRegion = userRegion,
+        DetailsJson = JsonSerializer.Serialize(new { scenarioName = scenario.Name, scenarioId = scenario.Id }),
+        IsSuccess = true
+    });
+
+    await database.SaveChangesAsync(cancellationToken);
+    return Results.NoContent();
+})
+    .WithName("DeleteSimulationScenario")
+    .WithSummary("Menghapus skenario simulasi tersimpan.")
     .WithTags("Optimasi")
     .AllowAnonymous();
 

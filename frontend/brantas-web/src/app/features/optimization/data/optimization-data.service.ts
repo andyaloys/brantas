@@ -20,7 +20,12 @@ export interface SimulationScenario {
   id: string;
   name: string;
   totalBudget: number;
+  povertyWeight?: number;
+  capPercent?: number;
+  weightsJson?: string;
+  constraintsJson?: string;
   createdAt: string;
+  recommendations?: AllocationRecommendation[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -38,5 +43,13 @@ export class OptimizationDataService {
 
   getScenarios() {
     return this.http.get<SimulationScenario[]>('http://localhost:5025/api/v1/optimization/scenarios');
+  }
+
+  getScenarioById(id: string) {
+    return this.http.get<SimulationScenario>(`http://localhost:5025/api/v1/optimization/scenarios/${id}`);
+  }
+
+  deleteScenario(id: string) {
+    return this.http.delete(`http://localhost:5025/api/v1/optimization/scenarios/${id}`);
   }
 }
