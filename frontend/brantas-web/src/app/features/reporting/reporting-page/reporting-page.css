@@ -8,7 +8,7 @@
 
 .eyebrow {
   margin: 0 0 4px;
-  color: #2dd4bf;
+  color: var(--primary-500);
   font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -16,7 +16,7 @@
 
 h1 {
   margin: 0;
-  color: #f8fafc;
+  color: var(--text-primary);
   font-size: 26px;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -24,7 +24,7 @@ h1 {
 
 .subtitle {
   margin: 6px 0 0;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 13.5px;
   line-height: 1.5;
   max-width: 720px;
@@ -35,18 +35,18 @@ h1 {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
-  color: #34d399;
+  color: var(--accent-emerald);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .dataset-pill i {
-  color: #34d399;
+  color: var(--accent-emerald);
   font-size: 14px;
 }
 
@@ -57,11 +57,11 @@ h1 {
 }
 
 .doc-card {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 26px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   transition: all 0.22s ease;
@@ -71,12 +71,12 @@ h1 {
 
 .doc-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
-  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
 }
 
 .featured-card {
-  border-top: 3px solid #2dd4bf;
+  border-top: 3px solid var(--primary-500);
 }
 
 .card-header-top {
@@ -95,9 +95,9 @@ h1 {
   font-size: 20px;
 }
 
-.card-icon.pdf { background: rgba(225, 29, 72, 0.2); color: #fb7185; }
-.card-icon.excel { background: rgba(5, 150, 105, 0.2); color: #34d399; }
-.card-icon.table { background: rgba(2, 132, 199, 0.2); color: #38bdf8; }
+.card-icon.pdf { background: rgba(225, 29, 72, 0.15); color: var(--accent-rose); }
+.card-icon.excel { background: rgba(5, 150, 105, 0.15); color: var(--accent-emerald); }
+.card-icon.table { background: rgba(2, 132, 199, 0.15); color: var(--accent-blue); }
 
 .format-badge {
   display: inline-block;
@@ -108,8 +108,8 @@ h1 {
   border-radius: var(--radius-full);
 }
 
-.format-badge.pdf { background: rgba(225, 29, 72, 0.2); color: #fb7185; border: 1px solid rgba(225, 29, 72, 0.4); }
-.format-badge.csv { background: rgba(5, 150, 105, 0.2); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.4); }
+.format-badge.pdf { background: rgba(225, 29, 72, 0.15); color: var(--accent-rose); border: 1px solid rgba(225, 29, 72, 0.3); }
+.format-badge.csv { background: rgba(5, 150, 105, 0.15); color: var(--accent-emerald); border: 1px solid rgba(5, 150, 105, 0.3); }
 
 .card-content {
   flex: 1;
@@ -121,13 +121,13 @@ h2 {
   margin: 0 0 10px;
   font-size: 17.5px;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .doc-card p {
   margin: 0 0 18px;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-muted);
   line-height: 1.55;
   flex: 1;
 }
@@ -138,9 +138,9 @@ h2 {
   gap: 6px;
   margin-bottom: 20px;
   padding: 12px 14px;
-  background: #0b1120;
+  background: var(--bg-app);
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
 }
 
 .spec-item {
@@ -148,12 +148,12 @@ h2 {
   align-items: center;
   gap: 7px;
   font-size: 11.5px;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .spec-item i {
-  color: #2dd4bf;
+  color: var(--primary-500);
   font-size: 11px;
 }
 
@@ -184,14 +184,14 @@ h2 {
 }
 
 .btn-download.secondary {
-  background: #0b1120;
-  color: #f8fafc;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
 }
 
 .btn-download.secondary:hover:not(:disabled) {
-  background: #131d33;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--bg-surface-hover);
+  border-color: var(--border-glass);
 }
 
 .btn-download:disabled {
@@ -201,10 +201,10 @@ h2 {
 
 .state.error {
   padding: 16px 20px;
-  background: rgba(225, 29, 72, 0.15);
-  border: 1px solid rgba(225, 29, 72, 0.3);
+  background: rgba(225, 29, 72, 0.1);
+  border: 1px solid rgba(225, 29, 72, 0.25);
   border-radius: var(--radius-md);
-  color: #fb7185;
+  color: var(--accent-rose);
   margin-bottom: 20px;
   display: flex;
   align-items: center;
