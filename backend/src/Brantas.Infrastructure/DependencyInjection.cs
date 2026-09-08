@@ -16,7 +16,9 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("BrantasDatabase")
             ?? throw new InvalidOperationException("Connection string BrantasDatabase belum dikonfigurasi.");
 
-        services.AddDbContext<BrantasDbContext>(options => options.UseNpgsql(connectionString, npgsql => npgsql.UseNetTopologySuite()));
+        services.AddDbContext<BrantasDbContext>(options => options
+            .UseNpgsql(connectionString)
+            .ConfigureWarnings(warnings => warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
         services.AddScoped<ISyntheticDataSeeder, SyntheticDataSeeder>();
         services.AddHttpClient<IBrantasAssistant, LlmGatewayAssistant>();
         return services;

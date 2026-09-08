@@ -23,7 +23,6 @@ public sealed class BrantasDbContext(DbContextOptions<BrantasDbContext> options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresExtension("postgis");
         modelBuilder.Entity<AuditLog>(entity =>
         {
             entity.ToTable("audit_logs");
