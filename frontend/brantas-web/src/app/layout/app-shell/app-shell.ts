@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs/operators';
 import { KioskModeService } from '../../core/services/kiosk-mode.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ExecutiveTickerComponent } from '../executive-ticker/executive-ticker.component';
@@ -22,9 +24,24 @@ import { JusiChatWidgetComponent } from '../../features/jusi/jusi-chat-widget/ju
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppShellComponent {
+  private readonly router = inject(Router);
   protected readonly kiosk = inject(KioskModeService);
   protected readonly themeService = inject(ThemeService);
   protected readonly isSidebarCollapsed = signal(false);
+
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(event => event.urlAfterRedirects || event.url),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
+
+  protected readonly isDashboard = computed(() => {
+    const url = this.currentUrl() || '';
+    return url === '/' || url.startsWith('/beranda');
+  });
 
   protected toggleSidebar(): void {
     this.isSidebarCollapsed.update(val => !val);

@@ -25,10 +25,10 @@
         <div class="nav-section-title">MODUL EKSEKUTIF</div>
       }
       <nav class="nav-list">
-        <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item" [title]="'Beranda'">
+        <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item" [title]="'Dashboard'">
           <div class="nav-icon-wrap"><i class="pi pi-th-large" aria-hidden="true"></i></div>
           @if (!isSidebarCollapsed()) {
-            <span>Beranda</span>
+            <span>Dashboard</span>
           }
         </a>
         <a routerLink="/anomali" routerLinkActive="active" class="nav-item" [title]="'Anomali Fiskal (ML)'">
@@ -91,11 +91,13 @@
             <i class="pi pi-compass"></i>
             <span>LAN DATATHON 2026</span>
           </div>
-          <div class="search-command-pill">
-            <i class="pi pi-search"></i>
-            <span>Telusuri indikator / wilayah...</span>
-            <kbd>Ctrl K</kbd>
-          </div>
+          @if (!isDashboard()) {
+            <div class="search-command-pill">
+              <i class="pi pi-search"></i>
+              <span>Telusuri indikator / wilayah...</span>
+              <kbd>Ctrl K</kbd>
+            </div>
+          }
         </div>
 
         <div class="topbar-right">

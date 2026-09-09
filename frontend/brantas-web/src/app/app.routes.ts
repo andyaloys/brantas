@@ -7,7 +7,7 @@ export const routes: Routes = [
 		children: [
 			{
 				path: 'beranda',
-				title: 'BRANTAS | Beranda',
+				title: 'BRANTAS | Dashboard',
 				loadComponent: () => import('./features/dashboard/dashboard-page/dashboard-page').then((module) => module.DashboardPageComponent)
 			},
 			{
