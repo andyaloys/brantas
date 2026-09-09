@@ -109,7 +109,7 @@
 
           <div class="period-chip">
             <i class="pi pi-calendar"></i>
-            <span>Periode: <strong>2026-03</strong></span>
+            <span>Periode: <strong>2026</strong></span>
           </div>
 
           <!-- Light / Dark Mode Toggle Button -->
@@ -172,7 +172,7 @@
       </header>
     }
 
-    <main class="workspace" [class.workspace-kiosk]="kiosk.isKioskActive()">
+    <main class="workspace" [class.workspace-kiosk]="kiosk.isKioskActive()" [class.workspace-dashboard]="isDashboard()">
       <router-outlet />
     </main>
 
