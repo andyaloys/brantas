@@ -139,13 +139,13 @@ export class DashboardPageComponent implements AfterViewInit {
           grid: { left: '3%', right: '10%', bottom: '3%', top: '5%', containLabel: true },
           xAxis: {
             type: 'value',
-            axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-            splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.06)' } }
+            axisLabel: { formatter: '{value}%', color: '#334155', fontWeight: 600 },
+            splitLine: { lineStyle: { color: '#e2e8f0' } }
           },
           yAxis: {
             type: 'category',
             data: sorted.map(c => c.corridor),
-            axisLabel: { color: '#cbd5e1', fontWeight: 600 }
+            axisLabel: { color: '#0f172a', fontWeight: 700 }
           },
           series: [
             {
@@ -187,7 +187,7 @@ export class DashboardPageComponent implements AfterViewInit {
           legend: {
             bottom: '0%',
             left: 'center',
-            textStyle: { fontSize: 11, color: '#94a3b8' }
+            textStyle: { fontSize: 11, color: '#334155', fontWeight: 600 }
           },
           series: [
             {
@@ -198,7 +198,7 @@ export class DashboardPageComponent implements AfterViewInit {
               avoidLabelOverlap: false,
               itemStyle: {
                 borderRadius: 6,
-                borderColor: '#0f172a',
+                borderColor: '#ffffff',
                 borderWidth: 2
               },
               label: { show: false },
@@ -258,21 +258,21 @@ export class DashboardPageComponent implements AfterViewInit {
             name: 'Tingkat Kemiskinan (%)',
             nameLocation: 'middle',
             nameGap: 28,
-            nameTextStyle: { color: '#94a3b8', fontSize: 11 },
+            nameTextStyle: { color: '#0f172a', fontSize: 11, fontWeight: 700 },
             type: 'value',
             min: 0,
             max: 35,
-            axisLabel: { color: '#94a3b8' },
-            splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.06)' } }
+            axisLabel: { color: '#334155', fontWeight: 600 },
+            splitLine: { lineStyle: { color: '#e2e8f0' } }
           },
           yAxis: {
             name: 'Pagu per Kapita (Jt Rp)',
-            nameTextStyle: { color: '#94a3b8', fontSize: 11 },
+            nameTextStyle: { color: '#0f172a', fontSize: 11, fontWeight: 700 },
             type: 'value',
             min: 0,
             max: 8,
-            axisLabel: { color: '#94a3b8' },
-            splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.06)' } }
+            axisLabel: { color: '#334155', fontWeight: 600 },
+            splitLine: { lineStyle: { color: '#e2e8f0' } }
           },
           series: [
             {
@@ -318,21 +318,21 @@ export class DashboardPageComponent implements AfterViewInit {
           legend: {
             data: ['Historis BPS', 'Proyeksi Formula IKW BRANTAS', 'Target RPJMN 2026'],
             bottom: '0%',
-            textStyle: { color: '#94a3b8', fontSize: 11 }
+            textStyle: { color: '#334155', fontSize: 11, fontWeight: 600 }
           },
           grid: { left: '3%', right: '5%', bottom: '14%', top: '8%', containLabel: true },
           xAxis: {
             type: 'category',
             boundaryGap: false,
             data: ['2021', '2022', '2023', '2024', '2025', '2026 (Target)', '2027 (Proyeksi)'],
-            axisLabel: { color: '#cbd5e1' }
+            axisLabel: { color: '#0f172a', fontWeight: 600 }
           },
           yAxis: {
             type: 'value',
             min: 5,
             max: 11,
-            axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-            splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.06)' } }
+            axisLabel: { formatter: '{value}%', color: '#334155', fontWeight: 600 },
+            splitLine: { lineStyle: { color: '#e2e8f0' } }
           },
           series: [
             {

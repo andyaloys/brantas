@@ -4,12 +4,12 @@ export type AppTheme = 'light' | 'dark';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private readonly STORAGE_KEY = 'brantas_app_theme';
+  private readonly STORAGE_KEY = 'brantas_app_theme_v2';
   readonly theme = signal<AppTheme>('light');
 
   constructor() {
     const saved = typeof localStorage !== 'undefined' ? (localStorage.getItem(this.STORAGE_KEY) as AppTheme | null) : null;
-    const initialTheme: AppTheme = saved === 'dark' || saved === 'light' ? saved : 'light';
+    const initialTheme: AppTheme = saved === 'dark' ? 'dark' : 'light';
     this.setTheme(initialTheme);
   }
 
