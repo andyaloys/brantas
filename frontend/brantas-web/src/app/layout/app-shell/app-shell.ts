@@ -4,11 +4,19 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { KioskModeService } from '../../core/services/kiosk-mode.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ExecutiveTickerComponent } from '../executive-ticker/executive-ticker.component';
+import { JusiChatWidgetComponent } from '../../features/jusi/jusi-chat-widget/jusi-chat-widget.component';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, ExecutiveTickerComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    ExecutiveTickerComponent,
+    JusiChatWidgetComponent
+  ],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -39,4 +47,4 @@ export class AppShellComponent {
       }
     }
   }
-}
+}

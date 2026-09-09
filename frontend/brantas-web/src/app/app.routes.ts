@@ -32,8 +32,8 @@ export const routes: Routes = [
 			},
 			{
 				path: 'jusi',
-				title: 'BRANTAS | JUSI',
-				loadComponent: () => import('./features/jusi/jusi-page/jusi-page').then((module) => module.JusiPageComponent)
+				redirectTo: 'beranda',
+				pathMatch: 'full'
 			},
 			{
 				path: 'laporan',

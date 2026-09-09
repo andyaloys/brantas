@@ -1,0 +1,250 @@
+<!-- Floating Action Button (FAB Trigger) -->
+<button
+  type="button"
+  class="jusi-fab-trigger"
+  [class.active]="widget.isOpen()"
+  (click)="widget.toggle()"
+  [attr.aria-expanded]="widget.isOpen()"
+  aria-label="Buka Asisten JUSI AI Copilot (Ctrl+J)"
+  title="Asisten JUSI Copilot (Ctrl+J)"
+>
+  <div class="fab-pulse-ring"></div>
+  <div class="fab-inner">
+    <i class="pi" [class.pi-sparkles]="!widget.isOpen()" [class.pi-times]="widget.isOpen()"></i>
+    @if (!widget.isOpen()) {
+      <span class="fab-label">Tanya JUSI</span>
+      <span class="fab-ai-badge">AI</span>
+    }
+  </div>
+</button>
+
+<!-- Floating Pop-up Chat Window -->
+@if (widget.isOpen()) {
+  <section
+    class="jusi-chat-widget"
+    [class.expanded]="widget.isExpanded()"
+    aria-label="Asisten JUSI Pop-up Chat"
+  >
+    <!-- Widget Header -->
+    <header class="widget-header">
+      <div class="header-left">
+        <div class="jusi-avatar-badge">
+          <i class="pi pi-sparkles"></i>
+          <span class="status-dot"></span>
+        </div>
+        <div class="header-titles">
+          <div class="title-row">
+            <strong class="widget-title">JUSI Copilot</strong>
+            <span class="grounded-pill">
+              <i class="pi pi-shield"></i> Zero Hallucination
+            </span>
+          </div>
+          <small class="widget-subtitle">Analitik Fiskal & Kemiskinan Terverifikasi</small>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Toggle Session History Drawer -->
+        <button
+          type="button"
+          class="btn-widget-icon"
+          [class.active]="widget.isSessionsDrawerOpen()"
+          (click)="widget.toggleSessionsDrawer()"
+          title="Riwayat Topik Obrolan"
+          aria-label="Riwayat Topik Obrolan"
+        >
+          <i class="pi pi-history"></i>
+          @if (chat.sessions().length > 1) {
+            <span class="action-count">{{ chat.sessions().length }}</span>
+          }
+        </button>
+
+        <!-- New Chat Session Button -->
+        <button
+          type="button"
+          class="btn-widget-icon"
+          (click)="startNewSession()"
+          title="Obrolan Baru"
+          aria-label="Obrolan Baru"
+        >
+          <i class="pi pi-plus"></i>
+        </button>
+
+        <!-- Expand / Compact Widget -->
+        <button
+          type="button"
+          class="btn-widget-icon btn-expand"
+          (click)="widget.toggleExpand()"
+          [title]="widget.isExpanded() ? 'Ciutkan Ukuran' : 'Perluas Ukuran Widget'"
+          aria-label="Perluas / Ciutkan Ukuran"
+        >
+          <i class="pi" [class.pi-window-minimize]="widget.isExpanded()" [class.pi-window-maximize]="!widget.isExpanded()"></i>
+        </button>
+
+        <!-- Close Widget -->
+        <button
+          type="button"
+          class="btn-widget-icon btn-close"
+          (click)="widget.close()"
+          title="Tutup (Esc)"
+          aria-label="Tutup Pop-up Chat"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sessions Drawer Slide-over -->
+    @if (widget.isSessionsDrawerOpen()) {
+      <div class="sessions-drawer" role="region" aria-label="Riwayat Topik">
+        <div class="drawer-header">
+          <span class="drawer-title">RIWAYAT TOPIK OBROLAN</span>
+          <button type="button" class="btn-drawer-new" (click)="startNewSession()">
+            <i class="pi pi-plus"></i> Sesi Baru
+          </button>
+        </div>
+        <div class="drawer-session-list">
+          @for (s of chat.sessions(); track s.id) {
+            <div
+              class="drawer-session-item"
+              [class.active]="s.id === chat.activeSessionId()"
+              (click)="selectSession(s.id)"
+            >
+              <i class="pi pi-comment session-item-icon"></i>
+              <div class="session-item-text">
+                <span class="session-item-title">{{ s.title }}</span>
+                <small class="session-item-date">{{ s.updatedAt | date:'dd MMM, HH:mm' }}</small>
+              </div>
+              <button
+                type="button"
+                class="btn-delete-session"
+                (click)="deleteSession(s.id, $event)"
+                title="Hapus obrolan ini"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Message Stream -->
+    <div #scrollContainer class="widget-message-stream">
+      @for (msg of chat.activeMessages(); track msg.id) {
+        @if (msg.sender === 'user') {
+          <div class="chat-row user-row">
+            <div class="bubble user-bubble">
+              <div class="bubble-header user-header">
+                <span>Otoritas Pengguna</span>
+                <span class="msg-time">{{ msg.timestamp | date:'HH:mm' }}</span>
+              </div>
+              <p class="bubble-text">{{ msg.text }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="chat-row ai-row">
+            <div class="ai-avatar-wrap" [class.welcome]="msg.id.startsWith('welcome')" [class.error]="msg.isError">
+              <i class="pi" [class.pi-sparkles]="msg.id.startsWith('welcome')" [class.pi-check-circle]="!msg.id.startsWith('welcome') && !msg.isError" [class.pi-exclamation-circle]="msg.isError"></i>
+            </div>
+            <div class="bubble ai-bubble" [class.welcome-bubble]="msg.id.startsWith('welcome')" [class.error-bubble]="msg.isError">
+              <div class="bubble-header ai-header">
+                <span class="ai-sender-name">
+                  {{ msg.id.startsWith('welcome') ? 'JUSI Copilot' : msg.isError ? 'Peringatan Sistem' : 'Rekomendasi Terverifikasi' }}
+                </span>
+                <span class="msg-time">{{ msg.timestamp | date:'HH:mm' }}</span>
+              </div>
+              <p class="bubble-text">{{ msg.text }}</p>
+
+              @if (msg.source) {
+                <div class="citation-strip">
+                  <i class="pi pi-database"></i>
+                  <span>Basis Data: <strong>{{ msg.source }}</strong> · Periode {{ msg.period }} · {{ msg.usedFallback ? 'Grounding Deterministik' : 'LLM Terhubung' }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      @if (chat.isLoading()) {
+        <div class="chat-row ai-row">
+          <div class="ai-avatar-wrap active">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+          <div class="bubble ai-bubble loading-bubble">
+            <div class="bubble-header ai-header">
+              <span class="ai-sender-name">JUSI sedang menganalisis data...</span>
+            </div>
+            <p class="bubble-text loading-text">Mengekstraksi data kemiskinan dan menyusun justifikasi kebijakan...</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Composer Section with Floating Quick Prompts Popover -->
+    <footer class="widget-composer">
+      <!-- Floating Prompts Popover (Melayang Tepat di Atas Textbox) -->
+      @if (isNewSession() && !isPromptsDismissed()) {
+        <div class="floating-prompts-popover" role="region" aria-label="Saran Pertanyaan Eksekutif">
+          <div class="prompts-popover-header">
+            <div class="popover-title">
+              <i class="pi pi-sparkles"></i>
+              <span>PROMPT CEPAT EKSEKUTIF</span>
+            </div>
+            <button
+              type="button"
+              class="btn-dismiss-prompts"
+              (click)="dismissPrompts()"
+              title="Sembunyikan Saran"
+              aria-label="Sembunyikan Saran"
+            >
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="floating-prompts-grid">
+            @for (p of quickPrompts; track p.query) {
+              <button
+                type="button"
+                class="floating-chip"
+                (click)="usePrompt(p.query)"
+                [title]="p.query"
+              >
+                <i class="pi {{ p.icon }}"></i>
+                <span>{{ p.label }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="composer-input-row">
+        <textarea
+          #composerTextarea
+          [value]="question()"
+          (input)="updateQuestion($event)"
+          (keydown)="onKeydown($event)"
+          placeholder="Tanyakan analisis kemiskinan atau simulasi anggaran..."
+          rows="2"
+          aria-label="Tanyakan kepada JUSI"
+        ></textarea>
+        <button
+          type="button"
+          class="btn-send-widget"
+          (click)="ask()"
+          [disabled]="chat.isLoading() || !question().trim()"
+          [title]="chat.isLoading() ? 'Sedang menganalisis...' : 'Kirim (Enter)'"
+          aria-label="Kirim Pesan"
+        >
+          <i class="pi" [class.pi-send]="!chat.isLoading()" [class.pi-spin]="chat.isLoading()" [class.pi-spinner]="chat.isLoading()"></i>
+        </button>
+      </div>
+      <div class="widget-footer-meta">
+        <span class="pii-shield">
+          <i class="pi pi-lock"></i> Filter PII Aktif · Grounding Deterministik
+        </span>
+        <span class="kbd-hint">Kirim: <kbd>Enter</kbd> · Baris baru: <kbd>Shift+Enter</kbd></span>
+      </div>
+    </footer>
+  </section>
+}

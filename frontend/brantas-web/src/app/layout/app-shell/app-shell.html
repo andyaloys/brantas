@@ -57,13 +57,6 @@
             <span>Dampak Kebijakan</span>
           }
         </a>
-        <a routerLink="/jusi" routerLinkActive="active" class="nav-item" [title]="'Asisten JUSI (AI Copilot)'">
-          <div class="nav-icon-wrap"><i class="pi pi-sparkles" aria-hidden="true"></i></div>
-          @if (!isSidebarCollapsed()) {
-            <span>Asisten JUSI</span>
-            <span class="nav-badge-ai">AI Copilot</span>
-          }
-        </a>
         <a routerLink="/laporan" routerLinkActive="active" class="nav-item" [title]="'Pelaporan'">
           <div class="nav-icon-wrap"><i class="pi pi-file-pdf" aria-hidden="true"></i></div>
           @if (!isSidebarCollapsed()) {
@@ -180,6 +173,9 @@
     <main class="workspace" [class.workspace-kiosk]="kiosk.isKioskActive()">
       <router-outlet />
     </main>
+
+    <!-- Global Floating Pop-up Chat Widget for JUSI Copilot -->
+    <app-jusi-chat-widget />
 
     <!-- Global Executive Intelligence Running Ticker -->
     <app-executive-ticker />
