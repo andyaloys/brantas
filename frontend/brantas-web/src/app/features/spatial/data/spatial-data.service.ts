@@ -54,6 +54,14 @@ export class SpatialDataService {
     return this.http.get<SpatialGeoJson>(`${this.apiUrl}/spatial/regions.geojson`);
   }
 
+  getIndonesiaGeoJson() {
+    return this.http.get<any>('assets/geo/indonesia-provinces.json');
+  }
+
+  getIndonesiaKabupatenGeoJson() {
+    return this.http.get<any>('assets/geo/indonesia-kabupaten.json');
+  }
+
   downloadSpatialCsv() {
     return this.http.get(`${this.apiUrl}/spatial/regions.csv`, { responseType: 'blob' });
   }
