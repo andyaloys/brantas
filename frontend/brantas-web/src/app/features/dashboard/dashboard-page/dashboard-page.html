@@ -7,7 +7,7 @@
       [class.active]="activeTab() === 'macro'"
       (click)="setTab('macro')">
       <i class="pi pi-th-large"></i>
-      <span>HALAMAN 1: Geo-Command Center & Ringkasan Makro</span>
+      <span>Peta Spasial & Indikator Makro</span>
       @if (activeTab() === 'macro') {
         <span class="active-dot"></span>
       }
@@ -19,7 +19,7 @@
       [class.active]="activeTab() === 'allocation'"
       (click)="setTab('allocation')">
       <i class="pi pi-chart-scatter"></i>
-      <span>HALAMAN 2: Matriks Kuadran & Radar Prioritas</span>
+      <span>Matriks Kuadran & Wilayah Prioritas</span>
       @if (activeTab() === 'allocation') {
         <span class="active-dot"></span>
       }
@@ -35,29 +35,26 @@
 </section>
 
 @if (summary(); as sum) {
-  <!-- ==================== HALAMAN 1: GEO-COMMAND CENTER & RINGKASAN MAKRO ==================== -->
+  <!-- ==================== PETA SPASIAL & INDIKATOR MAKRO ==================== -->
   @if (activeTab() === 'macro') {
-    <div class="tab-content-view tab-fade-in">
+    <div class="tab-content-view tab-fade-in macro-dashboard-view">
       <!-- 1. Sleek Compact Command Strip -->
       <section class="dashboard-header-strip">
         <div class="header-left">
-          <h1>Executive Poverty & Budget Command Center</h1>
+          <h1>Dashboard Pemantauan Kemiskinan & Anggaran</h1>
           <p class="header-subtitle">
             Monitoring Terpadu <strong>38 Provinsi</strong>, <strong>514 Kabupaten/Kota</strong> & Optimalisasi Anggaran Perlindungan Sosial APBN <strong>Rp473,8 Triliun</strong>
           </p>
         </div>
         <div class="header-right">
-          <div class="header-badges">
-            <span class="pulse-pill">
-              <span class="live-dot"></span>
-              SISTEM AKTIF
-            </span>
-            <span class="meta-tag">LAN DATATHON 2026</span>
-            <span class="meta-tag">PERIODE: <strong>{{ sum.period }}</strong></span>
-          </div>
-          <button type="button" class="btn-sync" [disabled]="isRunning()" (click)="runPipeline()">
+          <button
+            type="button"
+            class="btn-sync"
+            [disabled]="isRunning()"
+            (click)="runPipeline()"
+            title="Sinkronisasi Pipeline Data"
+            aria-label="Sinkronisasi Pipeline Data">
             <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
-            <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Sinkronisasi Pipeline' }}</span>
           </button>
         </div>
       </section>
@@ -162,17 +159,17 @@
 
         <!-- Right: JUSI AI Insights & Top 5 Hotspot Regions -->
         <aside class="dashboard-insights-panel">
-          <!-- JUSI AI Strategic Briefing -->
+          <!-- Ringkasan Strategis JUSI AI -->
           <div class="executive-insights-card">
             <div class="card-head">
               <i class="pi pi-sparkles"></i>
-              <h3>JUSI AI STRATEGIC BRIEFING</h3>
+              <h3>Ringkasan Strategis</h3>
             </div>
             <div class="insights-list">
               <div class="insight-row">
                 <span class="insight-num">1</span>
                 <div class="insight-text">
-                  <strong>Disparitas Spasial:</strong>
+                  <strong>Analisis Spasial:</strong>
                   <p>Jurang kemiskinan (P1) Timur <strong>3,42x lebih dalam</strong> dibanding Jawa-Bali, butuh afirmasi IKW.</p>
                 </div>
               </div>
@@ -190,6 +187,13 @@
                   <p>Sebanyak <strong>14.280 NIK ganda & ASN</strong> terdeteksi, selamatkan VaR <strong>Rp4,2 Triliun</strong>.</p>
                 </div>
               </div>
+              <div class="insight-row">
+                <span class="insight-num">4</span>
+                <div class="insight-text">
+                  <strong>Rekomendasi Kebijakan:</strong>
+                  <p>Penajaman graduasi bansos mandiri PKH & Sembako di kantong kemiskinan ekstrem daerah prioritas.</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -202,48 +206,24 @@
             <div class="hotspots-list">
               @for (r of priorityRegions(); track r.region) {
                 <div class="hotspot-item">
-                  <span class="rank-badge">{{ $index + 1 }}</span>
-                  <div class="hotspot-meta">
-                    <strong>{{ r.region }}</strong>
-                    <small>{{ r.poorPopulation.toLocaleString('id-ID') }} jiwa miskin · IPM {{ r.humanDevelopmentIndex }}</small>
+                  <div class="hotspot-main-row">
+                    <span class="rank-badge" [class.rank-top3]="$index < 3">{{ $index + 1 }}</span>
+                    <div class="hotspot-meta">
+                      <strong>{{ r.region }}</strong>
+                      <small>{{ r.poorPopulation.toLocaleString('id-ID') }} jiwa miskin · IPM {{ r.humanDevelopmentIndex }}</small>
+                    </div>
+                    <div class="hotspot-rate">
+                      <span class="badge-rate">{{ r.povertyRate }}%</span>
+                    </div>
                   </div>
-                  <div class="hotspot-rate">
-                    <span class="badge-rate">{{ r.povertyRate }}%</span>
+                  <div class="hotspot-bar-track" [title]="'Tingkat kemiskinan ' + r.povertyRate + '% (Rerata Nasional: 11.22%)'">
+                    <div class="hotspot-bar-fill" [style.width.%]="(r.povertyRate / 35) * 100"></div>
                   </div>
                 </div>
               }
             </div>
           </div>
         </aside>
-      </section>
-
-      <!-- 2 Charts for Page 1 -->
-      <section class="command-grid-2x2">
-        <article class="command-panel">
-          <header class="panel-head">
-            <div class="panel-titles">
-              <span class="badge-accent">DISPARITAS WILAYAH MAKRO</span>
-              <h2>Komparasi Kemiskinan 6 Koridor Kepulauan</h2>
-            </div>
-            <div class="head-legend">
-              <span class="dot red"></span> &gt; 15%
-              <span class="dot amber"></span> 10-15%
-              <span class="dot teal"></span> &lt; 10%
-            </div>
-          </header>
-          <div #corridorChart class="chart-canvas"></div>
-        </article>
-
-        <article class="command-panel">
-          <header class="panel-head">
-            <div class="panel-titles">
-              <span class="badge-accent">STRATIFIKASI SOSIAL</span>
-              <h2>Sebaran Status 514 Kabupaten / Kota</h2>
-            </div>
-            <span class="head-total">514 Daerah</span>
-          </header>
-          <div #distChart class="chart-canvas"></div>
-        </article>
       </section>
     </div>
   }

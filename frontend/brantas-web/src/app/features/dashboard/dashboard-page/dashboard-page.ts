@@ -44,8 +44,6 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
   private readonly zone = inject(NgZone);
 
   @ViewChild('dashboardMapContainer') private dashboardMapContainerRef?: ElementRef<HTMLElement>;
-  @ViewChild('corridorChart') private corridorChartRef?: ElementRef<HTMLElement>;
-  @ViewChild('distChart') private distChartRef?: ElementRef<HTMLElement>;
   @ViewChild('quadrantChart') private quadrantChartRef?: ElementRef<HTMLElement>;
   @ViewChild('trendChart') private trendChartRef?: ElementRef<HTMLElement>;
 
@@ -59,8 +57,6 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
   protected readonly error = signal<string | null>(null);
 
   private idnKabGeoJson: any = null;
-  private corridorChartInstance?: echarts.ECharts;
-  private distChartInstance?: echarts.ECharts;
   private quadrantChartInstance?: echarts.ECharts;
   private trendChartInstance?: echarts.ECharts;
 
@@ -97,16 +93,12 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.mapAdapter.destroy();
-    this.corridorChartInstance?.dispose();
-    this.distChartInstance?.dispose();
     this.quadrantChartInstance?.dispose();
     this.trendChartInstance?.dispose();
   }
 
   @HostListener('window:resize')
   protected onWindowResize(): void {
-    this.corridorChartInstance?.resize();
-    this.distChartInstance?.resize();
     this.quadrantChartInstance?.resize();
     this.trendChartInstance?.resize();
     if (this.activeTab() === 'macro') {
@@ -171,111 +163,7 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
   }
 
   private renderAllExecutiveCharts(): void {
-    const corridors = this.corridors();
-    const distribution = this.distribution();
-    if (!corridors.length || !distribution) return;
-
     this.zone.runOutsideAngular(() => {
-      // 1. Chart Koridor Spasial
-      if (this.corridorChartRef) {
-        this.corridorChartInstance?.dispose();
-        this.corridorChartInstance = echarts.init(this.corridorChartRef.nativeElement);
-        const sorted = [...corridors].reverse();
-        this.corridorChartInstance.setOption({
-          backgroundColor: 'transparent',
-          tooltip: {
-            trigger: 'axis',
-            axisPointer: { type: 'shadow' },
-            backgroundColor: '#0b1120',
-            borderColor: 'rgba(255,255,255,0.15)',
-            textStyle: { color: '#f8fafc' },
-            formatter: (params: any) => {
-              const item = sorted[params[0].dataIndex];
-              return `<strong style="color:#38bdf8">${item.corridor}</strong><br/>` +
-                `Kemiskinan: <strong style="color:#2dd4bf">${item.averagePovertyRate.toFixed(2)}%</strong><br/>` +
-                `Penduduk Miskin: ${item.totalPoorPopulation.toLocaleString('id-ID')} jiwa<br/>` +
-                `Alokasi: Rp${item.totalAllocation.toLocaleString('id-ID', { maximumFractionDigits: 0 })} jt`;
-            }
-          },
-          grid: { left: '3%', right: '10%', bottom: '3%', top: '5%', containLabel: true },
-          xAxis: {
-            type: 'value',
-            axisLabel: { formatter: '{value}%', color: '#334155', fontWeight: 600 },
-            splitLine: { lineStyle: { color: '#e2e8f0' } }
-          },
-          yAxis: {
-            type: 'category',
-            data: sorted.map(c => c.corridor),
-            axisLabel: { color: '#0f172a', fontWeight: 700 }
-          },
-          series: [
-            {
-              name: 'Kemiskinan',
-              type: 'bar',
-              data: sorted.map(c => ({
-                value: c.averagePovertyRate,
-                itemStyle: {
-                  color: c.averagePovertyRate >= 15 ? '#fb7185' : c.averagePovertyRate >= 10 ? '#fbbf24' : '#2dd4bf',
-                  borderRadius: [0, 6, 6, 0]
-                }
-              })),
-              label: {
-                show: true,
-                position: 'right',
-                formatter: '{c}%',
-                fontWeight: 700,
-                color: '#f8fafc',
-                fontFamily: 'JetBrains Mono'
-              }
-            }
-          ]
-        });
-      }
-
-      // 2. Chart Sebaran & Akurasi Desil
-      if (this.distChartRef) {
-        this.distChartInstance?.dispose();
-        this.distChartInstance = echarts.init(this.distChartRef.nativeElement);
-        this.distChartInstance.setOption({
-          backgroundColor: 'transparent',
-          tooltip: {
-            trigger: 'item',
-            backgroundColor: '#0b1120',
-            borderColor: 'rgba(255,255,255,0.15)',
-            textStyle: { color: '#f8fafc' },
-            formatter: '{b}: <strong style="color:#38bdf8">{c} Kab/Kota</strong> ({d}%)'
-          },
-          legend: {
-            bottom: '0%',
-            left: 'center',
-            textStyle: { fontSize: 11, color: '#334155', fontWeight: 600 }
-          },
-          series: [
-            {
-              name: 'Sebaran Kelas Kemiskinan',
-              type: 'pie',
-              radius: ['45%', '70%'],
-              center: ['50%', '42%'],
-              avoidLabelOverlap: false,
-              itemStyle: {
-                borderRadius: 6,
-                borderColor: '#ffffff',
-                borderWidth: 2
-              },
-              label: { show: false },
-              emphasis: {
-                label: { show: true, fontSize: 13, fontWeight: 'bold', color: '#f8fafc' }
-              },
-              data: distribution.distribution.map(d => ({
-                value: d.count,
-                name: d.label,
-                itemStyle: { color: d.color }
-              }))
-            }
-          ]
-        });
-      }
-
       // 3. Scatter Matrix Kuadran Alokasi Fiskal (Poverty Severity vs Budget Allocation)
       if (this.quadrantChartRef) {
         this.quadrantChartInstance?.dispose();
@@ -428,13 +316,6 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
           ]
         });
       }
-
-      window.addEventListener('resize', () => {
-        this.corridorChartInstance?.resize();
-        this.distChartInstance?.resize();
-        this.quadrantChartInstance?.resize();
-        this.trendChartInstance?.resize();
-      });
     });
   }
 }
