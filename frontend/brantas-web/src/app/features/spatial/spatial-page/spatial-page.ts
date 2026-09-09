@@ -1,7 +1,7 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
-import { LeafletMapAdapter, SpatialIndicatorLayer } from '../data/leaflet-map.adapter';
+import { GisChoroplethAdapter, SpatialIndicatorLayer, CARTOGRAPHIC_BASEMAPS, CLUSTER_COLORS, CLUSTER_META } from '../data/gis-choropleth.adapter';
 import { MoranAnalysis, SpatialDataService, SpatialGeoJson, SpatialRegionProperties } from '../data/spatial-data.service';
 
 @Component({
@@ -12,19 +12,27 @@ import { MoranAnalysis, SpatialDataService, SpatialGeoJson, SpatialRegionPropert
   styleUrl: './spatial-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SpatialPageComponent implements AfterViewInit {
+export class SpatialPageComponent implements AfterViewInit, OnDestroy {
   private readonly spatialData = inject(SpatialDataService);
-  private readonly mapAdapter = inject(LeafletMapAdapter);
+  private readonly mapAdapter = inject(GisChoroplethAdapter);
 
-  @ViewChild('map') private mapElement?: ElementRef<HTMLElement>;
+  @ViewChild('mapContainer') private mapContainerRef?: ElementRef<HTMLElement>;
 
   protected readonly analysis = signal<MoranAnalysis | null>(null);
   protected readonly geoJson = signal<SpatialGeoJson | null>(null);
   protected readonly selectedRegion = signal<SpatialRegionProperties | null>(null);
   protected readonly selectedProvince = signal<string>('all');
-  protected readonly activeLayer = signal<SpatialIndicatorLayer>('povertyRate');
+  protected readonly activeLayer = signal<SpatialIndicatorLayer>('cluster');
   protected readonly error = signal<string | null>(null);
   protected readonly isExporting = signal(false);
+
+  // Basemap & View Controls
+  protected readonly basemaps = CARTOGRAPHIC_BASEMAPS;
+  protected readonly activeBasemap = signal<string>('topo');
+  protected readonly isBasemapPanelOpen = signal<boolean>(false);
+  protected readonly isMapMaximized = signal<boolean>(false);
+  protected readonly contentViewMode = signal<'map' | 'table'>('map');
+  protected readonly cursorCoords = signal<{ lat: number; lng: number } | null>(null);
 
   // Extract unique provinces list sorted alphabetically
   protected readonly provinces = computed(() => {
@@ -37,6 +45,17 @@ export class SpatialPageComponent implements AfterViewInit {
       }
     }
     return Array.from(unique).sort((a, b) => a.localeCompare(b, 'id'));
+  });
+
+  // Filtered regions list for Table view
+  protected readonly filteredRegions = computed(() => {
+    const data = this.geoJson();
+    if (!data) return [];
+    const prov = this.selectedProvince();
+    return data.features
+      .map(f => f.properties)
+      .filter(p => !!p && (prov === 'all' || p.parent.toLowerCase() === prov.toLowerCase()))
+      .sort((a, b) => b.povertyRate - a.povertyRate);
   });
 
   // Compute aggregate stats for selected province
@@ -58,6 +77,27 @@ export class SpatialPageComponent implements AfterViewInit {
     const avgDepth = matching.reduce((sum, r) => sum + r.povertyDepthIndex, 0) / count;
     const avgSeverity = matching.reduce((sum, r) => sum + r.povertySeverityIndex, 0) / count;
 
+    // Determine dominant cluster
+    const clusterTally: Record<string, number> = {
+      'High-High': 0,
+      'High-Low': 0,
+      'Low-High': 0,
+      'Low-Low': 0
+    };
+    for (const r of matching) {
+      if (clusterTally[r.cluster] !== undefined) {
+        clusterTally[r.cluster]++;
+      }
+    }
+    let dominantCluster: 'High-High' | 'Low-Low' | 'High-Low' | 'Low-High' = 'Low-Low';
+    let maxCount = -1;
+    for (const [cl, cnt] of Object.entries(clusterTally)) {
+      if (cnt > maxCount) {
+        maxCount = cnt;
+        dominantCluster = cl as any;
+      }
+    }
+
     return {
       name: prov,
       regencyCount: count,
@@ -65,24 +105,36 @@ export class SpatialPageComponent implements AfterViewInit {
       totalPoor,
       avgHdi,
       avgDepth,
-      avgSeverity
+      avgSeverity,
+      cluster: dominantCluster
     };
   });
 
   async ngAfterViewInit(): Promise<void> {
     try {
-      const [analysis, geoJson] = await Promise.all([
+      const [analysis, geoJson, idnKabGeoJson] = await Promise.all([
         firstValueFrom(this.spatialData.getMoranAnalysis()),
-        firstValueFrom(this.spatialData.getRegionsGeoJson())
+        firstValueFrom(this.spatialData.getRegionsGeoJson()),
+        firstValueFrom(this.spatialData.getIndonesiaKabupatenGeoJson())
       ]);
       this.analysis.set(analysis);
       this.geoJson.set(geoJson);
-      this.mapAdapter.render(this.mapElement!.nativeElement, geoJson, (region) => {
-        this.selectedRegion.set(region);
-      });
+
+      if (this.mapContainerRef) {
+        this.mapAdapter.render(
+          this.mapContainerRef.nativeElement,
+          idnKabGeoJson,
+          (region) => this.onRegionSelected(region),
+          (lat, lng) => this.cursorCoords.set({ lat, lng })
+        );
+      }
     } catch {
       this.error.set('Analisis spasial belum dapat dimuat. Pastikan layanan BRANTAS aktif.');
     }
+  }
+
+  ngOnDestroy(): void {
+    this.mapAdapter.destroy();
   }
 
   protected switchLayer(layer: SpatialIndicatorLayer): void {
@@ -90,18 +142,62 @@ export class SpatialPageComponent implements AfterViewInit {
     this.mapAdapter.setLayer(layer);
   }
 
+  protected toggleBasemapPanel(): void {
+    this.isBasemapPanelOpen.update(v => !v);
+  }
+
+  protected selectBasemap(id: string): void {
+    this.activeBasemap.set(id);
+    this.mapAdapter.switchBasemap(id);
+    this.isBasemapPanelOpen.set(false);
+  }
+
   protected onProvinceChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const prov = target.value;
     this.selectedProvince.set(prov);
-    this.selectedRegion.set(null); // Reset single regency inspector
+    this.selectedRegion.set(null);
     this.mapAdapter.filterAndZoomProvince(prov);
   }
 
-  protected resetToNational(): void {
+  protected onRegionSelected(region: SpatialRegionProperties): void {
+    this.selectedRegion.set(region);
+    this.selectedProvince.set(region.parent);
+  }
+
+  protected resetMapView(): void {
     this.selectedProvince.set('all');
     this.selectedRegion.set(null);
     this.mapAdapter.filterAndZoomProvince('all');
+    this.mapAdapter.resetZoom();
+  }
+
+  protected zoomIn(): void {
+    this.mapAdapter.zoomIn();
+  }
+
+  protected zoomOut(): void {
+    this.mapAdapter.zoomOut();
+  }
+
+  protected toggleContentView(mode: 'map' | 'table'): void {
+    this.contentViewMode.set(mode);
+    if (mode === 'map') {
+      this.mapAdapter.invalidateSize();
+    }
+  }
+
+  protected toggleMapMaximize(): void {
+    this.isMapMaximized.update(v => !v);
+    this.mapAdapter.invalidateSize();
+  }
+
+  protected selectRegionFromTable(region: SpatialRegionProperties): void {
+    this.selectedRegion.set(region);
+    this.selectedProvince.set(region.parent);
+    this.mapAdapter.filterAndZoomProvince(region.parent);
+    this.contentViewMode.set('map');
+    this.mapAdapter.invalidateSize();
   }
 
   protected async exportCsv(): Promise<void> {

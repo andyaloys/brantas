@@ -794,3 +794,173 @@ button, input, select, textarea {
   background: var(--bg-surface-hover) !important;
   color: var(--primary-600) !important;
 }
+
+/* Executive Map Tooltip (Capture 2 Style) */
+.leaflet-pane.leaflet-tooltip-pane {
+  z-index: 10000 !important;
+}
+
+.leaflet-tooltip.executive-map-tooltip,
+.executive-map-tooltip {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.28), 0 8px 16px -6px rgba(0, 0, 0, 0.12) !important;
+  padding: 14px 18px !important;
+  color: #0f172a !important;
+  font-family: var(--font-main) !important;
+  opacity: 1 !important;
+  z-index: 10000 !important;
+}
+
+.executive-map-tooltip::before,
+.executive-map-tooltip::after {
+  display: none !important;
+}
+
+.tooltip-card {
+  min-width: 260px;
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid #f1f5f9;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.tooltip-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.tooltip-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.tooltip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.tooltip-table .lbl {
+  color: #64748b;
+  font-weight: 500;
+  padding: 3px 0;
+}
+
+.tooltip-table .val {
+  text-align: right;
+  color: #0f172a;
+  padding: 3px 0;
+}
+
+.tooltip-table .val-poverty {
+  color: #991b1b;
+}
+
+.tooltip-cluster-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 11px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Plain Black Major Island Labels (National Zoom 4-5) */
+.leaflet-marker-icon.island-plain-label,
+.island-plain-label {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.island-plain-label span {
+  display: block;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: 12.5px;
+  font-weight: 900;
+  color: #0f172a !important; /* Arang gelap elegan */
+  text-shadow: 0 0 4px #ffffff, 0 0 8px #ffffff, 0 1px 3px #ffffff;
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+/* Plain Black Province Labels (Regional Zoom 6) */
+.leaflet-marker-icon.prov-plain-label,
+.prov-plain-label {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.prov-plain-label span {
+  display: block;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: 10px;
+  font-weight: 800;
+  color: #000000 !important; /* Murni hitam */
+  text-shadow: 0 0 3px #ffffff, 0 0 6px #ffffff, 0 1px 2px #ffffff;
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Plain Black Regency Labels (No Textbox / Background - Local Zoom >= 7) */
+.leaflet-marker-icon.kab-plain-label,
+.kab-plain-label {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.kab-plain-label span {
+  display: block;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: 9px;
+  font-weight: 800;
+  color: #000000 !important; /* Murni hitam */
+  text-shadow: 0 0 3px #ffffff, 0 0 5px #ffffff, 0 1px 2px #ffffff;
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: 0.01em;
+}
+

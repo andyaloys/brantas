@@ -1,8 +1,8 @@
 <section class="page-header">
   <div>
-    <p class="eyebrow">INTELIJEN GEOSPASIAL & AUTOKORELASI</p>
+    <p class="eyebrow">INTELIJEN GEOSPASIAL & AUTOKORELASI SPASIAL</p>
     <h1>Peta Ketimpangan & Klaster Kemiskinan</h1>
-    <p class="subtitle">Visualisasi koroplet 514 kabupaten/kota, kedalaman kemiskinan, dan autokorelasi spasial Local Moran's I · Periode {{ geoJson()?.period ?? '2026-03' }}.</p>
+    <p class="subtitle">Peta Kartografi Geospasial Indonesia · Arahkan kursor pada daerah untuk melihat indikator eksekutif. Klik untuk memfilter.</p>
   </div>
   <div class="header-actions">
     <div class="moran-score">
@@ -24,35 +24,73 @@
 @if (error()) {
   <section class="state error"><i class="pi pi-exclamation-circle" aria-hidden="true"></i><p>{{ error() }}</p></section>
 } @else {
-  <!-- Combined Filter & Layer Control Bar -->
-  <section class="layer-bar" aria-label="Pilihan filter wilayah dan layer indikator">
-    <!-- Province Filter Dropdown -->
-    <div class="filter-province-group">
-      <label for="provinceSelect" class="filter-label">
-        <i class="pi pi-map-marker" aria-hidden="true"></i>
-        <span>Filter Provinsi:</span>
-      </label>
-      <select
-        id="provinceSelect"
-        class="province-select"
-        [value]="selectedProvince()"
-        (change)="onProvinceChange($event)">
-        <option value="all">🗺️ Seluruh Indonesia (38 Provinsi · 514 Daerah)</option>
-        @for (prov of provinces(); track prov) {
-          <option [value]="prov">📍 {{ prov }}</option>
-        }
-      </select>
-
-      @if (selectedProvince() !== 'all') {
-        <button type="button" class="btn-reset-filter" (click)="resetToNational()" title="Kembali ke Tampilan Nasional">
-          <i class="pi pi-globe"></i>
-          <span>Zoom Nasional</span>
-        </button>
-      }
+  <!-- Core APBN GIS Top Bar (Sub-guide & Quick Actions) -->
+  <section class="gis-top-bar" aria-label="Toolbar kontrol peta">
+    <div class="gis-guide-text">
+      <i class="pi pi-compass" aria-hidden="true"></i>
+      <span>Peta Kartografi Geospasial · Arahkan kursor pada daerah untuk membaca tooltip eksekutif. Klik daerah untuk memfilter ringkasan.</span>
     </div>
 
-    <!-- Spatial Layer Switchers -->
+    <div class="gis-quick-actions">
+      <!-- Reset Filter Button -->
+      <button type="button" class="btn-gis-action" (click)="resetMapView()" title="Reset Filter dan Tampilan Peta">
+        <i class="pi pi-refresh"></i>
+        <span>Reset Filter</span>
+      </button>
+
+      <!-- View Mode Switcher (Peta / Tabel) -->
+      <div class="view-toggle-group">
+        <button 
+          type="button" 
+          class="btn-toggle" 
+          [class.active]="contentViewMode() === 'map'"
+          (click)="toggleContentView('map')">
+          <i class="pi pi-map"></i>
+          <span>Peta</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn-toggle" 
+          [class.active]="contentViewMode() === 'table'"
+          (click)="toggleContentView('table')">
+          <i class="pi pi-table"></i>
+          <span>Tabel</span>
+        </button>
+      </div>
+
+      <!-- Province Filter Dropdown -->
+      <div class="filter-dropdown-wrap">
+        <select
+          id="provinceSelect"
+          class="province-select"
+          [value]="selectedProvince()"
+          (change)="onProvinceChange($event)">
+          <option value="all">🗺️ Seluruh Indonesia (38 Provinsi · 514 Daerah)</option>
+          @for (prov of provinces(); track prov) {
+            <option [value]="prov">📍 {{ prov }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Maximize Button -->
+      <button 
+        type="button" 
+        class="btn-gis-action btn-maximize" 
+        [class.active]="isMapMaximized()" 
+        (click)="toggleMapMaximize()"
+        title="Buka Layar Penuh">
+        <i class="pi" [ngClass]="isMapMaximized() ? 'pi-window-minimize' : 'pi-window-maximize'"></i>
+        <span>{{ isMapMaximized() ? 'Minimize' : 'Maximize' }}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Indicator Layer Switcher Buttons -->
+  <section class="layer-bar" aria-label="Pilihan layer indikator spasial">
     <div class="layer-buttons">
+      <button type="button" class="layer-btn" [class.active]="activeLayer() === 'cluster'" (click)="switchLayer('cluster')">
+        <i class="pi pi-th-large"></i> Klaster Moran's I
+      </button>
       <button type="button" class="layer-btn" [class.active]="activeLayer() === 'povertyRate'" (click)="switchLayer('povertyRate')">
         <i class="pi pi-chart-pie"></i> Tingkat Kemiskinan (%)
       </button>
@@ -65,18 +103,164 @@
       <button type="button" class="layer-btn" [class.active]="activeLayer() === 'hdi'" (click)="switchLayer('hdi')">
         <i class="pi pi-star"></i> Indeks IPM
       </button>
-      <button type="button" class="layer-btn" [class.active]="activeLayer() === 'cluster'" (click)="switchLayer('cluster')">
-        <i class="pi pi-th-large"></i> Klaster Moran's I
-      </button>
     </div>
   </section>
 
-  <section class="spatial-grid">
-    <div class="map-panel">
-      <div #map class="map" aria-label="Peta klaster kemiskinan"></div>
+  <section class="spatial-grid" [class.is-maximized]="isMapMaximized()">
+    <!-- Main Map or Table Container -->
+    <div class="map-panel" [class.is-maximized]="isMapMaximized()">
+      @if (contentViewMode() === 'map') {
+        <div class="map-canvas-wrapper">
+          <!-- Leaflet GIS Map Element -->
+          <div #mapContainer class="leaflet-gis-map" id="gisMap" aria-label="Peta Geospasial Core APBN Kartografi"></div>
+
+          <!-- Floating GIS Controls Overlay (Top-Right of Map) -->
+          <div class="map-floating-gis-toolbar">
+            <!-- Basemap Selector Button -->
+            <div class="basemap-control-wrapper">
+              <button 
+                type="button" 
+                class="gis-floating-btn" 
+                [class.active]="isBasemapPanelOpen()" 
+                (click)="toggleBasemapPanel()" 
+                title="Pilih Lapisan Basemap">
+                <i class="pi pi-clone"></i>
+              </button>
+
+              @if (isBasemapPanelOpen()) {
+                <div class="basemap-options-panel">
+                  <div class="basemap-panel-header">
+                    <span>PILIH TAMPILAN PETA KARTOGRAFI</span>
+                    <button type="button" class="btn-close-basemap" (click)="toggleBasemapPanel()">
+                      <i class="pi pi-times"></i>
+                    </button>
+                  </div>
+                  <div class="basemap-list">
+                    @for (b of basemaps; track b.id) {
+                      <button 
+                        type="button" 
+                        class="basemap-option-item" 
+                        [class.active]="activeBasemap() === b.id"
+                        (click)="selectBasemap(b.id)">
+                        <i class="pi" [ngClass]="b.id === 'satellite' ? 'pi-image' : b.id === 'topo' ? 'pi-globe' : 'pi-map'"></i>
+                        <span>{{ b.label }}</span>
+                        @if (activeBasemap() === b.id) {
+                          <i class="pi pi-check active-check-icon"></i>
+                        }
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Zoom Controls -->
+            <button 
+              type="button" 
+              class="gis-floating-btn" 
+              (click)="zoomIn()" 
+              title="Perbesar Peta (+)">
+              <i class="pi pi-plus"></i>
+            </button>
+            <button 
+              type="button" 
+              class="gis-floating-btn" 
+              (click)="zoomOut()" 
+              title="Perkecil Peta (-)">
+              <i class="pi pi-minus"></i>
+            </button>
+            <button 
+              type="button" 
+              class="gis-floating-btn" 
+              (click)="resetMapView()" 
+              title="Reset Tampilan ke Seluruh Indonesia">
+              <i class="pi pi-home"></i>
+            </button>
+            <button 
+              type="button" 
+              class="gis-floating-btn" 
+              [class.active]="isMapMaximized()" 
+              (click)="toggleMapMaximize()" 
+              title="Layar Penuh">
+              <i class="pi" [ngClass]="isMapMaximized() ? 'pi-window-minimize' : 'pi-window-maximize'"></i>
+            </button>
+          </div>
+
+          <!-- Bottom Coordinates & Viewport Status Bar -->
+          <div class="map-bottom-statusbar">
+            <div class="coords-info">
+              <i class="pi pi-map-marker"></i>
+              @if (cursorCoords(); as c) {
+                <span>Lat: <strong>{{ c.lat.toFixed(4) }}</strong> | Lon: <strong>{{ c.lng.toFixed(4) }}</strong></span>
+              } @else {
+                <span>Arahkan kursor pada poligon daerah untuk membaca koordinat & detail</span>
+              }
+            </div>
+            <div class="viewport-count">
+              <span class="pulse-point"></span>
+              <span>38 Provinsi · 514 Daerah Terpetakan</span>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <!-- Tabular View Mode -->
+        <div class="table-view-panel">
+          <div class="table-header-bar">
+            <h3>Daftar Tabulasi Indikator Spasial & Klaster Moran's I</h3>
+            <span class="badge-total">{{ filteredRegions().length }} Daerah</span>
+          </div>
+          <div class="table-responsive">
+            <table class="spatial-data-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Kabupaten / Kota</th>
+                  <th>Provinsi</th>
+                  <th>Kemiskinan (%)</th>
+                  <th>Penduduk Miskin</th>
+                  <th>IPM</th>
+                  <th>P1</th>
+                  <th>P2</th>
+                  <th>Klaster Spasial</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of filteredRegions(); track r.regionId; let i = $index) {
+                  <tr (click)="selectRegionFromTable(r)">
+                    <td>{{ i + 1 }}</td>
+                    <td><strong>{{ r.name }}</strong></td>
+                    <td>{{ r.parent }}</td>
+                    <td class="text-right"><strong>{{ r.povertyRate.toFixed(2) }}%</strong></td>
+                    <td class="text-right mono">{{ r.poorPopulation.toLocaleString('id-ID') }}</td>
+                    <td class="text-right font-bold">{{ r.humanDevelopmentIndex.toFixed(2) }}</td>
+                    <td class="text-right mono">{{ r.povertyDepthIndex.toFixed(3) }}</td>
+                    <td class="text-right mono">{{ r.povertySeverityIndex.toFixed(3) }}</td>
+                    <td>
+                      <span class="cluster-badge" 
+                        [class.hh]="r.cluster === 'High-High'"
+                        [class.hl]="r.cluster === 'High-Low'"
+                        [class.lh]="r.cluster === 'Low-High'"
+                        [class.ll]="r.cluster === 'Low-Low'">
+                        {{ r.cluster }}
+                      </span>
+                    </td>
+                    <td>
+                      <button type="button" class="btn-inspect-small" (click)="selectRegionFromTable(r); $event.stopPropagation()">
+                        Lihat <i class="pi pi-arrow-right"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
     </div>
     
-    <aside class="panel inspector-panel">
+    <!-- Inspector Panel (Right) -->
+    <aside class="panel inspector-panel" [class.is-hidden-maximized]="isMapMaximized()">
       @if (selectedRegion(); as region) {
         <!-- Single Regency Detailed Inspector -->
         <div class="detail-card">
@@ -111,7 +295,15 @@
             </div>
             <div>
               <dt>Klaster Spasial</dt>
-              <dd><span class="cluster-badge" [class.hh]="region.cluster === 'High-High'" [class.ll]="region.cluster === 'Low-Low'">{{ region.cluster }}</span></dd>
+              <dd>
+                <span class="cluster-badge" 
+                  [class.hh]="region.cluster === 'High-High'" 
+                  [class.hl]="region.cluster === 'High-Low'"
+                  [class.lh]="region.cluster === 'Low-High'"
+                  [class.ll]="region.cluster === 'Low-Low'">
+                  {{ region.cluster }}
+                </span>
+              </dd>
             </div>
           </dl>
         </div>
@@ -144,26 +336,58 @@
               <dd class="mono font-bold text-teal">{{ prov.avgHdi.toFixed(2) }}</dd>
             </div>
             <div>
-              <dt>Jumlah Daerah</dt>
-              <dd class="mono">{{ prov.regencyCount }} Kab / Kota</dd>
+              <dt>Klaster Spasial Dominan</dt>
+              <dd>
+                <span class="cluster-badge" 
+                  [class.hh]="prov.cluster === 'High-High'" 
+                  [class.hl]="prov.cluster === 'High-Low'"
+                  [class.lh]="prov.cluster === 'Low-High'"
+                  [class.ll]="prov.cluster === 'Low-Low'">
+                  {{ prov.cluster }}
+                </span>
+              </dd>
             </div>
           </dl>
-          <p class="prov-hint"><i class="pi pi-info-circle"></i> Klik salah satu titik marker pada peta untuk melihat detail spesifik kabupaten/kota.</p>
+          <p class="prov-hint"><i class="pi pi-info-circle"></i> Buka tab "Tabel" di atas untuk menelusuri data per kabupaten/kota di provinsi ini.</p>
         </div>
       } @else {
         <!-- National Overview Default -->
         <div class="empty-inspector">
           <p class="panel-kicker">PANDUAN EKSPLORASI</p>
           <h2>{{ analysis()?.regionCount ?? 514 }} Daerah Nasional</h2>
-          <p class="guide-text">Pilih provinsi pada dropdown di atas untuk auto-zoom, atau klik salah satu marker titik untuk menginspeksi profil statistik & indeks kemiskinan secara rinci.</p>
+          <p class="guide-text">Pilih provinsi pada dropdown di atas atau klik langsung pada poligon peta untuk menginspeksi ringkasan indikator & klaster Moran's I.</p>
           
           <div class="legend-card">
-            <span class="legend-title">Klasifikasi Klaster Spasial</span>
+            <span class="legend-title">Klasifikasi Klaster Spasial (Moran's I)</span>
             <div class="legend">
-              <div class="legend-row"><span class="hh"></span><div><strong>High-High (Hotspot)</strong><small>Kemiskinan &gt; 20% dikelilingi wilayah tinggi</small></div></div>
-              <div class="legend-row"><span class="ll"></span><div><strong>Low-Low (Coldspot)</strong><small>Kemiskinan &lt; 6% klaster maju & sejahtera</small></div></div>
-              <div class="legend-row"><span class="hl"></span><div><strong>High-Low (Outlier Tinggi)</strong><small>Kantong kemiskinan di area maju</small></div></div>
-              <div class="legend-row"><span class="lh"></span><div><strong>Low-High (Outlier Rendah)</strong><small>Wilayah sejahtera di area tertinggal</small></div></div>
+              <div class="legend-row">
+                <span class="hh"></span>
+                <div>
+                  <strong>High-High (Hotspot)</strong>
+                  <small>Merah Pekat · Kemiskinan &gt; 20% klaster beban tinggi</small>
+                </div>
+              </div>
+              <div class="legend-row">
+                <span class="hl"></span>
+                <div>
+                  <strong>High-Low (Outlier Tinggi)</strong>
+                  <small>Merah Normal · Kantong kemiskinan di area maju</small>
+                </div>
+              </div>
+              <div class="legend-row">
+                <span class="lh"></span>
+                <div>
+                  <strong>Low-High (Outlier Rendah)</strong>
+                  <small>Orange · Wilayah sejahtera di area tertinggal</small>
+                </div>
+              </div>
+              <div class="legend-row">
+                <span class="ll"></span>
+                <div>
+                  <strong>Low-Low (Coldspot)</strong>
+                  <small>Kuning · Kemiskinan &lt; 6% klaster maju &amp; sejahtera</small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
