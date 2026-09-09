@@ -7,7 +7,7 @@
       [class.active]="activeTab() === 'macro'"
       (click)="setTab('macro')">
       <i class="pi pi-th-large"></i>
-      <span>HALAMAN 1: Ringkasan Makro & 6 KPI Nasional</span>
+      <span>HALAMAN 1: Geo-Command Center & Ringkasan Makro</span>
       @if (activeTab() === 'macro') {
         <span class="active-dot"></span>
       }
@@ -35,77 +35,39 @@
 </section>
 
 @if (summary(); as sum) {
-  <!-- ==================== HALAMAN 1: RINGKASAN MAKRO & 6 KPI ==================== -->
+  <!-- ==================== HALAMAN 1: GEO-COMMAND CENTER & RINGKASAN MAKRO ==================== -->
   @if (activeTab() === 'macro') {
     <div class="tab-content-view tab-fade-in">
-      <!-- Command Center Hero Header -->
-      <section class="executive-hero">
-        <div class="hero-content">
-          <div class="hero-badges">
+      <!-- 1. Sleek Compact Command Strip -->
+      <section class="dashboard-header-strip">
+        <div class="header-left">
+          <h1>Executive Poverty & Budget Command Center</h1>
+          <p class="header-subtitle">
+            Monitoring Terpadu <strong>38 Provinsi</strong>, <strong>514 Kabupaten/Kota</strong> & Optimalisasi Anggaran Perlindungan Sosial APBN <strong>Rp473,8 Triliun</strong>
+          </p>
+        </div>
+        <div class="header-right">
+          <div class="header-badges">
             <span class="pulse-pill">
               <span class="live-dot"></span>
-              SISTEM INTELIJEN FISKAL AKTIF
+              SISTEM AKTIF
             </span>
             <span class="meta-tag">LAN DATATHON 2026</span>
             <span class="meta-tag">PERIODE: <strong>{{ sum.period }}</strong></span>
-            <span class="meta-tag">SEED: <strong>20260101</strong></span>
           </div>
-          <div class="hero-main">
-            <div>
-              <h1>Executive Poverty & Budget Command Center</h1>
-              <p class="hero-desc">
-                Platform analitik komprehensif <strong>38 Provinsi</strong>, <strong>514 Kabupaten/Kota</strong>, <strong>2.000.000 data mikro kepesertaan</strong>, dan optimalisasi <strong>Rp473,8 Triliun</strong> anggaran perlindungan sosial nasional.
-              </p>
-            </div>
-            <div class="hero-actions">
-              <button type="button" class="btn-sync" [disabled]="isRunning()" (click)="runPipeline()">
-                <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
-                <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Sinkronisasi Pipeline' }}</span>
-              </button>
-            </div>
-          </div>
+          <button type="button" class="btn-sync" [disabled]="isRunning()" (click)="runPipeline()">
+            <i class="pi pi-sync" [class.pi-spin]="isRunning()" aria-hidden="true"></i>
+            <span>{{ isRunning() ? 'Menyelaraskan Data...' : 'Sinkronisasi Pipeline' }}</span>
+          </button>
         </div>
       </section>
 
-      <!-- AI Executive Strategic Briefing Card -->
-      <section class="executive-briefing-strip" aria-label="Ringkasan Kebijakan Strategis AI">
-        <div class="briefing-header">
-          <div class="briefing-title">
-            <i class="pi pi-sparkles"></i>
-            <strong>JUSI AI EXECUTIVE BRIEFING (RINGKASAN STRATEGIS PIMPINAN)</strong>
-          </div>
-          <span class="briefing-tag">GROUNDED DATASET v2026</span>
-        </div>
-        <div class="briefing-grid">
-          <div class="briefing-item">
-            <div class="item-num">1</div>
-            <div class="item-content">
-              <strong>Fokus Disparitas Spasial:</strong>
-              <p>Wilayah Timur (Papua & Maluku) mencatat jurang kemiskinan (P1) rata-rata <strong>3,42x lebih dalam</strong> dibanding Jawa-Bali, membutuhkan prioritas afirmasi IKW.</p>
-            </div>
-          </div>
-          <div class="briefing-item">
-            <div class="item-num">2</div>
-            <div class="item-content">
-              <strong>Peluang Efisiensi Pagu:</strong>
-              <p>Model Linear OR-Tools membuktikan pergeseran anggaran <strong>Rp5,4 Triliun</strong> dari wilayah over-allocation dapat menutup 100% gap under-allocation tanpa menambah defisit APBN.</p>
-            </div>
-          </div>
-          <div class="briefing-item">
-            <div class="item-num">3</div>
-            <div class="item-content">
-              <strong>Temuan Integritas Mikro:</strong>
-              <p>Sebanyak <strong>14.280 NIK ganda & ASN aktif</strong> terdeteksi dalam DTKS/Regsosek berpotensi menyelamatkan nilai berisiko <em>(Value at Risk)</em> hingga <strong>Rp4,2 Triliun</strong>.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 6 High-Impact Executive KPI Grid -->
-      <section class="kpi-matrix" aria-label="Indikator Kunci Nasional">
+      <!-- 2. Four Core High-Impact KPIs (Clean, Streamlined, Focused) -->
+      <section class="executive-kpi-grid" aria-label="Indikator Kunci Nasional">
+        <!-- KPI 1: Rerata Kemiskinan -->
         <article class="kpi-card kpi-teal">
           <div class="kpi-top">
-            <span class="kpi-title">Rerata Kemiskinan</span>
+            <span class="kpi-title">Rerata Kemiskinan Nasional</span>
             <div class="kpi-icon"><i class="pi pi-chart-line"></i></div>
           </div>
           <div class="kpi-num">{{ sum.averagePovertyRate }}<small>%</small></div>
@@ -118,26 +80,28 @@
           </div>
         </article>
 
+        <!-- KPI 2: Penduduk Miskin -->
         <article class="kpi-card kpi-blue">
           <div class="kpi-top">
             <span class="kpi-title">Penduduk Miskin</span>
             <div class="kpi-icon"><i class="pi pi-users"></i></div>
           </div>
-          <div class="kpi-num">{{ sum.totalPoorPopulation.toLocaleString('id-ID') }}</div>
+          <div class="kpi-num">{{ sum.totalPoorPopulation.toLocaleString('id-ID') }} <small>Jiwa</small></div>
           <div class="kpi-tag-sub">
-            <i class="pi pi-info-circle"></i> Target Penerima Bansos
+            <i class="pi pi-info-circle"></i> Target Penerima Bansos APBN
           </div>
           <div class="kpi-sub">
             <span>Cakupan 38 Provinsi & 514 Daerah</span>
           </div>
         </article>
 
+        <!-- KPI 3: Pagu Alokasi APBN -->
         <article class="kpi-card kpi-emerald">
           <div class="kpi-top">
             <span class="kpi-title">Pagu Alokasi APBN</span>
             <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
           </div>
-          <div class="kpi-num">Rp{{ sum.totalBudget.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }}<small> jt</small></div>
+          <div class="kpi-num">Rp{{ sum.totalBudget.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }}<small> Jt</small></div>
           <div class="kpi-tag-sub emerald">
             <i class="pi pi-check"></i> Baseline Terverifikasi
           </div>
@@ -146,45 +110,111 @@
           </div>
         </article>
 
-        <article class="kpi-card kpi-indigo">
-          <div class="kpi-top">
-            <span class="kpi-title">Kedalaman & Keparahan</span>
-            <div class="kpi-icon"><i class="pi pi-sliders-v"></i></div>
-          </div>
-          <div class="kpi-num">{{ sum.averagePovertyDepth }} <span class="divider">/</span> {{ sum.averagePovertySeverity }}</div>
-          <div class="kpi-sub two-col">
-            <span>P1 (Jarak Pengeluaran): <strong>{{ sum.averagePovertyDepth }}</strong></span>
-            <span>P2 (Ketimpangan Miskin): <strong>{{ sum.averagePovertySeverity }}</strong></span>
-          </div>
-        </article>
-
-        <article class="kpi-card kpi-cyan">
-          <div class="kpi-top">
-            <span class="kpi-title">IPM Rata-Rata</span>
-            <div class="kpi-icon"><i class="pi pi-star"></i></div>
-          </div>
-          <div class="kpi-num">{{ sum.averageHumanDevelopmentIndex }}</div>
-          <div class="kpi-tag-sub blue">
-            <i class="pi pi-sparkles"></i> Status Tinggi (70-80)
-          </div>
-          <div class="kpi-sub">
-            <span>Indeks Pembangunan Manusia</span>
-          </div>
-        </article>
-
+        <!-- KPI 4: Temuan Anomali & Risiko -->
         <article class="kpi-card kpi-rose">
           <div class="kpi-top">
-            <span class="kpi-title">Temuan Anomali</span>
-            <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
+            <span class="kpi-title">Temuan Anomali & Risiko</span>
+            <div class="kpi-icon"><i class="pi pi-shield"></i></div>
           </div>
           <div class="kpi-num">{{ sum.totalAnomalies }} <small class="text-rose">Kasus</small></div>
           <div class="kpi-tag-sub rose">
-            <i class="pi pi-shield"></i> Nilai Berisiko Tinggi
+            <i class="pi pi-exclamation-triangle"></i> Nilai Berisiko Tinggi (VaR)
           </div>
           <div class="kpi-sub">
-            <span>Rp at Risk: <strong>Rp{{ sum.totalValueAtRisk.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }} jt</strong></span>
+            <span>Rp at Risk: <strong>Rp{{ sum.totalValueAtRisk.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }} Jt</strong></span>
           </div>
         </article>
+      </section>
+
+      <!-- 3. Centerpiece: Spatial Map (65%) + Insights & Hotspots (35%) -->
+      <section class="dashboard-centerpiece-grid" aria-label="Peta Spasial dan Ringkasan Strategis">
+        <!-- Left: Interactive Spatial Map Panel -->
+        <article class="dashboard-map-panel">
+          <header class="map-panel-header">
+            <div class="panel-titles">
+              <span class="badge-accent"><i class="pi pi-map"></i> PETA SPASIAL EKSEKUTIF</span>
+              <h2>Sebaran Klaster Kemiskinan & Wilayah Prioritas</h2>
+            </div>
+            <div class="map-panel-actions">
+              <a routerLink="/peta-spasial" class="btn-goto-gis" title="Buka modul analisis spasial GIS lengkap">
+                <span>Buka Peta Spasial Detail (GIS)</span>
+                <i class="pi pi-arrow-up-right"></i>
+              </a>
+            </div>
+          </header>
+
+          <div class="dashboard-map-wrapper">
+            <div #dashboardMapContainer class="dashboard-gis-map"></div>
+          </div>
+
+          <footer class="map-panel-footer">
+            <div class="map-legend-items">
+              <div class="legend-item"><span class="dot-legend dot-hotspot"></span> Hotspot (Prioritas 1)</div>
+              <div class="legend-item"><span class="dot-legend dot-outlier-high"></span> Outlier Tinggi</div>
+              <div class="legend-item"><span class="dot-legend dot-outlier-low"></span> Outlier Rendah</div>
+              <div class="legend-item"><span class="dot-legend dot-coldspot"></span> Coldspot (Mandiri)</div>
+            </div>
+            <div class="map-lod-hint">
+              <i class="pi pi-search-plus"></i> Multi-Scale LOD: Zoom untuk melihat nama provinsi dan kabupaten/kota
+            </div>
+          </footer>
+        </article>
+
+        <!-- Right: JUSI AI Insights & Top 5 Hotspot Regions -->
+        <aside class="dashboard-insights-panel">
+          <!-- JUSI AI Strategic Briefing -->
+          <div class="executive-insights-card">
+            <div class="card-head">
+              <i class="pi pi-sparkles"></i>
+              <h3>JUSI AI STRATEGIC BRIEFING</h3>
+            </div>
+            <div class="insights-list">
+              <div class="insight-row">
+                <span class="insight-num">1</span>
+                <div class="insight-text">
+                  <strong>Disparitas Spasial:</strong>
+                  <p>Jurang kemiskinan (P1) Timur <strong>3,42x lebih dalam</strong> dibanding Jawa-Bali, butuh afirmasi IKW.</p>
+                </div>
+              </div>
+              <div class="insight-row">
+                <span class="insight-num">2</span>
+                <div class="insight-text">
+                  <strong>Peluang Efisiensi:</strong>
+                  <p>Model Linear OR-Tools membuktikan pergeseran <strong>Rp5,4 Triliun</strong> tutup 100% gap under-allocation.</p>
+                </div>
+              </div>
+              <div class="insight-row">
+                <span class="insight-num">3</span>
+                <div class="insight-text">
+                  <strong>Integritas Data:</strong>
+                  <p>Sebanyak <strong>14.280 NIK ganda & ASN</strong> terdeteksi, selamatkan VaR <strong>Rp4,2 Triliun</strong>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top 5 Priority Hotspot Regions -->
+          <div class="priority-hotspots-card">
+            <div class="card-head">
+              <i class="pi pi-exclamation-circle"></i>
+              <h3>TOP 5 WILAYAH PRIORITAS TERTINGGI</h3>
+            </div>
+            <div class="hotspots-list">
+              @for (r of priorityRegions(); track r.region) {
+                <div class="hotspot-item">
+                  <span class="rank-badge">{{ $index + 1 }}</span>
+                  <div class="hotspot-meta">
+                    <strong>{{ r.region }}</strong>
+                    <small>{{ r.poorPopulation.toLocaleString('id-ID') }} jiwa miskin · IPM {{ r.humanDevelopmentIndex }}</small>
+                  </div>
+                  <div class="hotspot-rate">
+                    <span class="badge-rate">{{ r.povertyRate }}%</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </aside>
       </section>
 
       <!-- 2 Charts for Page 1 -->

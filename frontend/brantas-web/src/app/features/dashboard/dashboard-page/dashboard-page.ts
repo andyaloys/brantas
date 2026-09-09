@@ -1,8 +1,21 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, ViewChild, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  HostListener,
+  NgZone,
+  OnDestroy,
+  ViewChild,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import * as echarts from 'echarts';
+import { GisChoroplethAdapter } from '../../spatial/data/gis-choropleth.adapter';
+import { SpatialDataService } from '../../spatial/data/spatial-data.service';
 import {
   DashboardDataService,
   DashboardSummary,
@@ -17,16 +30,20 @@ export type DashboardExecutiveTab = 'macro' | 'allocation';
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
+  providers: [GisChoroplethAdapter],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DashboardPageComponent implements AfterViewInit {
+export class DashboardPageComponent implements AfterViewInit, OnDestroy {
   private readonly dashboardData = inject(DashboardDataService);
+  private readonly spatialData = inject(SpatialDataService);
+  private readonly mapAdapter = inject(GisChoroplethAdapter);
   private readonly route = inject(ActivatedRoute);
   private readonly zone = inject(NgZone);
 
+  @ViewChild('dashboardMapContainer') private dashboardMapContainerRef?: ElementRef<HTMLElement>;
   @ViewChild('corridorChart') private corridorChartRef?: ElementRef<HTMLElement>;
   @ViewChild('distChart') private distChartRef?: ElementRef<HTMLElement>;
   @ViewChild('quadrantChart') private quadrantChartRef?: ElementRef<HTMLElement>;
@@ -41,6 +58,7 @@ export class DashboardPageComponent implements AfterViewInit {
   protected readonly activeTab = signal<DashboardExecutiveTab>('macro');
   protected readonly error = signal<string | null>(null);
 
+  private idnKabGeoJson: any = null;
   private corridorChartInstance?: echarts.ECharts;
   private distChartInstance?: echarts.ECharts;
   private quadrantChartInstance?: echarts.ECharts;
@@ -62,12 +80,37 @@ export class DashboardPageComponent implements AfterViewInit {
     this.activeTab.set(tab);
     setTimeout(() => {
       this.renderAllExecutiveCharts();
+      if (tab === 'macro') {
+        this.renderDashboardMap();
+      }
     }, 60);
   }
 
   ngAfterViewInit(): void {
     if (this.corridors().length > 0 && this.distribution()) {
       this.renderAllExecutiveCharts();
+    }
+    if (this.activeTab() === 'macro') {
+      this.renderDashboardMap();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.mapAdapter.destroy();
+    this.corridorChartInstance?.dispose();
+    this.distChartInstance?.dispose();
+    this.quadrantChartInstance?.dispose();
+    this.trendChartInstance?.dispose();
+  }
+
+  @HostListener('window:resize')
+  protected onWindowResize(): void {
+    this.corridorChartInstance?.resize();
+    this.distChartInstance?.resize();
+    this.quadrantChartInstance?.resize();
+    this.trendChartInstance?.resize();
+    if (this.activeTab() === 'macro') {
+      this.mapAdapter.invalidateSize();
     }
   }
 
@@ -86,12 +129,13 @@ export class DashboardPageComponent implements AfterViewInit {
 
   private async loadAllDashboardData(): Promise<void> {
     try {
-      const [summary, priorityRegions, corridors, regencyRanks, distribution] = await Promise.all([
+      const [summary, priorityRegions, corridors, regencyRanks, distribution, idnKabGeoJson] = await Promise.all([
         firstValueFrom(this.dashboardData.getSummary()),
         firstValueFrom(this.dashboardData.getPriorityRegions()),
         firstValueFrom(this.dashboardData.getCorridors()),
         firstValueFrom(this.dashboardData.getRegencyRanks()),
-        firstValueFrom(this.dashboardData.getDistribution())
+        firstValueFrom(this.dashboardData.getDistribution()),
+        firstValueFrom(this.spatialData.getIndonesiaKabupatenGeoJson())
       ]);
 
       this.summary.set(summary);
@@ -99,13 +143,30 @@ export class DashboardPageComponent implements AfterViewInit {
       this.corridors.set(corridors);
       this.regencyRanks.set(regencyRanks);
       this.distribution.set(distribution);
+      this.idnKabGeoJson = idnKabGeoJson;
 
       setTimeout(() => {
         this.renderAllExecutiveCharts();
+        if (this.activeTab() === 'macro') {
+          this.renderDashboardMap();
+        }
       }, 100);
     } catch {
       this.summary.set(null);
       this.error.set('Gagal memuat data dashboard. Pastikan backend aktif.');
+    }
+  }
+
+  private renderDashboardMap(): void {
+    if (this.dashboardMapContainerRef && this.idnKabGeoJson) {
+      this.mapAdapter.render(
+        this.dashboardMapContainerRef.nativeElement,
+        this.idnKabGeoJson,
+        () => {}
+      );
+      setTimeout(() => {
+        this.mapAdapter.invalidateSize();
+      }, 100);
     }
   }
 

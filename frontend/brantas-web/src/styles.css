@@ -332,10 +332,27 @@ body.theme-light .clock-chip,
 [data-theme='light'] .clock-chip,
 body.theme-light .period-chip,
 [data-theme='light'] .period-chip {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  font-family: var(--font-main) !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.theme-light .clock-chip i,
+[data-theme='light'] .clock-chip i,
+body.theme-light .period-chip i,
+[data-theme='light'] .period-chip i {
+  color: #0d9488 !important;
+  font-size: 13px !important;
+}
+
+body.theme-light .period-chip strong,
+[data-theme='light'] .period-chip strong {
+  color: #0f172a !important;
+  font-weight: 700 !important;
 }
 
 body.theme-light .btn-theme-toggle,
@@ -433,6 +450,147 @@ body.theme-light .executive-hero,
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
   box-shadow: 0 8px 26px rgba(13, 148, 136, 0.22) !important;
+}
+
+/* Executive Dashboard Header Strip */
+body.theme-light .dashboard-header-strip,
+[data-theme='light'] .dashboard-header-strip {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+body.theme-light .dashboard-header-strip .header-left h1,
+[data-theme='light'] .dashboard-header-strip .header-left h1 {
+  color: #0f172a !important;
+}
+
+body.theme-light .dashboard-header-strip .header-subtitle,
+[data-theme='light'] .dashboard-header-strip .header-subtitle {
+  color: #475569 !important;
+}
+
+body.theme-light .dashboard-header-strip .header-subtitle strong,
+[data-theme='light'] .dashboard-header-strip .header-subtitle strong {
+  color: #0f172a !important;
+}
+
+body.theme-light .dashboard-header-strip .meta-tag,
+[data-theme='light'] .dashboard-header-strip .meta-tag {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+body.theme-light .dashboard-header-strip .meta-tag strong,
+[data-theme='light'] .dashboard-header-strip .meta-tag strong {
+  color: #0f172a !important;
+}
+
+/* Dashboard Map Panel & Insights */
+body.theme-light .dashboard-map-panel,
+[data-theme='light'] .dashboard-map-panel {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+body.theme-light .dashboard-map-panel h2,
+[data-theme='light'] .dashboard-map-panel h2 {
+  color: #0f172a !important;
+}
+
+body.theme-light .dashboard-map-wrapper,
+[data-theme='light'] .dashboard-map-wrapper {
+  border-color: #e2e8f0 !important;
+}
+
+body.theme-light .dashboard-gis-map,
+[data-theme='light'] .dashboard-gis-map {
+  background: #f1f5f9 !important;
+}
+
+body.theme-light .map-panel-footer,
+[data-theme='light'] .map-panel-footer {
+  border-top-color: #f1f5f9 !important;
+}
+
+body.theme-light .legend-item,
+[data-theme='light'] .legend-item {
+  color: #475569 !important;
+}
+
+body.theme-light .map-lod-hint,
+[data-theme='light'] .map-lod-hint {
+  color: #64748b !important;
+}
+
+body.theme-light .executive-insights-card,
+[data-theme='light'] .executive-insights-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: 4px solid #0d9488 !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+body.theme-light .executive-insights-card .card-head,
+[data-theme='light'] .executive-insights-card .card-head {
+  border-bottom-color: #f1f5f9 !important;
+}
+
+body.theme-light .executive-insights-card .card-head h3,
+[data-theme='light'] .executive-insights-card .card-head h3 {
+  color: #0f766e !important;
+}
+
+body.theme-light .executive-insights-card .insight-text,
+[data-theme='light'] .executive-insights-card .insight-text {
+  color: #475569 !important;
+}
+
+body.theme-light .executive-insights-card .insight-text strong,
+[data-theme='light'] .executive-insights-card .insight-text strong {
+  color: #0f172a !important;
+}
+
+body.theme-light .priority-hotspots-card,
+[data-theme='light'] .priority-hotspots-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: 4px solid #e11d48 !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+body.theme-light .priority-hotspots-card .card-head,
+[data-theme='light'] .priority-hotspots-card .card-head {
+  border-bottom-color: #f1f5f9 !important;
+}
+
+body.theme-light .priority-hotspots-card .card-head h3,
+[data-theme='light'] .priority-hotspots-card .card-head h3 {
+  color: #e11d48 !important;
+}
+
+body.theme-light .hotspot-item,
+[data-theme='light'] .hotspot-item {
+  background: #f8fafc !important;
+  border: 1px solid #f1f5f9 !important;
+}
+
+body.theme-light .hotspot-item:hover,
+[data-theme='light'] .hotspot-item:hover {
+  background: #f1f5f9 !important;
+  border-color: #fecdd3 !important;
+}
+
+body.theme-light .hotspot-meta strong,
+[data-theme='light'] .hotspot-meta strong {
+  color: #0f172a !important;
+}
+
+body.theme-light .hotspot-meta small,
+[data-theme='light'] .hotspot-meta small {
+  color: #64748b !important;
 }
 
 /* KPI Cards */
