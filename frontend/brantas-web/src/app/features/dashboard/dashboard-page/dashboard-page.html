@@ -93,12 +93,12 @@
         </article>
 
         <!-- KPI 3: Pagu Alokasi APBN -->
-        <article class="kpi-card kpi-emerald">
+        <article class="kpi-card kpi-emerald" [title]="'Nominal Lengkap: ' + formatCurrency(sum.totalBudget).full">
           <div class="kpi-top">
             <span class="kpi-title">Pagu Alokasi APBN</span>
             <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
           </div>
-          <div class="kpi-num">Rp{{ sum.totalBudget.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }}<small> Jt</small></div>
+          <div class="kpi-num">{{ formatCurrency(sum.totalBudget).compact }}</div>
           <div class="kpi-tag-sub emerald">
             <i class="pi pi-check"></i> Baseline Terverifikasi
           </div>
@@ -118,7 +118,7 @@
             <i class="pi pi-exclamation-triangle"></i> Nilai Berisiko Tinggi (VaR)
           </div>
           <div class="kpi-sub">
-            <span>Rp at Risk: <strong>Rp{{ sum.totalValueAtRisk.toLocaleString('id-ID', { maximumFractionDigits: 0 }) }} Jt</strong></span>
+            <span>Rp at Risk: <strong [title]="'Nominal Lengkap: ' + formatCurrency(sum.totalValueAtRisk).full">{{ formatCurrency(sum.totalValueAtRisk).compact }}</strong></span>
           </div>
         </article>
       </section>

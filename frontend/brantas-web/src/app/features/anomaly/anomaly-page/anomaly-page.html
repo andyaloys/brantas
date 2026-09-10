@@ -74,12 +74,12 @@
     </article>
     
     <!-- KPI 4: Total Nilai Berisiko -->
-    <article class="kpi-card kpi-teal">
+    <article class="kpi-card kpi-teal" [title]="'Nominal Lengkap: ' + formatCurrency(data.totalValueAtRisk).full">
       <div class="kpi-top">
         <span class="kpi-title">Total Nilai Berisiko</span>
         <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
       </div>
-      <div class="kpi-num">{{ formatRisk(data.totalValueAtRisk) }}</div>
+      <div class="kpi-num">{{ formatCurrency(data.totalValueAtRisk).compact }}</div>
       <div class="kpi-progress">
         <div class="kpi-bar-fill teal" style="width: 100%"></div>
       </div>

@@ -312,7 +312,7 @@
                 <dt>Indeks Pembangunan Manusia (IPM)</dt>
                 <dd class="mono font-bold">{{ region.humanDevelopmentIndex.toFixed(2) }}</dd>
               </div>
-              <div class="stat-item">
+              <div class="stat-item" [title]="'Nominal Lengkap: Rp' + (region.gdpPerCapita * 1000000).toLocaleString('id-ID')">
                 <dt>Pendapatan Regional (PDRB) / Kapita</dt>
                 <dd class="mono">Rp{{ region.gdpPerCapita.toFixed(1) }} Juta</dd>
               </div>

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AnomalyDataService, AnomalySummary, BeneficiaryAnomalyFinding, BeneficiaryAnomalySummary, ExclusionError, FiscalAnomaly, OnnxAnomalyItem, OnnxAnomalyReport } from '../data/anomaly-data.service';
+import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
 
 @Component({
   selector: 'app-anomaly-page',
@@ -9,6 +10,7 @@ import { AnomalyDataService, AnomalySummary, BeneficiaryAnomalyFinding, Benefici
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnomalyPageComponent {
+  protected readonly formatCurrency = formatCompactCurrency;
   private readonly anomalyData = inject(AnomalyDataService);
   protected readonly isLoading = signal(true);
   protected readonly summary = signal<AnomalySummary | null>(null);

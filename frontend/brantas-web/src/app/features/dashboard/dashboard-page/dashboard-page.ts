@@ -19,6 +19,7 @@ import { GisChoroplethAdapter } from '../../spatial/data/gis-choropleth.adapter'
 import { SpatialDataService } from '../../spatial/data/spatial-data.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { KioskModeService } from '../../../core/services/kiosk-mode.service';
+import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
 import {
   DashboardDataService,
   DashboardSummary,
@@ -40,6 +41,7 @@ export type DashboardExecutiveTab = 'macro' | 'allocation';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardPageComponent implements AfterViewInit, OnDestroy {
+  protected readonly formatCurrency = formatCompactCurrency;
   private readonly dashboardData = inject(DashboardDataService);
   private readonly spatialData = inject(SpatialDataService);
   private readonly mapAdapter = inject(GisChoroplethAdapter);
