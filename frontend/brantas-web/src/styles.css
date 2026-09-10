@@ -819,6 +819,20 @@ body.theme-light .kpi-num small,
   font-size: 12px !important;
 }
 
+body.theme-light .kpi-card.kpi-emerald .kpi-num,
+[data-theme='light'] .kpi-card.kpi-emerald .kpi-num,
+body.theme-light .kpi-num.text-emerald,
+[data-theme='light'] .kpi-num.text-emerald {
+  color: #064e3b !important;
+}
+
+body.theme-light .kpi-card.kpi-rose .kpi-num,
+[data-theme='light'] .kpi-card.kpi-rose .kpi-num,
+body.theme-light .kpi-num.text-rose,
+[data-theme='light'] .kpi-num.text-rose {
+  color: #881337 !important;
+}
+
 body.theme-light .kpi-bar-fill.rose,
 [data-theme='light'] .kpi-bar-fill.rose {
   background: linear-gradient(90deg, #e11d48, #fb7185) !important;

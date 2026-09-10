@@ -16,11 +16,7 @@
 
     <div class="export-group">
       <button type="button" class="btn-export secondary" (click)="exportCsv()" [disabled]="recommendations().length === 0" title="Unduh tabulasi rekomendasi alokasi CSV">
-        <i class="pi pi-file-excel" aria-hidden="true"></i> CSV
-      </button>
-      <button type="button" class="btn-export primary" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan kalkulasi simulasi alokasi">
-        <i class="pi" [ngClass]="isRunning() ? 'pi-spin pi-spinner' : 'pi-play'" aria-hidden="true"></i>
-        <span>{{ isRunning() ? 'Menghitung...' : 'Jalankan Simulasi' }}</span>
+        <i class="pi pi-file-excel" aria-hidden="true"></i> Ekspor CSV
       </button>
     </div>
   </div>
@@ -80,16 +76,23 @@
           </div>
         </div>
 
-        <dl class="constraints-list">
-          <div>
-            <dt>Pagu Total APBN</dt>
-            <dd>{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</dd>
+        <!-- Batasan Fiskal APBN: 2-Kolom Simetris & Proporsional -->
+        <div class="fiscal-limits-grid" aria-label="Batasan Pagu Fiskal">
+          <div class="fiscal-limit-item">
+            <span class="limit-label">Pagu Total APBN</span>
+            <strong class="limit-value">{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</strong>
           </div>
-          <div>
-            <dt>Pagu Minimum Wilayah (Alokasi Dasar)</dt>
-            <dd>Rp500 Juta / Prov</dd>
+          <div class="fiscal-limit-item">
+            <span class="limit-label">Pagu Minimum Wilayah</span>
+            <strong class="limit-value">Rp500 Juta / Prov</strong>
           </div>
-        </dl>
+        </div>
+
+        <!-- Tombol Aksi Utama: Diletakkan Tepat di Area Parameter Model -->
+        <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan kalkulasi simulasi alokasi">
+          <i class="pi" [ngClass]="isRunning() ? 'pi-spin pi-spinner' : 'pi-bolt'" aria-hidden="true"></i>
+          <span>{{ isRunning() ? 'Menghitung Simulasi...' : 'Jalankan Simulasi Alokasi' }}</span>
+        </button>
 
         <div class="save-scenario">
           <label for="scenario-name">Simpan Skenario Analisis</label>
@@ -180,6 +183,63 @@
     </header>
 
     <div class="result-body">
+      <!-- 3 Core High-Impact KPIs Grid (Matches Anomaly Page) -->
+      <div class="executive-kpi-grid" aria-label="Ringkasan dampak alokasi fiskal">
+        <!-- KPI 1: Pagu Teralokasi Penuh -->
+        <article class="kpi-card kpi-teal">
+          <div class="kpi-top">
+            <span class="kpi-title">Pagu APBN Teralokasi</span>
+            <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
+          </div>
+          <div class="kpi-num">{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill teal" style="width: 100%"></div>
+          </div>
+          <div class="kpi-tag-sub teal">
+            <i class="pi pi-check-circle"></i> 100% Pagu APBN Terserap
+          </div>
+          <div class="kpi-sub">
+            <span>Distribusi Anggaran Berimbang 38 Provinsi</span>
+          </div>
+        </article>
+
+        <!-- KPI 2: Penambahan Alokasi Afirmatif -->
+        <article class="kpi-card kpi-emerald">
+          <div class="kpi-top">
+            <span class="kpi-title">Penambahan Alokasi (Afirmatif)</span>
+            <div class="kpi-icon"><i class="pi pi-arrow-up-right"></i></div>
+          </div>
+          <div class="kpi-num text-emerald">+{{ formatMoney(summaryImpact().increasedTotal) }}</div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill emerald" [style.width.%]="(summaryImpact().increasedCount / (summaryImpact().totalCount || 1)) * 100"></div>
+          </div>
+          <div class="kpi-tag-sub emerald">
+            <i class="pi pi-arrow-up-right"></i> {{ summaryImpact().increasedCount }} Provinsi Prioritas
+          </div>
+          <div class="kpi-sub">
+            <span>Wilayah dengan Indeks Kerentanan (IKW) Tinggi</span>
+          </div>
+        </article>
+
+        <!-- KPI 3: Efisiensi Alokasi Relatif -->
+        <article class="kpi-card kpi-rose">
+          <div class="kpi-top">
+            <span class="kpi-title">Efisiensi Alokasi Relatif</span>
+            <div class="kpi-icon"><i class="pi pi-arrow-down-right"></i></div>
+          </div>
+          <div class="kpi-num text-rose">-{{ formatMoney(summaryImpact().decreasedTotal) }}</div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill rose" [style.width.%]="(summaryImpact().decreasedCount / (summaryImpact().totalCount || 1)) * 100"></div>
+          </div>
+          <div class="kpi-tag-sub rose">
+            <i class="pi pi-arrow-down-right"></i> {{ summaryImpact().decreasedCount }} Provinsi Penyesuaian
+          </div>
+          <div class="kpi-sub">
+            <span>Realokasi Fiskal Menuju Target Kemiskinan Ekstrem</span>
+          </div>
+        </article>
+      </div>
+
       @if (error()) {
         <p class="error-msg"><i class="pi pi-exclamation-circle"></i> {{ error() }}</p>
       } @else {
