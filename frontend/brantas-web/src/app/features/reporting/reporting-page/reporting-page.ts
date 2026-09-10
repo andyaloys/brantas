@@ -1,15 +1,27 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ReportingDataService } from '../data/reporting-data.service';
 
-@Component({ selector: 'app-reporting-page', templateUrl: './reporting-page.html', styleUrl: './reporting-page.css', changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({
+  selector: 'app-reporting-page',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './reporting-page.html',
+  styleUrl: './reporting-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
 export class ReportingPageComponent {
   private readonly reportingData = inject(ReportingDataService);
-  protected readonly isDownloading = signal(false);
+  protected readonly downloadingType = signal<'pdf' | 'csv' | 'allocations' | null>(null);
   protected readonly error = signal<string | null>(null);
 
+  protected isDownloading(): boolean {
+    return this.downloadingType() !== null;
+  }
+
   protected async download(type: 'pdf' | 'csv' | 'allocations'): Promise<void> {
-    this.isDownloading.set(true);
+    this.downloadingType.set(type);
     this.error.set(null);
     try {
       const file = await firstValueFrom(
@@ -20,13 +32,17 @@ export class ReportingPageComponent {
       const url = URL.createObjectURL(file);
       const link = document.createElement('a');
       link.href = url;
-      link.download = type === 'pdf' ? 'telaahan-kebijakan-brantas.pdf' : type === 'csv' ? 'anomali-brantas.csv' : 'alokasi-anggaran-brantas.csv';
+      link.download = type === 'pdf'
+        ? 'telaahan-kebijakan-brantas-kemenkeu.pdf'
+        : type === 'csv'
+          ? 'matriks-anomali-fiskal-brantas.csv'
+          : 'simulasi-alokasi-anggaran-ikw-brantas.csv';
       link.click();
       URL.revokeObjectURL(url);
     } catch {
-      this.error.set('Berkas belum dapat dihasilkan. Pastikan layanan BRANTAS aktif.');
+      this.error.set('Berkas analitik belum dapat diunduh. Pastikan layanan backend BRANTAS aktif.');
     } finally {
-      this.isDownloading.set(false);
+      this.downloadingType.set(null);
     }
   }
 }

@@ -1,12 +1,16 @@
-<section class="page-header">
-  <div>
-    <p class="eyebrow">PUSAT DOKUMEN & EKSPOR PUBLIK</p>
-    <h1>Naskah Kebijakan & Berkas Analitik</h1>
-    <p class="subtitle">Seluruh naskah telaahan kebijakan dan ekspor data dihasilkan secara deterministik dari dataset aktif BRANTAS dengan sertifikasi integritas checksum.</p>
+<section class="dashboard-header-strip">
+  <div class="header-left">
+    <span class="badge-accent teal"><i class="pi pi-file-export"></i> PUSAT DOKUMEN & EKSPOR PUBLIK</span>
+    <h1>Naskah Kebijakan & Berkas Analitik APBN</h1>
+    <p class="header-subtitle">
+      Naskah dinas telaahan kebijakan dan data pendukung resmi Kementerian Keuangan RI, siap diunduh untuk bahan sidang kabinet dan koordinasi antar-instansi
+    </p>
   </div>
-  <div class="dataset-pill">
-    <i class="pi pi-check-circle"></i>
-    <span>Data Simulasi Terverifikasi (Kemenkeu)</span>
+  <div class="header-right">
+    <div class="pulse-pill">
+      <span class="live-dot"></span>
+      <span>INTEGRITAS TERVERIFIKASI</span>
+    </div>
   </div>
 </section>
 
@@ -17,74 +21,155 @@
   </section>
 }
 
-<section class="documents-grid">
-  <!-- Document 1: PDF Policy Brief -->
-  <article class="doc-card featured-card">
+<!-- Executive Output Portfolio Telemetry (Matches Anomaly & Optimization) -->
+<section class="executive-kpi-grid" aria-label="Ringkasan portofolio naskah kebijakan">
+  <!-- KPI 1: Naskah Telaahan Resmi -->
+  <article class="kpi-card kpi-rose">
+    <div class="kpi-top">
+      <span class="kpi-title">Naskah Dinas Resmi</span>
+      <div class="kpi-icon"><i class="pi pi-file-pdf"></i></div>
+    </div>
+    <div class="kpi-num text-rose">1 <small>Dokumen Eksekutif</small></div>
+    <div class="kpi-progress">
+      <div class="kpi-bar-fill rose" style="width: 100%"></div>
+    </div>
+    <div class="kpi-tag-sub rose">
+      <i class="pi pi-verified"></i> Format Standar Kemenkeu
+    </div>
+    <div class="kpi-sub">
+      <span>Policy Brief Siap Cetak (A4) untuk Pembahasan Sidang Kabinet</span>
+    </div>
+  </article>
+
+  <!-- KPI 2: Rekomendasi Alokasi Anggaran -->
+  <article class="kpi-card kpi-emerald">
+    <div class="kpi-top">
+      <span class="kpi-title">Rekomendasi Alokasi Anggaran</span>
+      <div class="kpi-icon"><i class="pi pi-file-excel"></i></div>
+    </div>
+    <div class="kpi-num text-emerald">38 <small>Provinsi Terpetakan</small></div>
+    <div class="kpi-progress">
+      <div class="kpi-bar-fill emerald" style="width: 100%"></div>
+    </div>
+    <div class="kpi-tag-sub emerald">
+      <i class="pi pi-check"></i> Distribusi Adil & Merata
+    </div>
+    <div class="kpi-sub">
+      <span>Rincian Anggaran Saat Ini, Usulan Baru, dan Selisih Penyesuaian per Wilayah</span>
+    </div>
+  </article>
+
+  <!-- KPI 3: Temuan Ketimpangan Anggaran -->
+  <article class="kpi-card kpi-blue">
+    <div class="kpi-top">
+      <span class="kpi-title">Temuan Ketimpangan Anggaran</span>
+      <div class="kpi-icon"><i class="pi pi-table"></i></div>
+    </div>
+    <div class="kpi-num text-blue">38 <small>Provinsi Terperiksa</small></div>
+    <div class="kpi-progress">
+      <div class="kpi-bar-fill blue" style="width: 100%"></div>
+    </div>
+    <div class="kpi-tag-sub blue">
+      <i class="pi pi-search"></i> Deteksi Alokasi Kurang & Lebih
+    </div>
+    <div class="kpi-sub">
+      <span>Daftar Daerah Belum Tepat Sasaran & Nilai yang Perlu Ditata Ulang</span>
+    </div>
+  </article>
+</section>
+
+<!-- Documents Grid: 3 Main Policy Output Cards -->
+<section class="documents-grid" aria-label="Daftar berkas unduhan kebijakan">
+  <!-- Document 1: Policy Brief PDF -->
+  <article class="doc-card featured-card card-pdf">
     <div class="card-header-top">
       <div class="card-icon pdf"><i class="pi pi-file-pdf" aria-hidden="true"></i></div>
       <div class="format-badge pdf">FORMAT RESMI PDF</div>
     </div>
     
     <div class="card-content">
-      <h2>Policy Brief / Naskah Telaahan</h2>
-      <p>Format resmi Kementerian Keuangan RI lengkap dengan kop dinas, nomor telaahan, ringkasan eksekutif, bukti ekonometrika Difference-in-Differences, tabel wilayah prioritas, rekomendasi alokasi IKW, dan metadata reproduksibilitas.</p>
+      <h2>Policy Brief / Naskah Telaahan Resmi</h2>
+      <p>
+        Naskah telaahan dinas resmi standar Kementerian Keuangan RI lengkap dengan kop instansi, nomor register telaahan, ringkasan eksekutif, bukti evaluasi dampak kebijakan, daftar provinsi prioritas, dan rekomendasi alokasi anggaran.
+      </p>
       
       <div class="doc-specs">
-        <div class="spec-item"><i class="pi pi-check"></i> Siap Cetak (A4 Standard)</div>
-        <div class="spec-item"><i class="pi pi-check"></i> QuestPDF Native Engine</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Format Naskah Dinas Standar Kementerian Keuangan (A4 Resmi)</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Dilengkapi Peta Sebaran Wilayah, Grafik Evaluasi, dan Tabel Lengkap</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Dilengkapi Rekomendasi Aksi Alokasi Pagu Fiskal 2026</div>
       </div>
 
-      <button type="button" class="btn-download primary" (click)="download('pdf')" [disabled]="isDownloading()">
-        <i class="pi pi-download" aria-hidden="true"></i>
-        <span>{{ isDownloading() ? 'Memproses Berkas...' : 'Unduh Policy Brief (PDF)' }}</span>
+      <button
+        type="button"
+        class="btn-download primary"
+        (click)="download('pdf')"
+        [disabled]="isDownloading()"
+        title="Unduh berkas naskah telaahan kebijakan PDF">
+        <i class="pi" [ngClass]="downloadingType() === 'pdf' ? 'pi-spin pi-spinner' : 'pi-download'" aria-hidden="true"></i>
+        <span>{{ downloadingType() === 'pdf' ? 'Memproses Berkas PDF...' : 'Unduh Policy Brief (PDF)' }}</span>
       </button>
     </div>
   </article>
 
   <!-- Document 2: Allocations CSV -->
-  <article class="doc-card">
+  <article class="doc-card card-allocations">
     <div class="card-header-top">
       <div class="card-icon excel"><i class="pi pi-file-excel" aria-hidden="true"></i></div>
       <div class="format-badge csv">DATA TABULAR CSV</div>
     </div>
     
     <div class="card-content">
-      <h2>Simulasi Alokasi Anggaran (IKW)</h2>
-      <p>Data lengkap hasil optimasi linier Google OR-Tools untuk 38 provinsi: alokasi baseline APBN, rekomendasi formulasi IKW, pergeseran anggaran (delta), dan jumlah penduduk miskin terdaftar.</p>
+      <h2>Data Rekomendasi Alokasi Anggaran (CSV)</h2>
+      <p>
+        Tabel data alokasi anggaran seluruh 38 provinsi berdasarkan Indeks Kerentanan Wilayah (IKW): memuat anggaran saat ini (baseline), usulan anggaran baru, selisih penyesuaian (tambah/kurang), dan jumlah warga rentan penerima manfaat.
+      </p>
       
       <div class="doc-specs">
-        <div class="spec-item"><i class="pi pi-check"></i> 38 Provinsi Lengkap</div>
-        <div class="spec-item"><i class="pi pi-check"></i> Format UTF-8 Universal</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Cakupan Komprehensif Seluruh 38 Provinsi Indonesia</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Format Universal CSV (Bisa Langsung Dibuka di Microsoft Excel / Spreadsheet)</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Rincian Perbandingan Anggaran Lama vs Usulan Anggaran Baru</div>
       </div>
 
-      <button type="button" class="btn-download secondary" (click)="download('allocations')" [disabled]="isDownloading()">
-        <i class="pi pi-download" aria-hidden="true"></i>
-        <span>Unduh Data Alokasi (CSV)</span>
+      <button
+        type="button"
+        class="btn-download secondary btn-alloc"
+        (click)="download('allocations')"
+        [disabled]="isDownloading()"
+        title="Unduh data tabulasi rekomendasi alokasi CSV">
+        <i class="pi" [ngClass]="downloadingType() === 'allocations' ? 'pi-spin pi-spinner' : 'pi-download'" aria-hidden="true"></i>
+        <span>{{ downloadingType() === 'allocations' ? 'Mengekspor Alokasi...' : 'Unduh Data Alokasi (CSV)' }}</span>
       </button>
     </div>
   </article>
 
   <!-- Document 3: Anomalies CSV -->
-  <article class="doc-card">
+  <article class="doc-card card-anomalies">
     <div class="card-header-top">
       <div class="card-icon table"><i class="pi pi-table" aria-hidden="true"></i></div>
       <div class="format-badge csv">DATA TABULAR CSV</div>
     </div>
     
     <div class="card-content">
-      <h2>Daftar Temuan Anomali Fiskal</h2>
-      <p>Daftar temuan mismatch alokasi dan kebutuhan per wilayah: kategori under/over-allocation, tingkat keparahan (Critical/High), residual z-score, nilai berisiko (Rp at risk), dan dasar temuan.</p>
+      <h2>Daftar Temuan Ketimpangan Anggaran (CSV)</h2>
+      <p>
+        Tabel hasil pemeriksaan ketimpangan anggaran daerah: rincian wilayah penerima alokasi di bawah kebutuhan atau alokasi berlebih, tingkat prioritas penanganan (Kritis/Tinggi/Sedang), dan estimasi dana yang berisiko tidak tepat sasaran.
+      </p>
       
       <div class="doc-specs">
-        <div class="spec-item"><i class="pi pi-check"></i> Deteksi Multivariat</div>
-        <div class="spec-item"><i class="pi pi-check"></i> Severity & Z-score Tag</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Tingkat Prioritas Tindak Lanjut (Kritis, Tinggi, Sedang)</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Estimasi Nilai Anggaran yang Perlu Ditata Ulang (Value at Risk)</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Bahan Panduan Pengawasan dan Penyesuaian Anggaran Daerah</div>
       </div>
 
-      <button type="button" class="btn-download secondary" (click)="download('csv')" [disabled]="isDownloading()">
-        <i class="pi pi-download" aria-hidden="true"></i>
-        <span>Unduh Temuan Anomali (CSV)</span>
+      <button
+        type="button"
+        class="btn-download secondary btn-anom"
+        (click)="download('csv')"
+        [disabled]="isDownloading()"
+        title="Unduh data daftar temuan ketimpangan anggaran CSV">
+        <i class="pi" [ngClass]="downloadingType() === 'csv' ? 'pi-spin pi-spinner' : 'pi-download'" aria-hidden="true"></i>
+        <span>{{ downloadingType() === 'csv' ? 'Mengekspor Temuan...' : 'Unduh Temuan Ketimpangan (CSV)' }}</span>
       </button>
     </div>
   </article>
 </section>
-

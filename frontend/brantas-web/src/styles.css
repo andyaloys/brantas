@@ -833,6 +833,27 @@ body.theme-light .kpi-num.text-rose,
   color: #881337 !important;
 }
 
+body.theme-light .kpi-card.kpi-blue .kpi-num,
+[data-theme='light'] .kpi-card.kpi-blue .kpi-num,
+body.theme-light .kpi-num.text-blue,
+[data-theme='light'] .kpi-num.text-blue {
+  color: #0369a1 !important;
+}
+
+body.theme-light .kpi-card.kpi-indigo .kpi-num,
+[data-theme='light'] .kpi-card.kpi-indigo .kpi-num,
+body.theme-light .kpi-num.text-indigo,
+[data-theme='light'] .kpi-num.text-indigo {
+  color: #3730a3 !important;
+}
+
+body.theme-light .kpi-card.kpi-teal .kpi-num,
+[data-theme='light'] .kpi-card.kpi-teal .kpi-num,
+body.theme-light .kpi-num.text-teal,
+[data-theme='light'] .kpi-num.text-teal {
+  color: #0f766e !important;
+}
+
 body.theme-light .kpi-bar-fill.rose,
 [data-theme='light'] .kpi-bar-fill.rose {
   background: linear-gradient(90deg, #e11d48, #fb7185) !important;
