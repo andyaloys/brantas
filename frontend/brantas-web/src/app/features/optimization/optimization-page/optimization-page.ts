@@ -2,9 +2,11 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AllocationRecommendation, OptimizationDataService, SimulationScenario } from '../data/optimization-data.service';
+import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
 
 @Component({ selector: 'app-optimization-page', templateUrl: './optimization-page.html', styleUrl: './optimization-page.css', changeDetection: ChangeDetectionStrategy.OnPush, imports: [CommonModule] })
 export class OptimizationPageComponent {
+  protected readonly formatCurrency = formatCompactCurrency;
   private readonly optimizationData = inject(OptimizationDataService);
   protected readonly povertyWeight = signal(30);
   protected readonly capPercent = signal(25);
@@ -19,6 +21,9 @@ export class OptimizationPageComponent {
   protected readonly activeScenarioId = signal<string | null>(null);
   protected readonly activeScenarioName = signal<string | null>(null);
   protected readonly isLoadingScenario = signal<boolean>(false);
+
+  // Status apakah parameter saat ini sesuai rekomendasi ideal sistem BRANTAS
+  protected readonly isIdealActive = computed(() => this.povertyWeight() === 45 && this.capPercent() === 20);
 
   // Ringkasan dampak fiskal eksekutif
   protected readonly summaryImpact = computed(() => {
@@ -141,6 +146,15 @@ export class OptimizationPageComponent {
     } catch {
       this.saveMessage.set('Gagal menghapus skenario.');
     }
+  }
+
+  protected async applyIdealParameters(): Promise<void> {
+    this.povertyWeight.set(45);
+    this.capPercent.set(20);
+    this.activeScenarioId.set(null);
+    this.activeScenarioName.set(null);
+    this.saveMessage.set(null);
+    await this.runSimulation();
   }
 
   protected async resetParameters(): Promise<void> {

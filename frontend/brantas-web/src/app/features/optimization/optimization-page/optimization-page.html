@@ -8,10 +8,10 @@
   </div>
   <div class="header-right">
     <!-- Pagu Total Anggaran APBN -->
-    <div class="moran-capsule" title="Total Pagu Belanja Perlinsos APBN yang dialokasikan ke 38 Provinsi">
+    <div class="moran-capsule" [title]="'Nominal Lengkap: ' + (totalBudget() === null ? '—' : formatCurrency(totalBudget()!).full)">
       <i class="pi pi-wallet moran-icon" aria-hidden="true"></i>
       <span class="moran-caption">Pagu Total:</span>
-      <strong class="moran-num">{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</strong>
+      <strong class="moran-num">{{ totalBudget() === null ? '—' : formatCurrency(totalBudget()!).compact }}</strong>
     </div>
 
     <div class="export-group">
@@ -51,6 +51,30 @@
             </div>
           </div>
         }
+
+        <!-- Tombol Rekomendasi Alokasi Bobot Ideal BRANTAS -->
+        <div class="ideal-preset-wrapper">
+          <button type="button" 
+                  class="btn-ideal-recommendation" 
+                  [class.active]="isIdealActive()"
+                  (click)="applyIdealParameters()" 
+                  [disabled]="isRunning()"
+                  title="Rekomendasi Sistem BRANTAS: Bobot Prioritas Kemiskinan 45%, Batas Toleransi Penyesuaian (Cap) ±20%">
+            <div class="ideal-btn-main">
+              <div class="ideal-icon-circle">
+                <i class="pi pi-sparkles"></i>
+              </div>
+              <span class="ideal-title">Bobot Ideal</span>
+            </div>
+            <span class="ideal-status-pill">
+              @if (isIdealActive()) {
+                <i class="pi pi-check"></i> Aktif
+              } @else {
+                Terapkan
+              }
+            </span>
+          </button>
+        </div>
         
         <div class="slider-group">
           <div class="slider-label">
@@ -78,13 +102,13 @@
 
         <!-- Batasan Fiskal APBN: 2-Kolom Simetris & Proporsional -->
         <div class="fiscal-limits-grid" aria-label="Batasan Pagu Fiskal">
-          <div class="fiscal-limit-item">
+          <div class="fiscal-limit-item" [title]="'Nominal Lengkap: ' + (totalBudget() === null ? '—' : formatCurrency(totalBudget()!).full)">
             <span class="limit-label">Pagu Total APBN</span>
-            <strong class="limit-value">{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</strong>
+            <strong class="limit-value">{{ totalBudget() === null ? '—' : formatCurrency(totalBudget()!).compact }}</strong>
           </div>
-          <div class="fiscal-limit-item">
+          <div class="fiscal-limit-item" title="Nominal Lengkap: Rp500.000.000.000">
             <span class="limit-label">Pagu Minimum Wilayah</span>
-            <strong class="limit-value">Rp500 Juta / Prov</strong>
+            <strong class="limit-value">Rp500 M / Prov</strong>
           </div>
         </div>
 
@@ -186,12 +210,12 @@
       <!-- 3 Core High-Impact KPIs Grid (Matches Anomaly Page) -->
       <div class="executive-kpi-grid" aria-label="Ringkasan dampak alokasi fiskal">
         <!-- KPI 1: Pagu Teralokasi Penuh -->
-        <article class="kpi-card kpi-teal">
+        <article class="kpi-card kpi-teal" [title]="'Nominal Lengkap: ' + (totalBudget() === null ? '—' : formatCurrency(totalBudget()!).full)">
           <div class="kpi-top">
             <span class="kpi-title">Pagu APBN Teralokasi</span>
             <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
           </div>
-          <div class="kpi-num">{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</div>
+          <div class="kpi-num">{{ totalBudget() === null ? '—' : formatCurrency(totalBudget()!).compact }}</div>
           <div class="kpi-progress">
             <div class="kpi-bar-fill teal" style="width: 100%"></div>
           </div>
@@ -204,12 +228,12 @@
         </article>
 
         <!-- KPI 2: Penambahan Alokasi Afirmatif -->
-        <article class="kpi-card kpi-emerald">
+        <article class="kpi-card kpi-emerald" [title]="'Nominal Lengkap: ' + formatCurrency(summaryImpact().increasedTotal, true).full">
           <div class="kpi-top">
             <span class="kpi-title">Penambahan Alokasi (Afirmatif)</span>
             <div class="kpi-icon"><i class="pi pi-arrow-up-right"></i></div>
           </div>
-          <div class="kpi-num text-emerald">+{{ formatMoney(summaryImpact().increasedTotal) }}</div>
+          <div class="kpi-num text-emerald">{{ formatCurrency(summaryImpact().increasedTotal, true).compact }}</div>
           <div class="kpi-progress">
             <div class="kpi-bar-fill emerald" [style.width.%]="(summaryImpact().increasedCount / (summaryImpact().totalCount || 1)) * 100"></div>
           </div>
@@ -222,12 +246,12 @@
         </article>
 
         <!-- KPI 3: Efisiensi Alokasi Relatif -->
-        <article class="kpi-card kpi-rose">
+        <article class="kpi-card kpi-rose" [title]="'Nominal Lengkap: ' + formatCurrency(-summaryImpact().decreasedTotal, true).full">
           <div class="kpi-top">
             <span class="kpi-title">Efisiensi Alokasi Relatif</span>
             <div class="kpi-icon"><i class="pi pi-arrow-down-right"></i></div>
           </div>
-          <div class="kpi-num text-rose">-{{ formatMoney(summaryImpact().decreasedTotal) }}</div>
+          <div class="kpi-num text-rose">{{ formatCurrency(-summaryImpact().decreasedTotal, true).compact }}</div>
           <div class="kpi-progress">
             <div class="kpi-bar-fill rose" [style.width.%]="(summaryImpact().decreasedCount / (summaryImpact().totalCount || 1)) * 100"></div>
           </div>

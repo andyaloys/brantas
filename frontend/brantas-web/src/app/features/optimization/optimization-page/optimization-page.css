@@ -308,6 +308,104 @@
   font-weight: 800;
 }
 
+/* =========================================================================
+   PRESET REKOMENDASI BOBOT IDEAL BRANTAS
+   ========================================================================= */
+.ideal-preset-wrapper {
+  margin-bottom: 14px;
+}
+
+.btn-ideal-recommendation {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 12px;
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.08) 0%, rgba(13, 148, 136, 0.16) 100%);
+  border: 1.5px solid rgba(20, 184, 166, 0.4);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.btn-ideal-recommendation:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.16) 0%, rgba(13, 148, 136, 0.26) 100%);
+  border-color: rgba(20, 184, 166, 0.75);
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-ideal-recommendation:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-ideal-recommendation.active {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.22) 0%, rgba(20, 184, 166, 0.16) 100%);
+  border-color: #0d9488;
+  box-shadow: 0 0 0 1px #0d9488, 0 4px 12px rgba(13, 148, 136, 0.25);
+}
+
+.ideal-btn-main {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.ideal-icon-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 148, 136, 0.2);
+  color: #0d9488;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.btn-ideal-recommendation.active .ideal-icon-circle {
+  background: #0d9488;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(13, 148, 136, 0.5);
+}
+
+.ideal-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.ideal-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+
+.btn-ideal-recommendation.active .ideal-status-pill {
+  background: #0d9488;
+  color: #ffffff;
+  border-color: #0d9488;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+}
+
 .slider-group {
   margin-bottom: 14px;
   background: var(--bg-app);
