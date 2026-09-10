@@ -231,19 +231,14 @@
   <!-- ==================== HALAMAN 2: MATRIKS ALOKASI & RADAR PRIORITAS ==================== -->
   @if (activeTab() === 'allocation') {
     <div class="tab-content-view tab-fade-in allocation-dashboard-view">
-      <!-- 2 Charts for Page 2 -->
+      <!-- 2 Visual Analytics Command Panels -->
       <section class="command-grid-2x2">
         <!-- Chart 3: Fiscal Allocation vs Poverty Severity Quadrant Matrix -->
         <article class="command-panel">
-          <header class="panel-head">
+          <header class="panel-head ribbon-teal">
             <div class="panel-titles">
-              <span class="badge-accent">MATRIKS KUADRAN FISKAL</span>
-              <h2>Poverty Severity vs Pagu Alokasi per Kapita</h2>
-            </div>
-            <div class="head-legend">
-              <span class="dot red"></span> Defisit Kritis
-              <span class="dot amber"></span> Perlu Afirmasi
-              <span class="dot cyan"></span> Over-Allocated
+              <span class="badge-accent"><i class="pi pi-th-large"></i> PEMETAAN KEBUTUHAN VS ALOKASI DAERAH</span>
+              <h2>Ketepatan Alokasi Anggaran Terhadap Tingkat Kemiskinan</h2>
             </div>
           </header>
           <div #quadrantChart class="chart-canvas"></div>
@@ -251,12 +246,12 @@
 
         <!-- Chart 4: Historical Trend & RPJMN 2026 Trajectory -->
         <article class="command-panel">
-          <header class="panel-head">
+          <header class="panel-head ribbon-blue">
             <div class="panel-titles">
-              <span class="badge-accent">TRAJEKTORI TARGET NASIONAL</span>
-              <h2>Proyeksi Penurunan Kemiskinan Menuju RPJMN 2026</h2>
+              <span class="badge-accent blue"><i class="pi pi-chart-line"></i> TREN & PROYEKSI TARGET NASIONAL</span>
+              <h2>Jalur Penurunan Kemiskinan Menuju Sasaran RPJMN 2026</h2>
             </div>
-            <span class="target-badge">TARGET ASTA CITA: 7.5%</span>
+            <span class="target-badge"><i class="pi pi-flag"></i> TARGET RPJMN: 7,5%</span>
           </header>
           <div #trendChart class="chart-canvas"></div>
         </article>
@@ -264,72 +259,79 @@
 
       <!-- Executive Priority Action Leaderboard Cards -->
       <section class="priority-action-section">
-        <header class="section-header-compact">
+        <header class="section-header-compact ribbon-rose">
           <div class="title-wrap">
-            <span class="badge-accent">RADAR PRIORITAS EKSEKUTIF</span>
-            <h2>Top 5 Wilayah Defisit Fiskal Paling Mendesak</h2>
+            <span class="badge-accent rose"><i class="pi pi-compass"></i> RADAR PRIORITAS ALOKASI EKSEKUTIF</span>
+            <h2>5 Daerah dengan Kesenjangan (Defisit) Bantuan Terbesar</h2>
           </div>
-          <span class="timestamp-tag">REKOMENDASI FORMULA IKW BERDASARKAN OR-TOOLS</span>
+          <div class="header-action-meta">
+            <span class="timestamp-tag"><i class="pi pi-calculator"></i> Formula Afirmatif Indeks Kemahalan & Aksesibilitas (IKW)</span>
+            <span class="status-capsule rose"><i class="pi pi-exclamation-triangle"></i> Perlu Intervensi Anggaran Cepat</span>
+          </div>
         </header>
 
         <div class="priority-grid">
+          <!-- Wilayah 1: Papua Pegunungan -->
           <article class="priority-card critical-card">
             <div class="card-head">
-              <span class="rank-circle">1</span>
+              <span class="rank-circle rank-top1">1</span>
               <div class="region-meta">
                 <strong>Papua Pegunungan</strong>
                 <small>Koridor Papua · 8 Kab/Kota</small>
               </div>
-              <span class="gap-badge danger">-Rp6,8 Miliar</span>
+              <span class="gap-badge danger">Defisit -Rp6,8 M</span>
             </div>
             <div class="card-stats">
-              <div><span>Tingkat Kemiskinan:</span> <strong>32.8% (Tertinggi)</strong></div>
-              <div><span>P1 (Kedalaman):</span> <strong class="text-rose">6.42</strong></div>
-              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp18,4 Miliar</strong></div>
+              <div><span>Tingkat Kemiskinan:</span> <strong class="text-rose">32.8% (Tertinggi)</strong></div>
+              <div><span>Kedalaman Kemiskinan (P1):</span> <strong class="text-rose">6.42</strong></div>
+              <div><span>Kebutuhan Tambahan Pagu:</span> <strong class="text-teal">+Rp18,4 Miliar</strong></div>
             </div>
             <div class="card-action">
-              <span class="action-tag">Intervensi Afirmasi Pangan & Infrastruktur IKW</span>
+              <span class="action-tag danger"><i class="pi pi-shield"></i> Afirmasi Pangan & Aksesibilitas IKW</span>
             </div>
           </article>
 
+          <!-- Wilayah 2: Papua Tengah -->
           <article class="priority-card critical-card">
             <div class="card-head">
-              <span class="rank-circle">2</span>
+              <span class="rank-circle rank-top2">2</span>
               <div class="region-meta">
                 <strong>Papua Tengah</strong>
                 <small>Koridor Papua · 8 Kab/Kota</small>
               </div>
-              <span class="gap-badge danger">-Rp5,2 Miliar</span>
+              <span class="gap-badge danger">Defisit -Rp5,2 M</span>
             </div>
             <div class="card-stats">
-              <div><span>Tingkat Kemiskinan:</span> <strong>29.4%</strong></div>
-              <div><span>P1 (Kedalaman):</span> <strong class="text-rose">5.88</strong></div>
-              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp14,1 Miliar</strong></div>
+              <div><span>Tingkat Kemiskinan:</span> <strong class="text-rose">29.4%</strong></div>
+              <div><span>Kedalaman Kemiskinan (P1):</span> <strong class="text-rose">5.88</strong></div>
+              <div><span>Kebutuhan Tambahan Pagu:</span> <strong class="text-teal">+Rp14,1 Miliar</strong></div>
             </div>
             <div class="card-action">
-              <span class="action-tag">Koreksi Under-Budgeting & Bantuan Tunai Bersyarat</span>
+              <span class="action-tag danger"><i class="pi pi-plus-circle"></i> Tambahan Kuota Bantuan Bersyarat</span>
             </div>
           </article>
 
+          <!-- Wilayah 3: NTT -->
           <article class="priority-card warning-card">
             <div class="card-head">
-              <span class="rank-circle">3</span>
+              <span class="rank-circle rank-top3">3</span>
               <div class="region-meta">
-                <strong>Nusa Tenggara Timur (NTT)</strong>
-                <small>Koridor Bali-Nusa Tenggara · 22 Kab/Kota</small>
+                <strong>Nusa Tenggara Timur</strong>
+                <small>Koridor Nusa Tenggara · 22 Kab/Kota</small>
               </div>
-              <span class="gap-badge warning">-Rp4,6 Miliar</span>
+              <span class="gap-badge warning">Defisit -Rp4,6 M</span>
             </div>
             <div class="card-stats">
-              <div><span>Tingkat Kemiskinan:</span> <strong>19.8%</strong></div>
-              <div><span>P1 (Kedalaman):</span> <strong class="text-amber">3.91</strong></div>
-              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp22,8 Miliar</strong></div>
+              <div><span>Tingkat Kemiskinan:</span> <strong class="text-amber">19.8%</strong></div>
+              <div><span>Kedalaman Kemiskinan (P1):</span> <strong class="text-amber">3.91</strong></div>
+              <div><span>Kebutuhan Tambahan Pagu:</span> <strong class="text-teal">+Rp22,8 Miliar</strong></div>
             </div>
             <div class="card-action">
-              <span class="action-tag">Peningkatan Kuota PKH Berbasis Indeks Aksesibilitas</span>
+              <span class="action-tag warning"><i class="pi pi-users"></i> Peningkatan Kuota PKH Afirmatif</span>
             </div>
           </article>
 
+          <!-- Wilayah 4: Maluku -->
           <article class="priority-card warning-card">
             <div class="card-head">
               <span class="rank-circle">4</span>
@@ -337,18 +339,19 @@
                 <strong>Maluku</strong>
                 <small>Koridor Maluku · 11 Kab/Kota</small>
               </div>
-              <span class="gap-badge warning">-Rp3,8 Miliar</span>
+              <span class="gap-badge warning">Defisit -Rp3,8 M</span>
             </div>
             <div class="card-stats">
-              <div><span>Tingkat Kemiskinan:</span> <strong>16.2%</strong></div>
-              <div><span>P1 (Kedalaman):</span> <strong class="text-amber">3.24</strong></div>
-              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp11,5 Miliar</strong></div>
+              <div><span>Tingkat Kemiskinan:</span> <strong class="text-amber">16.2%</strong></div>
+              <div><span>Kedalaman Kemiskinan (P1):</span> <strong class="text-amber">3.24</strong></div>
+              <div><span>Kebutuhan Tambahan Pagu:</span> <strong class="text-teal">+Rp11,5 Miliar</strong></div>
             </div>
             <div class="card-action">
-              <span class="action-tag">Penyesuaian Indeks Kemahalan Konstruksi (IKK) Kepulauan</span>
+              <span class="action-tag warning"><i class="pi pi-compass"></i> Penyesuaian Indeks Kemahalan Kepulauan</span>
             </div>
           </article>
 
+          <!-- Wilayah 5: Gorontalo -->
           <article class="priority-card warning-card">
             <div class="card-head">
               <span class="rank-circle">5</span>
@@ -356,15 +359,15 @@
                 <strong>Gorontalo</strong>
                 <small>Koridor Sulawesi · 6 Kab/Kota</small>
               </div>
-              <span class="gap-badge warning">-Rp2,4 Miliar</span>
+              <span class="gap-badge warning">Defisit -Rp2,4 M</span>
             </div>
             <div class="card-stats">
-              <div><span>Tingkat Kemiskinan:</span> <strong>14.7%</strong></div>
-              <div><span>P1 (Kedalaman):</span> <strong class="text-amber">2.85</strong></div>
-              <div><span>Rekomendasi Pagu:</span> <strong class="text-teal">+Rp7,2 Miliar</strong></div>
+              <div><span>Tingkat Kemiskinan:</span> <strong class="text-amber">14.7%</strong></div>
+              <div><span>Kedalaman Kemiskinan (P1):</span> <strong class="text-amber">2.85</strong></div>
+              <div><span>Kebutuhan Tambahan Pagu:</span> <strong class="text-teal">+Rp7,2 Miliar</strong></div>
             </div>
             <div class="card-action">
-              <span class="action-tag">Pembersihan NIK Ganda & Reallokasi Saldo Bansos Silpa</span>
+              <span class="action-tag warning"><i class="pi pi-check-circle"></i> Verifikasi Sasaran & Realokasi SiLPA</span>
             </div>
           </article>
         </div>

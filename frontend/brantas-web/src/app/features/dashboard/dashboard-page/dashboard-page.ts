@@ -18,6 +18,7 @@ import * as echarts from 'echarts';
 import { GisChoroplethAdapter } from '../../spatial/data/gis-choropleth.adapter';
 import { SpatialDataService } from '../../spatial/data/spatial-data.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { KioskModeService } from '../../../core/services/kiosk-mode.service';
 import {
   DashboardDataService,
   DashboardSummary,
@@ -45,6 +46,7 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly zone = inject(NgZone);
   protected readonly themeService = inject(ThemeService);
+  protected readonly kiosk = inject(KioskModeService);
 
   @ViewChild('dashboardMapContainer') private dashboardMapContainerRef?: ElementRef<HTMLElement>;
   @ViewChild('quadrantChart') private quadrantChartRef?: ElementRef<HTMLElement>;
@@ -57,6 +59,18 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
       if (this.activeTab() === 'allocation') {
         setTimeout(() => this.renderAllExecutiveCharts(), 50);
       }
+    });
+
+    effect(() => {
+      // Re-invalidate map and charts when kiosk / fullscreen mode toggles
+      this.kiosk.isKioskActive();
+      setTimeout(() => {
+        if (this.activeTab() === 'macro') {
+          this.mapAdapter.invalidateSize();
+        }
+        this.quadrantChartInstance?.resize();
+        this.trendChartInstance?.resize();
+      }, 120);
     });
   }
 
@@ -191,21 +205,28 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
         
         // Data Mock Kuadran 38 Provinsi
         const scatterData = [
-          { name: 'Papua Pegunungan', x: 32.8, y: 1.2, cat: 'KRITIS DEFISIT', symbolSize: 22, color: '#fb7185' },
-          { name: 'Papua Tengah', x: 29.4, y: 1.4, cat: 'KRITIS DEFISIT', symbolSize: 20, color: '#fb7185' },
-          { name: 'Papua Barat', x: 21.3, y: 2.1, cat: 'PRIORITAS DEFISIT', symbolSize: 18, color: '#fbbf24' },
-          { name: 'Maluku', x: 16.2, y: 2.5, cat: 'PRIORITAS DEFISIT', symbolSize: 16, color: '#fbbf24' },
-          { name: 'NTT', x: 19.8, y: 2.3, cat: 'PRIORITAS DEFISIT', symbolSize: 18, color: '#fbbf24' },
-          { name: 'Gorontalo', x: 14.7, y: 2.8, cat: 'OPTIMAL', symbolSize: 14, color: '#2dd4bf' },
-          { name: 'Sulawesi Barat', x: 11.5, y: 3.1, cat: 'OPTIMAL', symbolSize: 14, color: '#2dd4bf' },
-          { name: 'Jawa Tengah', x: 10.4, y: 4.8, cat: 'OPTIMAL', symbolSize: 24, color: '#2dd4bf' },
-          { name: 'Jawa Timur', x: 10.2, y: 5.2, cat: 'OPTIMAL', symbolSize: 26, color: '#2dd4bf' },
-          { name: 'Jawa Barat', x: 7.8, y: 6.1, cat: 'OVER-ALLOCATION', symbolSize: 28, color: '#38bdf8' },
-          { name: 'DKI Jakarta', x: 4.3, y: 7.5, cat: 'OVER-ALLOCATION', symbolSize: 22, color: '#38bdf8' },
-          { name: 'Bali', x: 4.1, y: 6.8, cat: 'OVER-ALLOCATION', symbolSize: 16, color: '#38bdf8' },
-          { name: 'Kalimantan Timur', x: 6.1, y: 6.4, cat: 'OVER-ALLOCATION', symbolSize: 16, color: '#38bdf8' },
-          { name: 'Sumatera Utara', x: 8.1, y: 4.2, cat: 'OPTIMAL', symbolSize: 20, color: '#2dd4bf' },
-          { name: 'Aceh', x: 14.4, y: 3.3, cat: 'PRIORITAS DEFISIT', symbolSize: 16, color: '#fbbf24' }
+          { name: 'Papua Pegunungan', x: 32.8, y: 1.2, cat: 'Defisit Kritis', symbolSize: 22 },
+          { name: 'Papua Tengah', x: 29.4, y: 1.4, cat: 'Defisit Kritis', symbolSize: 20 },
+          { name: 'Papua Barat', x: 21.3, y: 2.1, cat: 'Perlu Afirmasi', symbolSize: 18 },
+          { name: 'Maluku', x: 16.2, y: 2.5, cat: 'Perlu Afirmasi', symbolSize: 16 },
+          { name: 'NTT', x: 19.8, y: 2.3, cat: 'Perlu Afirmasi', symbolSize: 18 },
+          { name: 'Gorontalo', x: 14.7, y: 2.8, cat: 'Sesuai Kebutuhan', symbolSize: 14 },
+          { name: 'Sulawesi Barat', x: 11.5, y: 3.1, cat: 'Sesuai Kebutuhan', symbolSize: 14 },
+          { name: 'Jawa Tengah', x: 10.4, y: 4.8, cat: 'Sesuai Kebutuhan', symbolSize: 24 },
+          { name: 'Jawa Timur', x: 10.2, y: 5.2, cat: 'Sesuai Kebutuhan', symbolSize: 26 },
+          { name: 'Jawa Barat', x: 7.8, y: 6.1, cat: 'Melampaui Rerata', symbolSize: 28 },
+          { name: 'DKI Jakarta', x: 4.3, y: 7.5, cat: 'Melampaui Rerata', symbolSize: 22 },
+          { name: 'Bali', x: 4.1, y: 6.8, cat: 'Melampaui Rerata', symbolSize: 16 },
+          { name: 'Kalimantan Timur', x: 6.1, y: 6.4, cat: 'Melampaui Rerata', symbolSize: 16 },
+          { name: 'Sumatera Utara', x: 8.1, y: 4.2, cat: 'Sesuai Kebutuhan', symbolSize: 20 },
+          { name: 'Aceh', x: 14.4, y: 3.3, cat: 'Perlu Afirmasi', symbolSize: 16 }
+        ];
+
+        const quadrantCategories = [
+          { name: 'Defisit Kritis', color: '#fb7185' },
+          { name: 'Perlu Afirmasi', color: '#fbbf24' },
+          { name: 'Sesuai Kebutuhan', color: '#2dd4bf' },
+          { name: 'Melampaui Rerata', color: '#38bdf8' }
         ];
 
         this.quadrantChartInstance.setOption({
@@ -217,16 +238,25 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
             formatter: (p: any) => {
               const d = p.data;
               return `<strong style="color:#38bdf8">${d.name}</strong><br/>` +
-                `Tingkat Kemiskinan: <strong style="color:#fb7185">${d.value[0]}%</strong><br/>` +
-                `Alokasi per Kapita: <strong>Rp${d.value[1]} Jt/jiwa</strong><br/>` +
-                `Status: <strong style="color:${d.color}">${d.cat}</strong>`;
+                `Persentase Kemiskinan: <strong style="color:#fb7185">${d.value[0]}%</strong><br/>` +
+                `Alokasi Anggaran: <strong>Rp${d.value[1]} Jt/jiwa miskin</strong><br/>` +
+                `Klasifikasi: <strong style="color:${d.color}">${d.cat}</strong>`;
             }
           },
-          grid: { left: '7%', right: '7%', bottom: '13%', top: '9%' },
+          legend: {
+            data: quadrantCategories.map(c => c.name),
+            bottom: 6,
+            icon: 'circle',
+            itemWidth: 8,
+            itemHeight: 8,
+            itemGap: 16,
+            textStyle: { color: textMuted, fontSize: 10.5, fontWeight: 600 }
+          },
+          grid: { left: 45, right: 25, bottom: 44, top: 28, containLabel: true },
           xAxis: {
-            name: 'Tingkat Kemiskinan (%)',
+            name: 'Persentase Kemiskinan Daerah (%)',
             nameLocation: 'middle',
-            nameGap: 24,
+            nameGap: 18,
             nameTextStyle: { color: textColor, fontSize: 10.5, fontWeight: 700 },
             type: 'value',
             min: 0,
@@ -235,39 +265,41 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
             splitLine: { lineStyle: { color: splitLineColor } }
           },
           yAxis: {
-            name: 'Pagu per Kapita (Jt Rp)',
-            nameTextStyle: { color: textColor, fontSize: 10.5, fontWeight: 700 },
+            name: 'Pagu per Jiwa Miskin (Juta Rp)',
+            nameTextStyle: { color: textColor, fontSize: 10.5, fontWeight: 700, padding: [0, 0, 0, 40] },
             type: 'value',
             min: 0,
             max: 8,
             axisLabel: { color: textMuted, fontWeight: 600, fontSize: 10 },
             splitLine: { lineStyle: { color: splitLineColor } }
           },
-          series: [
-            {
-              type: 'scatter',
-              data: scatterData.map(d => ({
-                name: d.name,
-                value: [d.x, d.y],
-                cat: d.cat,
-                color: d.color,
-                symbolSize: d.symbolSize,
-                itemStyle: {
-                  color: d.color,
-                  shadowBlur: 10,
-                  shadowColor: d.color
-                }
-              })),
-              markLine: {
-                silent: true,
-                lineStyle: { type: 'dashed', color: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)' },
-                data: [
-                  { xAxis: 12, label: { formatter: 'Batas Rerata 12%', color: '#fbbf24', fontSize: 10 } },
-                  { yAxis: 3.5, label: { formatter: 'Median Alokasi', color: '#2dd4bf', fontSize: 10 } }
-                ]
+          series: quadrantCategories.map((cat, idx) => ({
+            name: cat.name,
+            type: 'scatter',
+            itemStyle: {
+              color: cat.color
+            },
+            data: scatterData.filter(d => d.cat === cat.name).map(d => ({
+              name: d.name,
+              value: [d.x, d.y],
+              cat: cat.name,
+              color: cat.color,
+              symbolSize: d.symbolSize,
+              itemStyle: {
+                color: cat.color,
+                shadowBlur: 10,
+                shadowColor: cat.color
               }
-            }
-          ]
+            })),
+            markLine: idx === 0 ? {
+              silent: true,
+              lineStyle: { type: 'dashed', color: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)' },
+              data: [
+                { xAxis: 12, label: { formatter: 'Batas Rerata 12%', color: '#fbbf24', fontSize: 10 } },
+                { yAxis: 3.5, label: { formatter: 'Median Alokasi', color: '#2dd4bf', fontSize: 10 } }
+              ]
+            } : undefined
+          }))
         });
       }
 
@@ -285,11 +317,11 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
             textStyle: { color: '#f8fafc' }
           },
           legend: {
-            data: ['Historis BPS', 'Proyeksi Formula IKW BRANTAS', 'Target RPJMN 2026'],
-            bottom: '0%',
+            data: ['Realisasi Historis BPS', 'Simulasi Formula Afirmatif BRANTAS', 'Target Sasaran RPJMN'],
+            bottom: 6,
             textStyle: { color: textMuted, fontSize: 10.5, fontWeight: 600 }
           },
-          grid: { left: '3%', right: '4%', bottom: '15%', top: '8%', containLabel: true },
+          grid: { left: '4%', right: '4%', bottom: 42, top: 26, containLabel: true },
           xAxis: {
             type: 'category',
             boundaryGap: false,
@@ -305,7 +337,7 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
           },
           series: [
             {
-              name: 'Historis BPS',
+              name: 'Realisasi Historis BPS',
               type: 'line',
               data: [10.14, 9.57, 9.36, 9.03, 8.85, null, null],
               smooth: true,
@@ -313,7 +345,7 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
               itemStyle: { color: '#38bdf8' }
             },
             {
-              name: 'Proyeksi Formula IKW BRANTAS',
+              name: 'Simulasi Formula Afirmatif BRANTAS',
               type: 'line',
               data: [null, null, null, null, 8.85, 7.43, 6.82],
               smooth: true,
@@ -327,7 +359,7 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
               itemStyle: { color: '#2dd4bf' }
             },
             {
-              name: 'Target RPJMN 2026',
+              name: 'Target Sasaran RPJMN',
               type: 'line',
               data: [7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5],
               lineStyle: { width: 2, color: '#fb7185', type: 'dashed' },
