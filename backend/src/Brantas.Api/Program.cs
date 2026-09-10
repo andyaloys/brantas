@@ -1002,11 +1002,11 @@ app.MapGet("/api/v1/reports/policy-brief.pdf", async (BrantasDbContext database,
     var panel = truth is null ? [] : await database.PolicyImpactPanels.Where(item => item.DatasetVersionId == version.Id).Select(item => new PolicyObservation(item.RegionId, item.Year, item.IsTreated, item.SocialProtectionAllocation, item.PovertyRate)).ToListAsync(cancellationToken);
     var did = truth is null ? null : new DifferenceInDifferencesEstimator().Estimate(panel, truth.TreatmentStartYear);
     var report = new PolicyBriefModel(version.Id, version.Period, version.Checksum, version.Seed, DateTimeOffset.UtcNow, await indicators.CountAsync(cancellationToken), await indicators.AverageAsync(item => item.PovertyRate, cancellationToken), anomalyMetrics?.Count ?? 0, anomalyMetrics?.ValueAtRisk ?? 0m, did?.EffectPercentagePoints ?? 0m, did?.StandardError ?? 0m, did?.ConfidenceIntervalLower ?? 0m, did?.ConfidenceIntervalUpper ?? 0m, did?.PValue ?? 1m, priorities);
-    return Results.File(new PolicyBriefDocument(report).GeneratePdf(), "application/pdf", $"telaahan-kebijakan-brantas-{version.Period}.pdf");
+    return Results.File(new PolicyBriefDocument(report).GeneratePdf(), "application/pdf", $"rekomendasi-kebijakan-brantas-{version.Period}.pdf");
 })
     .WithName("DownloadPolicyBrief")
-    .WithSummary("Menghasilkan telaahan kebijakan PDF berbasis data simulasi aktif.")
-    .WithTags("Pelaporan")
+    .WithSummary("Menghasilkan rekomendasi kebijakan PDF berbasis data analitik BRANTAS.")
+    .WithTags("Rekomendasi Kebijakan")
     .AllowAnonymous();
 
 app.MapGet("/api/v1/exports/anomalies.csv", async (BrantasDbContext database, CancellationToken cancellationToken) =>
@@ -1019,8 +1019,34 @@ app.MapGet("/api/v1/exports/anomalies.csv", async (BrantasDbContext database, Ca
     return Results.File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", $"anomali-brantas-{version.Period}.csv");
 })
     .WithName("ExportAnomaliesCsv")
-    .WithSummary("Mengekspor temuan anomali fiskal tanpa data identitas.")
-    .WithTags("Pelaporan")
+    .WithSummary("Mengekspor temuan anomali fiskal tanpa data identitas format CSV.")
+    .WithTags("Rekomendasi Kebijakan")
+    .AllowAnonymous();
+
+app.MapGet("/api/v1/exports/anomalies.xlsx", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
+    if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
+    var rows = await database.Anomalies.Where(item => item.DatasetVersionId == version.Id).OrderByDescending(item => item.ValueAtRisk).Select(item => new { Region = item.Region!.Name, Type = item.Type, Severity = item.Severity, item.ConfidenceScore, item.ZScore, item.ValueAtRisk, item.Explanation }).ToListAsync(cancellationToken);
+
+    var headers = new[] { "Wilayah", "Tipe Anomali", "Tingkat Keparahan", "Skor Keyakinan (%)", "Z-Score Deviasi", "Nilai Berisiko (Rupiah)", "Uraian Masalah & Implikasi" };
+    var dataRows = rows.Select(r => new object?[]
+    {
+        r.Region,
+        r.Type.ToString() == "FiscalUnderAllocation" ? "Alokasi Kurang" : "Alokasi Berlebih",
+        r.Severity.ToString() switch { "Critical" => "Kritis", "High" => "Tinggi", _ => "Sedang" },
+        r.ConfidenceScore,
+        r.ZScore,
+        Math.Round(r.ValueAtRisk * 1_000_000_000m, 0),
+        r.Explanation
+    }).ToList();
+
+    var bytes = SimpleXlsxWriter.CreateWorkbook("Temuan Ketimpangan", headers, dataRows);
+    return Results.File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"temuan-ketimpangan-brantas-{version.Period}.xlsx");
+})
+    .WithName("ExportAnomaliesXlsx")
+    .WithSummary("Mengekspor daftar temuan ketimpangan anggaran dalam format Microsoft Excel (.xlsx).")
+    .WithTags("Rekomendasi Kebijakan")
     .AllowAnonymous();
 
 app.MapGet("/api/v1/exports/allocations.csv", async (BrantasDbContext database, CancellationToken cancellationToken) =>
@@ -1044,8 +1070,41 @@ app.MapGet("/api/v1/exports/allocations.csv", async (BrantasDbContext database, 
     return Results.File(Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray(), "text/csv", $"alokasi-anggaran-brantas-{version.Period}.csv");
 })
     .WithName("ExportAllocationsCsv")
-    .WithSummary("Mengekspor simulasi alokasi anggaran perlindungan sosial berbasis IKW.")
-    .WithTags("Pelaporan")
+    .WithSummary("Mengekspor simulasi alokasi anggaran perlindungan sosial berbasis IKW format CSV.")
+    .WithTags("Rekomendasi Kebijakan")
+    .AllowAnonymous();
+
+app.MapGet("/api/v1/exports/allocations.xlsx", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
+    if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
+    var observations = await (
+        from indicator in database.PovertyIndicators
+        join allocation in database.FiscalAllocations on indicator.RegionId equals allocation.RegionId
+        where indicator.DatasetVersionId == version.Id && allocation.DatasetVersionId == version.Id && indicator.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province
+        select new AllocationObservation(indicator.RegionId, indicator.Region!.Name, indicator.PovertyRate, indicator.PovertyDepthIndex, indicator.PovertySeverityIndex, indicator.HumanDevelopmentIndex, indicator.GdpPerCapita, Math.Abs(indicator.Region.BpsCode.GetHashCode() % 100) / 100m, indicator.PoorPopulation, allocation.TotalAllocation)).ToListAsync(cancellationToken);
+    var weights = new AllocationWeights(30m, 15m, 15m, 15m, 15m, 10m);
+    var totalBudget = observations.Sum(item => item.BaselineAllocation);
+    var result = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, .25m);
+
+    var headers = new[] { "Provinsi", "Alokasi APBN Eksisting (Rupiah)", "Rekomendasi BRANTAS (Rupiah)", "Penyesuaian Anggaran (Rupiah)", "Perubahan Persentase (%)", "Indeks Kebutuhan (IKW)", "Penduduk Miskin (Jiwa)" };
+    var dataRows = result.Recommendations.OrderByDescending(r => r.Delta).Select(item => new object?[]
+    {
+        item.RegionName,
+        Math.Round(item.BaselineAllocation * 1_000_000_000m, 0),
+        Math.Round(item.RecommendedAllocation * 1_000_000_000m, 0),
+        Math.Round(item.Delta * 1_000_000_000m, 0),
+        item.DeltaPercent,
+        item.VulnerabilityIndex,
+        item.PoorPopulation
+    }).ToList();
+
+    var bytes = SimpleXlsxWriter.CreateWorkbook("Rekomendasi Alokasi", headers, dataRows);
+    return Results.File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"rekomendasi-alokasi-brantas-{version.Period}.xlsx");
+})
+    .WithName("ExportAllocationsXlsx")
+    .WithSummary("Mengekspor data rekomendasi alokasi anggaran dalam format Microsoft Excel (.xlsx).")
+    .WithTags("Rekomendasi Kebijakan")
     .AllowAnonymous();
 
 app.MapPost("/api/v1/jusi/chat", async (JusiChatRequest request, IBrantasAssistant assistant, CancellationToken cancellationToken) =>
