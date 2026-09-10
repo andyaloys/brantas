@@ -183,21 +183,28 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
   protected toggleContentView(mode: 'map' | 'table'): void {
     this.contentViewMode.set(mode);
     if (mode === 'map') {
-      this.mapAdapter.invalidateSize();
+      setTimeout(() => {
+        this.mapAdapter.invalidateSize();
+      }, 60);
     }
   }
 
   protected toggleMapMaximize(): void {
     this.isMapMaximized.update(v => !v);
-    this.mapAdapter.invalidateSize();
+    setTimeout(() => {
+      this.mapAdapter.invalidateSize();
+    }, 60);
   }
 
   protected selectRegionFromTable(region: SpatialRegionProperties): void {
     this.selectedRegion.set(region);
     this.selectedProvince.set(region.parent);
-    this.mapAdapter.filterAndZoomProvince(region.parent);
     this.contentViewMode.set('map');
-    this.mapAdapter.invalidateSize();
+
+    setTimeout(() => {
+      this.mapAdapter.invalidateSize();
+      this.mapAdapter.filterAndZoomProvince(region.parent);
+    }, 60);
   }
 
   protected async exportCsv(): Promise<void> {
@@ -214,6 +221,36 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
       this.error.set('Ekspor data spasial gagal.');
     } finally {
       this.isExporting.set(false);
+    }
+  }
+
+  protected translateCluster(cluster: string): string {
+    switch (cluster) {
+      case 'High-High': return 'Klaster Kemiskinan Tinggi (Hotspot)';
+      case 'High-Low': return 'Kantong Miskin Terisolasi (Outlier Tinggi)';
+      case 'Low-High': return 'Wilayah Maju Terjepit (Outlier Rendah)';
+      case 'Low-Low': return 'Klaster Sejahtera (Coldspot)';
+      default: return cluster;
+    }
+  }
+
+  protected translateClusterShort(cluster: string): string {
+    switch (cluster) {
+      case 'High-High': return 'Hotspot (Tinggi)';
+      case 'High-Low': return 'Outlier Tinggi';
+      case 'Low-High': return 'Outlier Rendah';
+      case 'Low-Low': return 'Coldspot (Sejahtera)';
+      default: return cluster;
+    }
+  }
+
+  protected getClusterClass(cluster: string): string {
+    switch (cluster) {
+      case 'High-High': return 'cluster-hh';
+      case 'High-Low': return 'cluster-hl';
+      case 'Low-High': return 'cluster-lh';
+      case 'Low-Low': return 'cluster-ll';
+      default: return '';
     }
   }
 
