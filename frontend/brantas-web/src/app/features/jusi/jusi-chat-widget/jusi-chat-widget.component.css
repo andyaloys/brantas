@@ -807,3 +807,210 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================================
+   SESSION ONBOARDING GATE (Name & Work Unit Validation)
+   ========================================================================= */
+.onboarding-gate-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 6px;
+  margin: auto 0;
+  width: 100%;
+}
+
+.onboarding-gate-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  border-radius: 16px;
+  padding: 20px 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 0 16px rgba(13, 148, 136, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: gateFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gateFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.onboarding-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.onboarding-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+  color: #ffffff;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+  margin-bottom: 10px;
+}
+
+.onboarding-title {
+  margin: 0 0 3px;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.onboarding-tagline {
+  margin: 0 0 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+
+.onboarding-info {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.input-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.input-field-wrap label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-field-wrap label i {
+  color: var(--primary-600);
+  font-size: 11px;
+}
+
+.input-field-wrap .required {
+  color: var(--accent-rose);
+  font-weight: 800;
+}
+
+.gate-input {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 12px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.18s ease;
+}
+
+.gate-input:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18);
+  background: var(--bg-surface);
+}
+
+.gate-input::placeholder {
+  color: var(--text-light);
+}
+
+.btn-start-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+  transition: all 0.18s ease;
+  margin-top: 4px;
+}
+
+.btn-start-gate:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.45);
+}
+
+.btn-start-gate:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-start-gate i {
+  font-size: 11px;
+  transition: transform 0.18s ease;
+}
+
+.btn-start-gate:hover:not(:disabled) i {
+  transform: translateX(2px);
+}
+
+/* Locked Composer Bar */
+.composer-locked-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg-app);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.composer-locked-bar i {
+  color: var(--primary-600);
+  font-size: 12px;
+}
+
+.user-sender-name {
+  font-weight: 800;
+  color: var(--primary-600);
+}
+
+.session-author {
+  color: var(--primary-600);
+  font-weight: 700;
+}
+

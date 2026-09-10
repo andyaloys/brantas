@@ -16,6 +16,8 @@ export class JusiPageComponent {
   @ViewChild('scrollContainer') private scrollContainer?: ElementRef<HTMLElement>;
 
   protected readonly question = signal('');
+  protected readonly profileFormName = signal('');
+  protected readonly profileFormUnit = signal('');
 
   // Expose signals for backwards compatibility with jusi-page.html template
   protected readonly sessions = this.chat.sessions;
@@ -24,8 +26,24 @@ export class JusiPageComponent {
   protected readonly activeSession = this.chat.activeSession;
   protected readonly activeMessages = this.chat.activeMessages;
 
+  constructor() {
+    const lastProfile = this.chat.getLastUserProfile();
+    if (lastProfile.name) {
+      this.profileFormName.set(lastProfile.name);
+      this.profileFormUnit.set(lastProfile.unit);
+    }
+  }
+
   protected updateQuestion(event: Event): void {
     this.question.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected submitOnboarding(): void {
+    const name = this.profileFormName().trim();
+    const unit = this.profileFormUnit().trim();
+    if (!name || !unit) return;
+    this.chat.setUserProfile(name, unit);
+    this.scrollToBottom();
   }
 
   protected useQuestion(q: string): void {
@@ -41,6 +59,11 @@ export class JusiPageComponent {
 
   protected startNewSession(): void {
     this.chat.startNewSession();
+    const lastProfile = this.chat.getLastUserProfile();
+    if (lastProfile.name) {
+      this.profileFormName.set(lastProfile.name);
+      this.profileFormUnit.set(lastProfile.unit);
+    }
     this.question.set('');
     this.scrollToBottom();
   }

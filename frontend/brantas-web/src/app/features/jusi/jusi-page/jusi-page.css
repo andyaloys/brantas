@@ -483,3 +483,203 @@ textarea:focus {
   .sidebar-panel { max-height: 320px; }
   .page-header { flex-direction: column; }
 }
+
+/* =========================================================================
+   SESSION ONBOARDING GATE (Name & Work Unit Validation)
+   ========================================================================= */
+.onboarding-gate-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  margin: auto 0;
+  width: 100%;
+}
+
+.onboarding-gate-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  border-radius: 18px;
+  padding: 28px 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 0 0 20px rgba(13, 148, 136, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: gateFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gateFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.onboarding-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.onboarding-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+  color: #ffffff;
+  font-size: 24px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35);
+  margin-bottom: 12px;
+}
+
+.onboarding-title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.onboarding-tagline {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+
+.onboarding-info {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.input-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+}
+
+.input-field-wrap label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-field-wrap label i {
+  color: var(--primary-600);
+  font-size: 12px;
+}
+
+.input-field-wrap .required {
+  color: var(--accent-rose);
+  font-weight: 800;
+}
+
+.gate-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.18s ease;
+}
+
+.gate-input:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18);
+  background: var(--bg-surface);
+}
+
+.gate-input::placeholder {
+  color: var(--text-light);
+}
+
+.btn-start-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+  transition: all 0.18s ease;
+  margin-top: 6px;
+}
+
+.btn-start-gate:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.45);
+}
+
+.btn-start-gate:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-start-gate i {
+  font-size: 12px;
+  transition: transform 0.18s ease;
+}
+
+.btn-start-gate:hover:not(:disabled) i {
+  transform: translateX(2px);
+}
+
+/* Locked Composer Bar */
+.composer-locked-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 24px;
+  background: var(--bg-app);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.composer-locked-bar i {
+  color: var(--primary-600);
+  font-size: 14px;
+}
+
+.session-author {
+  color: var(--primary-600);
+  font-weight: 700;
+}

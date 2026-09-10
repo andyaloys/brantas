@@ -5,6 +5,7 @@ import { JusiDataService, JusiResponse } from '../data/jusi-data.service';
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'assistant';
+  senderName?: string;
   text: string;
   timestamp: string;
   source?: string;
@@ -18,12 +19,18 @@ export interface ChatSession {
   title: string;
   createdAt: string;
   updatedAt: string;
+  userName?: string;
+  userUnit?: string;
   messages: ChatMessage[];
 }
 
+export interface UserProfile {
+  name: string;
+  unit: string;
+}
+
 export const STORAGE_KEY = 'brantas_jusi_sessions_v1';
-export const DEFAULT_WELCOME_TEXT =
-  'Halo, saya JUSI. Saya siap membantu menelaah data kemiskinan, menghitung simulasi anggaran, dan mengevaluasi efektivitas program perlindungan sosial berdasarkan data aktif BRANTAS.';
+export const PROFILE_STORAGE_KEY = 'brantas_jusi_last_profile_v1';
 
 export interface QuickPrompt {
   label: string;
@@ -78,24 +85,74 @@ export class JusiChatService {
     this.loadSessionsFromStorage();
   }
 
+  getLastUserProfile(): UserProfile {
+    try {
+      const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.name === 'string') {
+          return { name: parsed.name, unit: parsed.unit || '' };
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return { name: '', unit: '' };
+  }
+
   startNewSession(): void {
     const newSession: ChatSession = {
       id: 'session-' + Date.now(),
-      title: 'Obrolan Baru',
+      title: 'Sesi Baru',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      messages: [
-        {
-          id: 'welcome-' + Date.now(),
-          sender: 'assistant',
-          text: DEFAULT_WELCOME_TEXT,
-          timestamp: new Date().toISOString()
-        }
-      ]
+      messages: [] // Kosong, menunggu onboarding nama dan unit selesai
     };
 
     this.sessions.update((prev) => [newSession, ...prev]);
     this.activeSessionId.set(newSession.id);
+    this.saveSessionsToStorage();
+  }
+
+  setUserProfile(name: string, unit: string): void {
+    const trimmedName = name.trim();
+    const trimmedUnit = unit.trim();
+    if (!trimmedName || !trimmedUnit) return;
+
+    // Simpan ke local storage untuk mempermudah sesi berikutnya
+    try {
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify({ name: trimmedName, unit: trimmedUnit }));
+    } catch {
+      // ignore
+    }
+
+    const active = this.activeSession();
+    if (!active) return;
+    const currentSessionId = active.id;
+
+    // Pesan pembuka resmi dari JUSI setelah pengguna memasukkan identitas
+    const jusiWelcomeMsg: ChatMessage = {
+      id: 'welcome-' + Date.now(),
+      sender: 'assistant',
+      text: `Halo Bapak/Ibu ${trimmedName} dari ${trimmedUnit}! Saya JUSI (Juru Bantuan Sosial Interaktif), siap membantu Anda menganalisis data kemiskinan, simulasi alokasi anggaran APBN, dan evaluasi efektivitas program perlindungan sosial. Ada data atau topik kebijakan yang ingin Anda diskusikan?`,
+      timestamp: new Date().toISOString()
+    };
+
+    this.sessions.update((list) =>
+      list.map((s) =>
+        s.id === currentSessionId
+          ? {
+              ...s,
+              userName: trimmedName,
+              userUnit: trimmedUnit,
+              title: `Konsultasi ${trimmedName}`,
+              updatedAt: new Date().toISOString(),
+              messages: [jusiWelcomeMsg]
+            }
+          : s
+      )
+    );
+
     this.saveSessionsToStorage();
   }
 
@@ -125,22 +182,23 @@ export class JusiChatService {
     if (!q || this.isLoading()) return;
 
     let active = this.activeSession();
-    if (!active) {
-      this.startNewSession();
-      active = this.activeSession();
+    if (!active || !active.userName) {
+      // Sesi belum memiliki identitas nama dan unit, abaikan input
+      return;
     }
 
-    const currentSessionId = active!.id;
+    const currentSessionId = active.id;
 
     const userMsg: ChatMessage = {
       id: 'user-' + Date.now(),
       sender: 'user',
+      senderName: active.userName,
       text: q,
       timestamp: new Date().toISOString()
     };
 
-    let updatedTitle = active!.title;
-    if (active!.title === 'Obrolan Baru' || active!.title === 'Sesi Baru') {
+    let updatedTitle = active.title;
+    if (active.title === 'Sesi Baru' || active.title === 'Obrolan Baru' || active.title.startsWith('Konsultasi ')) {
       updatedTitle = q.length > 32 ? q.slice(0, 30) + '...' : q;
     }
 
@@ -187,7 +245,7 @@ export class JusiChatService {
       const errorMsg: ChatMessage = {
         id: 'err-' + Date.now(),
         sender: 'assistant',
-        text: 'Pertanyaan tidak dapat diproses. Pastikan pertanyaan berada dalam domain BRANTAS dan tidak memuat identitas pribadi (NIK/NKK).',
+        text: 'Pertanyaan belum dapat diproses. Pastikan pertanyaan berada dalam konteks data fiskal dan kemiskinan BRANTAS.',
         timestamp: new Date().toISOString(),
         isError: true
       };

@@ -32,6 +32,10 @@ export class JusiChatWidgetComponent {
   protected readonly isPromptsDismissed = signal(false);
   protected readonly quickPrompts = EXECUTIVE_QUICK_PROMPTS;
 
+  // Onboarding input form signals (pre-filled with last user profile if available)
+  protected readonly profileFormName = signal('');
+  protected readonly profileFormUnit = signal('');
+
   // Hanya muncul jika sesi baru (belum ada pesan dari user)
   protected readonly isNewSession = computed(() => {
     const msgs = this.chat.activeMessages();
@@ -39,6 +43,12 @@ export class JusiChatWidgetComponent {
   });
 
   constructor() {
+    const lastProfile = this.chat.getLastUserProfile();
+    if (lastProfile.name) {
+      this.profileFormName.set(lastProfile.name);
+      this.profileFormUnit.set(lastProfile.unit);
+    }
+
     // Auto scroll and focus when widget opens or messages update
     effect(() => {
       const isOpen = this.widget.isOpen();
@@ -69,6 +79,15 @@ export class JusiChatWidgetComponent {
     this.question.set((event.target as HTMLTextAreaElement).value);
   }
 
+  protected submitOnboarding(): void {
+    const name = this.profileFormName().trim();
+    const unit = this.profileFormUnit().trim();
+    if (!name || !unit) return;
+    this.chat.setUserProfile(name, unit);
+    this.scrollToBottom();
+    setTimeout(() => this.composerTextarea?.nativeElement?.focus(), 120);
+  }
+
   protected usePrompt(query: string): void {
     this.question.set(query);
     this.ask();
@@ -87,6 +106,11 @@ export class JusiChatWidgetComponent {
 
   protected startNewSession(): void {
     this.chat.startNewSession();
+    const lastProfile = this.chat.getLastUserProfile();
+    if (lastProfile.name) {
+      this.profileFormName.set(lastProfile.name);
+      this.profileFormUnit.set(lastProfile.unit);
+    }
     this.isPromptsDismissed.set(false);
     this.widget.isSessionsDrawerOpen.set(false);
     this.question.set('');
@@ -108,11 +132,9 @@ export class JusiChatWidgetComponent {
   }
 
   protected async ask(): Promise<void> {
-    const q = this.question().trim();
-    if (!q || this.chat.isLoading()) return;
-
+    const q = this.question();
+    if (!q.trim()) return;
     this.question.set('');
-    this.scrollToBottom();
     await this.chat.ask(q);
     this.scrollToBottom();
   }
@@ -120,8 +142,9 @@ export class JusiChatWidgetComponent {
   private scrollToBottom(): void {
     setTimeout(() => {
       if (this.scrollContainer?.nativeElement) {
-        this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+        this.scrollContainer.nativeElement.scrollTop =
+          this.scrollContainer.nativeElement.scrollHeight;
       }
-    }, 60);
+    }, 50);
   }
 }
