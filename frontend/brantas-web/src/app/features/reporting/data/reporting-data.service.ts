@@ -17,4 +17,12 @@ export class ReportingDataService {
   downloadAllocationsCsv() {
     return this.http.get(`${this.apiUrl}/exports/allocations.csv`, { responseType: 'blob' });
   }
+
+  downloadAllocationsXlsx() {
+    return this.http.get(`${this.apiUrl}/exports/allocations.xlsx`, { responseType: 'blob' });
+  }
+
+  downloadAnomaliesXlsx() {
+    return this.http.get(`${this.apiUrl}/exports/anomalies.xlsx`, { responseType: 'blob' });
+  }
 }

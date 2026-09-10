@@ -13,19 +13,21 @@ import { ReportingDataService } from '../data/reporting-data.service';
 })
 export class ReportingPageComponent {
   private readonly reportingData = inject(ReportingDataService);
-  protected readonly downloadingType = signal<'pdf' | 'csv' | 'allocations' | null>(null);
+  protected readonly downloadingType = signal<'pdf' | 'csv' | 'allocations' | 'allocations-xlsx' | 'anomalies-xlsx' | null>(null);
   protected readonly error = signal<string | null>(null);
 
   protected isDownloading(): boolean {
     return this.downloadingType() !== null;
   }
 
-  protected async download(type: 'pdf' | 'csv' | 'allocations'): Promise<void> {
+  protected async download(type: 'pdf' | 'csv' | 'allocations' | 'allocations-xlsx' | 'anomalies-xlsx'): Promise<void> {
     this.downloadingType.set(type);
     this.error.set(null);
     try {
       const file = await firstValueFrom(
         type === 'pdf' ? this.reportingData.downloadPolicyBrief()
+        : type === 'allocations-xlsx' ? this.reportingData.downloadAllocationsXlsx()
+        : type === 'anomalies-xlsx' ? this.reportingData.downloadAnomaliesXlsx()
         : type === 'csv' ? this.reportingData.downloadAnomaliesCsv()
         : this.reportingData.downloadAllocationsCsv()
       );
@@ -33,10 +35,14 @@ export class ReportingPageComponent {
       const link = document.createElement('a');
       link.href = url;
       link.download = type === 'pdf'
-        ? 'telaahan-kebijakan-brantas-kemenkeu.pdf'
-        : type === 'csv'
-          ? 'matriks-anomali-fiskal-brantas.csv'
-          : 'simulasi-alokasi-anggaran-ikw-brantas.csv';
+        ? 'rekomendasi-kebijakan-brantas.pdf'
+        : type === 'allocations-xlsx'
+          ? 'rekomendasi-alokasi-brantas.xlsx'
+          : type === 'anomalies-xlsx'
+            ? 'temuan-ketimpangan-brantas.xlsx'
+            : type === 'csv'
+              ? 'matriks-anomali-fiskal-brantas.csv'
+              : 'simulasi-alokasi-anggaran-ikw-brantas.csv';
       link.click();
       URL.revokeObjectURL(url);
     } catch {

@@ -37,7 +37,7 @@ export const routes: Routes = [
 			},
 			{
 				path: 'laporan',
-				title: 'BRANTAS | Pelaporan',
+				title: 'BRANTAS | Rekomendasi Kebijakan & Metadata',
 				loadComponent: () => import('./features/reporting/reporting-page/reporting-page').then((module) => module.ReportingPageComponent)
 			},
 			{ path: '', pathMatch: 'full', redirectTo: 'beranda' }
