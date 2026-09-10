@@ -1,12 +1,15 @@
-<section class="page-header">
-  <div>
-    <p class="eyebrow">PEMANTAUAN ANOMALI FISKAL & KEPESERTAAN</p>
+<section class="dashboard-header-strip">
+  <div class="header-left">
     <h1>Audit Integritas & Anomali Alokasi</h1>
-    <p class="subtitle">Deteksi mismatch alokasi anggaran terhadap kebutuhan kemiskinan dan anomali data mikro bansos · Periode {{ summary()?.period ?? '2026-03' }}.</p>
+    <p class="header-subtitle">
+      Deteksi mismatch alokasi anggaran terhadap kebutuhan kemiskinan dan anomali data mikro bansos · Periode <strong>{{ summary()?.period ?? '2026-03' }}</strong>
+    </p>
   </div>
-  <div class="method-badge">
-    <i class="pi pi-shield" aria-hidden="true"></i>
-    <span>MathNet Z-Score + ONNX Isolation Forest</span>
+  <div class="header-right">
+    <div class="pulse-pill">
+      <span class="live-dot"></span>
+      <span>MONITORING AKTIF</span>
+    </div>
   </div>
 </section>
 
@@ -15,52 +18,90 @@
 } @else if (error()) {
   <section class="state error"><i class="pi pi-exclamation-circle" aria-hidden="true"></i><p>{{ error() }}</p></section>
 } @else if (summary(); as data) {
-  <section class="metrics" aria-label="Ringkasan anomali fiskal">
-    <article class="metric-card red">
-      <div class="card-icon"><i class="pi pi-exclamation-triangle"></i></div>
-      <div class="card-content">
-        <span>Temuan Terdeteksi</span>
-        <strong>{{ data.totalCount }} <small>Wilayah</small></strong>
-        <em>Memerlukan audit verifikasi</em>
+  <section class="executive-kpi-grid" aria-label="Ringkasan anomali fiskal">
+    <!-- KPI 1: Temuan Terdeteksi -->
+    <article class="kpi-card kpi-rose">
+      <div class="kpi-top">
+        <span class="kpi-title">Temuan Terdeteksi</span>
+        <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
+      </div>
+      <div class="kpi-num">{{ data.totalCount }} <small class="text-rose">Wilayah</small></div>
+      <div class="kpi-progress">
+        <div class="kpi-bar-fill rose" style="width: 100%"></div>
+      </div>
+      <div class="kpi-tag-sub rose">
+        <i class="pi pi-exclamation-triangle"></i> Perlu Audit Otoritas
+      </div>
+      <div class="kpi-sub">
+        <span>Deviasi Formula Kebutuhan Riil APBN</span>
       </div>
     </article>
     
-    <article class="metric-card amber">
-      <div class="card-icon"><i class="pi pi-arrow-down-right"></i></div>
-      <div class="card-content">
-        <span>Under-Allocation</span>
-        <strong>{{ data.underAllocationCount }} <small>Wilayah</small></strong>
-        <em>Alokasi di bawah kebutuhan riil</em>
+    <!-- KPI 2: Under-Allocation -->
+    <article class="kpi-card kpi-amber">
+      <div class="kpi-top">
+        <span class="kpi-title">Under-Allocation</span>
+        <div class="kpi-icon"><i class="pi pi-arrow-down-right"></i></div>
+      </div>
+      <div class="kpi-num">{{ data.underAllocationCount }} <small>Wilayah</small></div>
+      <div class="kpi-progress">
+        <div class="kpi-bar-fill amber" [style.width.%]="(data.underAllocationCount / (data.totalCount || 1)) * 100"></div>
+      </div>
+      <div class="kpi-tag-sub amber">
+        <i class="pi pi-arrow-down-right"></i> Alokasi di Bawah Kebutuhan
+      </div>
+      <div class="kpi-sub">
+        <span>Defisit Belanja Daerah vs Kemiskinan Ekstrem</span>
       </div>
     </article>
     
-    <article class="metric-card blue">
-      <div class="card-icon"><i class="pi pi-arrow-up-right"></i></div>
-      <div class="card-content">
-        <span>Over-Allocation</span>
-        <strong>{{ data.overAllocationCount }} <small>Wilayah</small></strong>
-        <em>Alokasi di atas batas kebutuhan</em>
+    <!-- KPI 3: Over-Allocation -->
+    <article class="kpi-card kpi-blue">
+      <div class="kpi-top">
+        <span class="kpi-title">Over-Allocation</span>
+        <div class="kpi-icon"><i class="pi pi-arrow-up-right"></i></div>
+      </div>
+      <div class="kpi-num">{{ data.overAllocationCount }} <small>Wilayah</small></div>
+      <div class="kpi-progress">
+        <div class="kpi-bar-fill blue" [style.width.%]="(data.overAllocationCount / (data.totalCount || 1)) * 100"></div>
+      </div>
+      <div class="kpi-tag-sub blue">
+        <i class="pi pi-arrow-up-right"></i> Alokasi Melebihi Plafon
+      </div>
+      <div class="kpi-sub">
+        <span>Potensi Relokasi Efisiensi Belanja Daerah</span>
       </div>
     </article>
     
-    <article class="metric-card teal">
-      <div class="card-icon"><i class="pi pi-dollar"></i></div>
-      <div class="card-content">
-        <span>Total Nilai Berisiko</span>
-        <strong>{{ formatRisk(data.totalValueAtRisk) }}</strong>
-        <em>Potensi inefisiensi belanja fiskal</em>
+    <!-- KPI 4: Total Nilai Berisiko -->
+    <article class="kpi-card kpi-teal">
+      <div class="kpi-top">
+        <span class="kpi-title">Total Nilai Berisiko</span>
+        <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
+      </div>
+      <div class="kpi-num">{{ formatRisk(data.totalValueAtRisk) }}</div>
+      <div class="kpi-progress">
+        <div class="kpi-bar-fill teal" style="width: 100%"></div>
+      </div>
+      <div class="kpi-tag-sub teal">
+        <i class="pi pi-check"></i> Potensi Inefisiensi Belanja
+      </div>
+      <div class="kpi-sub">
+        <span>Value at Risk (VaR) Deviasi Statistik APBN</span>
       </div>
     </article>
   </section>
 
   @if (anomalies().length > 0) {
     <section class="panel">
-      <header>
-        <div>
-          <p class="panel-kicker">HASIL DETEKSI ANOMALI RESIDUAL</p>
+      <header class="panel-head">
+        <div class="panel-titles">
+          <span class="badge-accent"><i class="pi pi-bolt"></i> HASIL DETEKSI ANOMALI RESIDUAL</span>
           <h2>Daftar Temuan Prioritas Intervensi</h2>
         </div>
-        <span class="count-tag">{{ anomalies().length }} Wilayah Teridentifikasi</span>
+        <div class="head-legend">
+          <span class="target-badge"><i class="pi pi-exclamation-triangle"></i> {{ anomalies().length }} Wilayah Teridentifikasi</span>
+        </div>
       </header>
       <div class="table-wrap">
         <table>
@@ -114,40 +155,85 @@
 
   @if (beneficiarySummary(); as beneficiaries) {
     <section class="beneficiary-section">
-      <header>
-        <div>
-          <p class="panel-kicker">AUDIT INTEGRITAS KEPESERTAAN MIKRO</p>
+      <header class="panel-head">
+        <div class="panel-titles">
+          <span class="badge-accent"><i class="pi pi-users"></i> AUDIT INTEGRITAS KEPESERTAAN MIKRO</span>
           <h2>Indikator Risiko Data Penerima Bantuan (P3KE/DTKS)</h2>
         </div>
-        <span class="count-tag">{{ beneficiaries.totalBeneficiaries.toLocaleString('id-ID') }} Rekor Data Mikro</span>
+        <div class="head-legend">
+          <span class="head-total"><i class="pi pi-database"></i> {{ beneficiaries.totalBeneficiaries.toLocaleString('id-ID') }} Rekor Data Mikro</span>
+        </div>
       </header>
-      <div class="beneficiary-metrics">
-        <article class="bio-card rose">
-          <div class="bio-icon"><i class="pi pi-briefcase" aria-hidden="true"></i></div>
-          <div class="bio-info">
-            <strong>{{ beneficiaries.activePublicServantCount.toLocaleString('id-ID') }}</strong>
-            <small>ASN/TNI/Polri Aktif Terdaftar</small>
+      <div class="executive-kpi-grid" aria-label="Indikator risiko data penerima bantuan">
+        <!-- Card 1: ASN/TNI/Polri Aktif -->
+        <article class="kpi-card kpi-rose">
+          <div class="kpi-top">
+            <span class="kpi-title">ASN / TNI / POLRI AKTIF</span>
+            <div class="kpi-icon"><i class="pi pi-briefcase"></i></div>
+          </div>
+          <div class="kpi-num">{{ beneficiaries.activePublicServantCount.toLocaleString('id-ID') }} <small class="text-rose">Jiwa</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill rose" [style.width.%]="(beneficiaries.activePublicServantCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+          </div>
+          <div class="kpi-tag-sub rose">
+            <i class="pi pi-exclamation-triangle"></i> Pelanggaran Kriteria
+          </div>
+          <div class="kpi-sub">
+            <span>Aparatur negara terdaftar aktif dalam basis bansos</span>
           </div>
         </article>
-        <article class="bio-card amber">
-          <div class="bio-icon"><i class="pi pi-copy" aria-hidden="true"></i></div>
-          <div class="bio-info">
-            <strong>{{ beneficiaries.duplicateIdentityCount.toLocaleString('id-ID') }}</strong>
-            <small>Identitas NIK Duplikat</small>
+
+        <!-- Card 2: NIK Duplikat -->
+        <article class="kpi-card kpi-amber">
+          <div class="kpi-top">
+            <span class="kpi-title">IDENTITAS NIK DUPLIKAT</span>
+            <div class="kpi-icon"><i class="pi pi-copy"></i></div>
+          </div>
+          <div class="kpi-num">{{ beneficiaries.duplicateIdentityCount.toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill amber" [style.width.%]="(beneficiaries.duplicateIdentityCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+          </div>
+          <div class="kpi-tag-sub amber">
+            <i class="pi pi-exclamation-circle"></i> Penyaluran Ganda
+          </div>
+          <div class="kpi-sub">
+            <span>Anomali nomor kependudukan terduplikasi</span>
           </div>
         </article>
-        <article class="bio-card indigo">
-          <div class="bio-icon"><i class="pi pi-heart" aria-hidden="true"></i></div>
-          <div class="bio-info">
-            <strong>{{ beneficiaries.deceasedCount.toLocaleString('id-ID') }}</strong>
-            <small>Penerima Telah Meninggal</small>
+
+        <!-- Card 3: Penerima Meninggal -->
+        <article class="kpi-card kpi-indigo">
+          <div class="kpi-top">
+            <span class="kpi-title">PENERIMA TELAH MENINGGAL</span>
+            <div class="kpi-icon"><i class="pi pi-heart"></i></div>
+          </div>
+          <div class="kpi-num">{{ beneficiaries.deceasedCount.toLocaleString('id-ID') }} <small>Jiwa</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill indigo" [style.width.%]="(beneficiaries.deceasedCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+          </div>
+          <div class="kpi-tag-sub indigo">
+            <i class="pi pi-refresh"></i> Pembaruan Dukcapil
+          </div>
+          <div class="kpi-sub">
+            <span>Perlu graduasi & rekonsiliasi data kematian</span>
           </div>
         </article>
-        <article class="bio-card purple">
-          <div class="bio-icon"><i class="pi pi-car" aria-hidden="true"></i></div>
-          <div class="bio-info">
-            <strong>{{ beneficiaries.economicAssetCount.toLocaleString('id-ID') }}</strong>
-            <small>Indikator Kepemilikan Aset Mewah</small>
+
+        <!-- Card 4: Aset Mewah -->
+        <article class="kpi-card kpi-purple">
+          <div class="kpi-top">
+            <span class="kpi-title">KEPEMILIKAN ASET MEWAH</span>
+            <div class="kpi-icon"><i class="pi pi-car"></i></div>
+          </div>
+          <div class="kpi-num">{{ beneficiaries.economicAssetCount.toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill purple" [style.width.%]="(beneficiaries.economicAssetCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+          </div>
+          <div class="kpi-tag-sub purple">
+            <i class="pi pi-shield"></i> Inklusi Tidak Tepat
+          </div>
+          <div class="kpi-sub">
+            <span>Mismatch proksi status desil ekonomi keluarga</span>
           </div>
         </article>
       </div>
@@ -156,12 +242,14 @@
 
   @if (onnxReport(); as onnx) {
     <section class="panel">
-      <header>
-        <div>
-          <p class="panel-kicker">MODEL DETEKSI MULTIVARIAT NATIVE ONNX</p>
+      <header class="panel-head">
+        <div class="panel-titles">
+          <span class="badge-accent"><i class="pi pi-microchip"></i> MODEL DETEKSI MULTIVARIAT NATIVE ONNX</span>
           <h2>{{ onnx.model }}</h2>
         </div>
-        <span class="count-tag onnx-tag">{{ onnx.criticalCount }} Kritis · {{ onnx.highCount }} Tinggi</span>
+        <div class="head-legend">
+          <span class="target-badge"><i class="pi pi-shield"></i> {{ onnx.criticalCount }} Kritis · {{ onnx.highCount }} Tinggi</span>
+        </div>
       </header>
       <div class="table-wrap">
         <table>
@@ -192,12 +280,14 @@
 
   @if (beneficiaryFindings().length > 0) {
     <section class="panel">
-      <header>
-        <div>
-          <p class="panel-kicker">PRIORITAS VERIFIKASI LAPANGAN</p>
+      <header class="panel-head">
+        <div class="panel-titles">
+          <span class="badge-accent"><i class="pi pi-compass"></i> PRIORITAS VERIFIKASI LAPANGAN</span>
           <h2>Temuan Kepesertaan per Wilayah</h2>
         </div>
-        <span class="count-tag">{{ beneficiaryFindings().length }} Agregasi Temuan</span>
+        <div class="head-legend">
+          <span class="timestamp-tag"><i class="pi pi-list"></i> {{ beneficiaryFindings().length }} Agregasi Temuan</span>
+        </div>
       </header>
       <div class="table-wrap">
         <table>
@@ -228,12 +318,14 @@
 
   @if (exclusionErrors().length > 0) {
     <section class="exclusion">
-      <header>
-        <div>
-          <p class="panel-kicker">EXCLUSION ERROR DETECTOR</p>
+      <header class="panel-head">
+        <div class="panel-titles">
+          <span class="badge-accent"><i class="pi pi-exclamation-circle"></i> EXCLUSION ERROR DETECTOR</span>
           <h2>Wilayah dengan Gap Cakupan Bantuan Sosial</h2>
         </div>
-        <span class="count-tag">{{ exclusionErrors().length }} Wilayah Rentan</span>
+        <div class="head-legend">
+          <span class="target-badge"><i class="pi pi-exclamation-triangle"></i> {{ exclusionErrors().length }} Wilayah Rentan</span>
+        </div>
       </header>
       <div class="gap-grid">
         @for (item of exclusionErrors().slice(0, 6); track item.region) {
