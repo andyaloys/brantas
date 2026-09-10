@@ -252,7 +252,7 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
             itemGap: 16,
             textStyle: { color: textMuted, fontSize: 10.5, fontWeight: 600 }
           },
-          grid: { left: 45, right: 25, bottom: 44, top: 28, containLabel: true },
+          grid: { left: 55, right: 25, bottom: 44, top: 32, containLabel: true },
           xAxis: {
             name: 'Persentase Kemiskinan Daerah (%)',
             nameLocation: 'middle',
@@ -266,7 +266,15 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
           },
           yAxis: {
             name: 'Pagu per Jiwa Miskin (Juta Rp)',
-            nameTextStyle: { color: textColor, fontSize: 10.5, fontWeight: 700, padding: [0, 0, 0, 40] },
+            nameLocation: 'end',
+            nameGap: 10,
+            nameTextStyle: {
+              color: textColor,
+              fontSize: 10.5,
+              fontWeight: 700,
+              align: 'left',
+              padding: [0, 0, 6, -42]
+            },
             type: 'value',
             min: 0,
             max: 8,
