@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { filter, map, startWith } from 'rxjs/operators';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { KioskModeService } from '../../core/services/kiosk-mode.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ExecutiveTickerComponent } from '../executive-ticker/executive-ticker.component';
@@ -27,24 +25,27 @@ export class AppShellComponent {
   private readonly router = inject(Router);
   protected readonly kiosk = inject(KioskModeService);
   protected readonly themeService = inject(ThemeService);
-  protected readonly isSidebarCollapsed = signal(false);
 
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(event => event.urlAfterRedirects || event.url),
-      startWith(this.router.url)
-    ),
-    { initialValue: this.router.url }
-  );
+  // Auto-hide mode (default): sidebar slim 76px, melebar saat cursor hover.
+  // Pinned mode: sidebar terkunci lebar 268px secara permanen.
+  protected readonly isSidebarPinned = signal(false);
+  protected readonly isSidebarHovered = signal(false);
 
-  protected readonly isDashboard = computed(() => {
-    const url = this.currentUrl() || '';
-    return url === '/' || url.startsWith('/beranda');
-  });
+  // Sidebar dianggap terbuka jika sedang di-pin ATAU kursor sedang berada di atas sidebar
+  protected readonly isSidebarExpanded = computed(() => this.isSidebarPinned() || this.isSidebarHovered());
 
-  protected toggleSidebar(): void {
-    this.isSidebarCollapsed.update(val => !val);
+  protected onSidebarMouseEnter(): void {
+    if (!this.isSidebarPinned()) {
+      this.isSidebarHovered.set(true);
+    }
+  }
+
+  protected onSidebarMouseLeave(): void {
+    this.isSidebarHovered.set(false);
+  }
+
+  protected toggleSidebarPin(): void {
+    this.isSidebarPinned.update(val => !val);
   }
 
   @HostListener('window:keydown', ['$event'])

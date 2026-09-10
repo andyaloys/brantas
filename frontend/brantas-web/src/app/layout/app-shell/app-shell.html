@@ -1,65 +1,73 @@
 <div class="shell" [class.kiosk-mode]="kiosk.isKioskActive()">
-  <!-- Modern Executive Sidebar with Collapse/Expand -->
+  <!-- Modern Executive Sidebar with Auto-Hide & Pin Support -->
   @if (!kiosk.isKioskActive()) {
-    <aside class="sidebar" [class.collapsed]="isSidebarCollapsed()" aria-label="Navigasi utama">
+    <aside
+      class="sidebar"
+      [class.collapsed]="!isSidebarExpanded()"
+      [class.autohide-active]="!isSidebarPinned()"
+      [class.hover-expanded]="!isSidebarPinned() && isSidebarHovered()"
+      (mouseenter)="onSidebarMouseEnter()"
+      (mouseleave)="onSidebarMouseLeave()"
+      aria-label="Navigasi utama">
       <div class="sidebar-header">
         <a class="brand" routerLink="/beranda" aria-label="BRANTAS beranda">
           <img src="logo/brantas-emblem.jpg" alt="Logo BRANTAS" class="brand-logo-img" />
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <div class="brand-text">
               <strong>BRANTAS</strong>
-              <small>Sovereign Fiscal Analytics</small>
+              <small>Basis Rekomendasi & Analisis Terpadu Anggaran Sosial</small>
             </div>
           }
         </a>
         <button
           type="button"
           class="btn-toggle-sidebar"
-          (click)="toggleSidebar()"
-          [title]="isSidebarCollapsed() ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
-          <i class="pi" [class.pi-angle-left]="!isSidebarCollapsed()" [class.pi-angle-right]="isSidebarCollapsed()"></i>
+          (click)="toggleSidebarPin()"
+          [class.pinned]="isSidebarPinned()"
+          [title]="isSidebarPinned() ? 'Sidebar Terkunci: Klik untuk Mode Auto-Hide' : 'Mode Auto-Hide: Klik untuk Kunci Terbuka (Pin)'">
+          <i class="pi" [class.pi-lock]="isSidebarPinned()" [class.pi-lock-open]="!isSidebarPinned()"></i>
         </button>
       </div>
 
-      @if (!isSidebarCollapsed()) {
+      @if (isSidebarExpanded()) {
         <div class="nav-section-title">MODUL EKSEKUTIF</div>
       }
       <nav class="nav-list">
         <a routerLink="/beranda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item" [title]="'Dashboard'">
           <div class="nav-icon-wrap"><i class="pi pi-th-large" aria-hidden="true"></i></div>
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <span>Dashboard</span>
           }
         </a>
         <a routerLink="/anomali" routerLinkActive="active" class="nav-item" [title]="'Anomali Fiskal (ML)'">
           <div class="nav-icon-wrap"><i class="pi pi-shield" aria-hidden="true"></i></div>
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <span>Anomali Fiskal</span>
             <span class="nav-badge-warn">ML</span>
           }
         </a>
         <a routerLink="/peta-spasial" routerLinkActive="active" class="nav-item" [title]="'Peta Spasial (GIS)'">
           <div class="nav-icon-wrap"><i class="pi pi-map" aria-hidden="true"></i></div>
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <span>Peta Spasial</span>
             <span class="nav-badge-gis">GIS</span>
           }
         </a>
         <a routerLink="/simulasi-alokasi" routerLinkActive="active" class="nav-item" [title]="'Simulasi Alokasi'">
           <div class="nav-icon-wrap"><i class="pi pi-sliders-h" aria-hidden="true"></i></div>
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <span>Simulasi Alokasi</span>
           }
         </a>
         <a routerLink="/dampak" routerLinkActive="active" class="nav-item" [title]="'Dampak Kebijakan'">
           <div class="nav-icon-wrap"><i class="pi pi-chart-line" aria-hidden="true"></i></div>
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <span>Dampak Kebijakan</span>
           }
         </a>
         <a routerLink="/laporan" routerLinkActive="active" class="nav-item" [title]="'Pelaporan'">
           <div class="nav-icon-wrap"><i class="pi pi-file-pdf" aria-hidden="true"></i></div>
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <span>Pelaporan</span>
           }
         </a>
@@ -68,7 +76,7 @@
       <div class="sidebar-footer">
         <div class="role-card" [title]="'Sistem Intelijen Nasional · BRANTAS Core v2026.1'">
           <div class="role-icon"><i class="pi pi-verified"></i></div>
-          @if (!isSidebarCollapsed()) {
+          @if (isSidebarExpanded()) {
             <div class="role-info">
               <div class="role-top">
                 <strong>Sistem Nasional</strong>
@@ -91,13 +99,6 @@
             <i class="pi pi-compass"></i>
             <span>LAN DATATHON 2026</span>
           </div>
-          @if (!isDashboard()) {
-            <div class="search-command-pill">
-              <i class="pi pi-search"></i>
-              <span>Telusuri indikator / wilayah...</span>
-              <kbd>Ctrl K</kbd>
-            </div>
-          }
         </div>
 
         <div class="topbar-right">
@@ -143,43 +144,40 @@
         </div>
 
         <div class="kiosk-controls">
+          <button type="button" class="btn-kiosk-ctrl" (click)="kiosk.prevSlide()" title="Slide Sebelumnya (Arrow Left)">
+            <i class="pi pi-chevron-left"></i>
+          </button>
+          <button type="button" class="btn-kiosk-ctrl play-btn" (click)="kiosk.togglePlay()" [title]="kiosk.isPlaying() ? 'Jeda Tayangan (Space)' : 'Lanjutkan Tayangan (Space)'">
+            <i class="pi" [class.pi-pause]="kiosk.isPlaying()" [class.pi-play]="!kiosk.isPlaying()"></i>
+          </button>
+          <button type="button" class="btn-kiosk-ctrl" (click)="kiosk.nextSlide()" title="Slide Berikutnya (Arrow Right)">
+            <i class="pi pi-chevron-right"></i>
+          </button>
           <div class="kiosk-timer-pill">
-            <span class="pulse-emerald"></span>
-            <span>Ganti otomatis dlm <strong>{{ kiosk.remainingSeconds() }}s</strong></span>
+            <i class="pi pi-clock"></i>
+            <span>{{ kiosk.remainingSeconds() }}s</span>
           </div>
-
-          <div class="btn-kiosk-group">
-            <button type="button" class="btn-kiosk-ctrl" (click)="kiosk.prevSlide()" title="Slide Sebelumnya (Left Arrow)">
-              <i class="pi pi-step-backward"></i>
-            </button>
-            <button type="button" class="btn-kiosk-ctrl play-btn" (click)="kiosk.togglePlay()" title="Jeda/Lanjut (Spasi)">
-              <i class="pi" [class.pi-pause]="kiosk.isPlaying()" [class.pi-play]="!kiosk.isPlaying()"></i>
-            </button>
-            <button type="button" class="btn-kiosk-ctrl" (click)="kiosk.nextSlide()" title="Slide Selanjutnya (Right Arrow)">
-              <i class="pi pi-step-forward"></i>
-            </button>
-            <button type="button" class="btn-kiosk-ctrl exit-btn" (click)="kiosk.stopKiosk()" title="Keluar Mode Tayang (Esc)">
-              <i class="pi pi-times"></i>
-              <span>Tutup Mode Tayang</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="kiosk-clock">
-          <i class="pi pi-clock"></i>
-          <span>{{ kiosk.currentDateTime() | date:'HH:mm:ss' }} WIB</span>
+          <button type="button" class="btn-kiosk-ctrl exit-btn" (click)="kiosk.stopKiosk()" title="Keluar dari Tayangan War Room (Esc)">
+            <i class="pi pi-times"></i>
+            <span>Keluar</span>
+          </button>
         </div>
       </header>
     }
 
-    <main class="workspace" [class.workspace-kiosk]="kiosk.isKioskActive()" [class.workspace-dashboard]="isDashboard()">
+    <!-- Executive Strategic Ticker Strip -->
+    @if (!kiosk.isKioskActive()) {
+      <app-executive-ticker />
+    }
+
+    <!-- Main Dynamic Content Outlet -->
+    <main class="content-area">
       <router-outlet />
     </main>
-
-    <!-- Global Floating Pop-up Chat Widget for JUSI Copilot -->
-    <app-jusi-chat-widget />
-
-    <!-- Global Executive Intelligence Running Ticker -->
-    <app-executive-ticker />
   </div>
-</div>
+
+  <!-- Global Floating JUSI Chat Assistant Copilot Widget -->
+  @if (!kiosk.isKioskActive()) {
+    <app-jusi-chat-widget />
+  }
+</div>

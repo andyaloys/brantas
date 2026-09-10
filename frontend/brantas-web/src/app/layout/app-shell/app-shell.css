@@ -23,12 +23,18 @@
   height: 100vh;
   z-index: 100;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.24s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.24s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.24s ease;
 }
 
 .sidebar.collapsed {
-  width: 80px;
-  min-width: 80px;
+  width: 76px;
+  min-width: 76px;
+}
+
+.sidebar.hover-expanded {
+  width: 268px;
+  min-width: 268px;
+  box-shadow: 10px 0 32px rgba(0, 0, 0, 0.45);
 }
 
 .sidebar-header {
@@ -42,11 +48,18 @@
   position: relative;
 }
 
-.sidebar.collapsed .sidebar-header {
+.sidebar.collapsed:not(.hover-expanded) .sidebar-header {
   padding: 20px 10px;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+}
+
+.btn-toggle-sidebar.pinned {
+  background: rgba(45, 212, 191, 0.2);
+  border-color: #2dd4bf;
+  color: #2dd4bf;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.25);
 }
 
 .brand {
@@ -247,20 +260,20 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.sidebar.collapsed .sidebar-footer {
+.sidebar.collapsed:not(.hover-expanded) .sidebar-footer {
   padding: 12px 8px;
 }
 
-.sidebar.collapsed .nav-list {
+.sidebar.collapsed:not(.hover-expanded) .nav-list {
   padding: 0 8px;
 }
 
-.sidebar.collapsed .nav-item {
+.sidebar.collapsed:not(.hover-expanded) .nav-item {
   justify-content: center;
   padding: 11px;
 }
 
-.sidebar.collapsed .role-card {
+.sidebar.collapsed:not(.hover-expanded) .role-card {
   justify-content: center;
   padding: 10px;
 }
