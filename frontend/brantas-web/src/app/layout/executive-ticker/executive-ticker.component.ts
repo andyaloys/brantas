@@ -22,35 +22,43 @@ export class ExecutiveTickerComponent {
   readonly items: IntelligenceItem[] = [
     {
       id: '1',
-      category: 'PERINGATAN FISKAL',
+      category: 'PERINGATAN ANGGARAN',
       badgeClass: 'danger',
       icon: 'pi-exclamation-triangle',
-      message: '3 Kabupaten di Papua Tengah mengalami indikasi under-allocation belanja bansos Rp18,4 Miliar terhadap rasio kedalaman kemiskinan (P1).',
-      timestamp: 'LIVE'
+      message: '3 Kabupaten di Papua Tengah terdeteksi kekurangan alokasi bantuan sosial sebesar Rp18,4 Miliar jika dibandingkan dengan tingkat keparahan kemiskinan setempat.',
+      timestamp: 'AKTUAL'
     },
     {
       id: '2',
-      category: 'AUDIT REGSOSEK NIK',
+      category: 'VERIFIKASI PENERIMA',
       badgeClass: 'warning',
       icon: 'pi-shield',
-      message: '14.280 NIK ganda & 3.410 NIK berstatus ASN/TNI aktif teridentifikasi dalam desil 1 bansos daerah.',
-      timestamp: 'ONNX 2026'
+      message: 'Sebanyak 14.280 NIK ganda dan 3.410 penerima berstatus ASN/TNI terdeteksi masuk dalam daftar penerima bantuan kemiskinan ekstrem daerah.',
+      timestamp: 'TERVERIFIKASI'
     },
     {
       id: '3',
-      category: 'EVALUASI DAMPAK TWFE',
+      category: 'EVALUASI DAMPAK BANSOS',
       badgeClass: 'success',
       icon: 'pi-bolt',
-      message: 'Model Difference-in-Differences membuktikan intervensi formula IKW mempercepat penurunan kemiskinan sebesar 1,42 pp (p < 0.01).',
-      timestamp: 'VERIFIED'
+      message: 'Penyaluran bantuan afirmatif terbukti mempercepat penurunan angka kemiskinan daerah hingga 1,42 persen lebih cepat dibanding metode konvensional.',
+      timestamp: 'HASIL EVALUASI'
     },
     {
       id: '4',
-      category: 'OPTIMASI FORMULASI',
+      category: 'PEMERATAAN ANGGARAN',
       badgeClass: 'info',
       icon: 'pi-sliders-h',
-      message: 'Simulasi GLOP Google OR-Tools meningkatkan keadilan alokasi ke 38 provinsi sebesar 12,8% tanpa menaikkan pagu total APBN.',
-      timestamp: 'OPTIMAL'
+      message: 'Simulasi pemerataan anggaran mampu meningkatkan ketepatan sasaran bantuan di 38 provinsi sebesar 12,8% tanpa menambah total pagu belanja APBN.',
+      timestamp: 'REKOMENDASI'
+    },
+    {
+      id: '5',
+      category: 'SASARAN RPJMN 2026',
+      badgeClass: 'success',
+      icon: 'pi-flag',
+      message: 'Target nasional penurunan kemiskinan menuju 7,5% pada 2026 membutuhkan percepatan graduasi mandiri bagi keluarga penerima manfaat PKH.',
+      timestamp: 'TARGET NASIONAL'
     }
   ];
 }
