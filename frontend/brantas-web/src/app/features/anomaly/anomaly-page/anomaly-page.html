@@ -136,7 +136,7 @@
                   </span>
                 </td>
                 <td class="number mono"><strong>{{ item.zScore.toFixed(2) }}σ</strong></td>
-                <td class="number mono font-bold">{{ formatRisk(item.valueAtRisk) }}</td>
+                <td class="number mono font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.valueAtRisk).full">{{ formatCurrency(item.valueAtRisk).compact }}</td>
                 <td class="explanation">{{ formatFiscalExplanation(item) }}</td>
                 <td>
                   <select [value]="item.reviewStatus" [disabled]="updatingReviewId() === item.id" (change)="updateReview(item, $event)" aria-label="Status tinjauan {{ item.region }}">

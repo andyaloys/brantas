@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AllocationRecommendation, OptimizationDataService, SimulationScenario } from '../data/optimization-data.service';
+import { ReportingDataService } from '../../reporting/data/reporting-data.service';
 import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
 
 @Component({ selector: 'app-optimization-page', templateUrl: './optimization-page.html', styleUrl: './optimization-page.css', changeDetection: ChangeDetectionStrategy.OnPush, imports: [CommonModule] })
 export class OptimizationPageComponent {
   protected readonly formatCurrency = formatCompactCurrency;
   private readonly optimizationData = inject(OptimizationDataService);
+  private readonly reportingData = inject(ReportingDataService);
   protected readonly povertyWeight = signal(30);
   protected readonly capPercent = signal(25);
   protected readonly recommendations = signal<AllocationRecommendation[]>([]);
@@ -167,7 +169,21 @@ export class OptimizationPageComponent {
     await this.runSimulation();
   }
 
-  protected formatMoney(value: number): string { return `Rp${value.toLocaleString('id-ID', { maximumFractionDigits: 0 })} juta`; }
+  protected exportXlsx(): void {
+    this.reportingData.downloadAllocationsXlsx().subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `rekomendasi-alokasi-anggaran-2026.xlsx`;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.exportCsv();
+      }
+    });
+  }
 
   protected exportCsv(): void {
     const list = this.recommendations();

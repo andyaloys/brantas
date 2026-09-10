@@ -15,8 +15,11 @@
     </div>
 
     <div class="export-group">
+      <button type="button" class="btn-export primary" (click)="exportXlsx()" [disabled]="recommendations().length === 0" title="Unduh data rekomendasi alokasi format Excel (.xlsx)">
+        <i class="pi pi-file-excel" aria-hidden="true"></i> Ekspor Excel (.xlsx)
+      </button>
       <button type="button" class="btn-export secondary" (click)="exportCsv()" [disabled]="recommendations().length === 0" title="Unduh tabulasi rekomendasi alokasi CSV">
-        <i class="pi pi-file-excel" aria-hidden="true"></i> Ekspor CSV
+        <i class="pi pi-file-spreadsheet" aria-hidden="true"></i> Ekspor CSV
       </button>
     </div>
   </div>
@@ -106,9 +109,9 @@
             <span class="limit-label">Pagu Total APBN</span>
             <strong class="limit-value">{{ totalBudget() === null ? '—' : formatCurrency(totalBudget()!).compact }}</strong>
           </div>
-          <div class="fiscal-limit-item" title="Nominal Lengkap: Rp500.000.000.000">
+          <div class="fiscal-limit-item" [title]="'Nominal Lengkap: ' + formatCurrency(500).full">
             <span class="limit-label">Pagu Minimum Wilayah</span>
-            <strong class="limit-value">Rp500 M / Prov</strong>
+            <strong class="limit-value">{{ formatCurrency(500).compact }} / Prov</strong>
           </div>
         </div>
 
@@ -285,11 +288,11 @@
                 <tr>
                   <td><strong>{{ item.region }}</strong></td>
                   <td><span class="ikw-pill">{{ item.vulnerabilityIndex.toFixed(3) }}</span></td>
-                  <td class="num">{{ formatMoney(item.baselineAllocation) }}</td>
-                  <td class="num font-bold">{{ formatMoney(item.recommendedAllocation) }}</td>
-                  <td class="num">
+                  <td class="num" [title]="'Nominal Lengkap: ' + formatCurrency(item.baselineAllocation).full">{{ formatCurrency(item.baselineAllocation).compact }}</td>
+                  <td class="num font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.recommendedAllocation).full">{{ formatCurrency(item.recommendedAllocation).compact }}</td>
+                  <td class="num" [title]="'Nominal Lengkap: ' + formatCurrency(item.delta, true).full">
                     <span class="delta-pill" [class.positive]="item.delta > 0" [class.negative]="item.delta < 0">
-                      {{ item.delta > 0 ? '+' : '' }}{{ formatMoney(item.delta) }} ({{ (item.deltaPercent * 100).toFixed(1) }}%)
+                      {{ formatCurrency(item.delta, true).compact }} ({{ (item.deltaPercent * 100).toFixed(1) }}%)
                     </span>
                   </td>
                 </tr>

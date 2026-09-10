@@ -45,10 +45,6 @@ export class AnomalyPageComponent {
     }
   }
 
-  protected formatRisk(value: number): string {
-    return `Rp${value.toLocaleString('id-ID', { maximumFractionDigits: 0 })} juta`;
-  }
-
   protected translateType(type: string): string {
     if (type === 'Under-allocation') return 'Alokasi Kurang';
     if (type === 'Over-allocation') return 'Alokasi Berlebih';
