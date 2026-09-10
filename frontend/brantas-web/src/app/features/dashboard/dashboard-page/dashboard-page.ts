@@ -7,6 +7,7 @@ import {
   NgZone,
   OnDestroy,
   ViewChild,
+  effect,
   inject,
   signal
 } from '@angular/core';
@@ -16,6 +17,7 @@ import { firstValueFrom } from 'rxjs';
 import * as echarts from 'echarts';
 import { GisChoroplethAdapter } from '../../spatial/data/gis-choropleth.adapter';
 import { SpatialDataService } from '../../spatial/data/spatial-data.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import {
   DashboardDataService,
   DashboardSummary,
@@ -42,10 +44,21 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
   private readonly mapAdapter = inject(GisChoroplethAdapter);
   private readonly route = inject(ActivatedRoute);
   private readonly zone = inject(NgZone);
+  protected readonly themeService = inject(ThemeService);
 
   @ViewChild('dashboardMapContainer') private dashboardMapContainerRef?: ElementRef<HTMLElement>;
   @ViewChild('quadrantChart') private quadrantChartRef?: ElementRef<HTMLElement>;
   @ViewChild('trendChart') private trendChartRef?: ElementRef<HTMLElement>;
+
+  constructor() {
+    effect(() => {
+      // React to theme changes
+      this.themeService.theme();
+      if (this.activeTab() === 'allocation') {
+        setTimeout(() => this.renderAllExecutiveCharts(), 50);
+      }
+    });
+  }
 
   protected readonly isRunning = signal(false);
   protected readonly summary = signal<DashboardSummary | null>(null);
@@ -164,6 +177,13 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
 
   private renderAllExecutiveCharts(): void {
     this.zone.runOutsideAngular(() => {
+      const isDark = this.themeService.theme() === 'dark';
+      const textColor = isDark ? '#f8fafc' : '#0f172a';
+      const textMuted = isDark ? '#94a3b8' : '#475569';
+      const splitLineColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0';
+      const tooltipBg = isDark ? '#0b1120' : '#1e293b';
+      const tooltipBorder = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)';
+
       // 3. Scatter Matrix Kuadran Alokasi Fiskal (Poverty Severity vs Budget Allocation)
       if (this.quadrantChartRef) {
         this.quadrantChartInstance?.dispose();
@@ -191,8 +211,8 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
         this.quadrantChartInstance.setOption({
           backgroundColor: 'transparent',
           tooltip: {
-            backgroundColor: '#0b1120',
-            borderColor: 'rgba(255,255,255,0.15)',
+            backgroundColor: tooltipBg,
+            borderColor: tooltipBorder,
             textStyle: { color: '#f8fafc' },
             formatter: (p: any) => {
               const d = p.data;
@@ -202,26 +222,26 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
                 `Status: <strong style="color:${d.color}">${d.cat}</strong>`;
             }
           },
-          grid: { left: '8%', right: '8%', bottom: '12%', top: '10%' },
+          grid: { left: '7%', right: '7%', bottom: '13%', top: '9%' },
           xAxis: {
             name: 'Tingkat Kemiskinan (%)',
             nameLocation: 'middle',
-            nameGap: 28,
-            nameTextStyle: { color: '#0f172a', fontSize: 11, fontWeight: 700 },
+            nameGap: 24,
+            nameTextStyle: { color: textColor, fontSize: 10.5, fontWeight: 700 },
             type: 'value',
             min: 0,
             max: 35,
-            axisLabel: { color: '#334155', fontWeight: 600 },
-            splitLine: { lineStyle: { color: '#e2e8f0' } }
+            axisLabel: { color: textMuted, fontWeight: 600, fontSize: 10 },
+            splitLine: { lineStyle: { color: splitLineColor } }
           },
           yAxis: {
             name: 'Pagu per Kapita (Jt Rp)',
-            nameTextStyle: { color: '#0f172a', fontSize: 11, fontWeight: 700 },
+            nameTextStyle: { color: textColor, fontSize: 10.5, fontWeight: 700 },
             type: 'value',
             min: 0,
             max: 8,
-            axisLabel: { color: '#334155', fontWeight: 600 },
-            splitLine: { lineStyle: { color: '#e2e8f0' } }
+            axisLabel: { color: textMuted, fontWeight: 600, fontSize: 10 },
+            splitLine: { lineStyle: { color: splitLineColor } }
           },
           series: [
             {
@@ -240,7 +260,7 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
               })),
               markLine: {
                 silent: true,
-                lineStyle: { type: 'dashed', color: 'rgba(255, 255, 255, 0.2)' },
+                lineStyle: { type: 'dashed', color: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)' },
                 data: [
                   { xAxis: 12, label: { formatter: 'Batas Rerata 12%', color: '#fbbf24', fontSize: 10 } },
                   { yAxis: 3.5, label: { formatter: 'Median Alokasi', color: '#2dd4bf', fontSize: 10 } }
@@ -260,28 +280,28 @@ export class DashboardPageComponent implements AfterViewInit, OnDestroy {
           backgroundColor: 'transparent',
           tooltip: {
             trigger: 'axis',
-            backgroundColor: '#0b1120',
-            borderColor: 'rgba(255,255,255,0.15)',
+            backgroundColor: tooltipBg,
+            borderColor: tooltipBorder,
             textStyle: { color: '#f8fafc' }
           },
           legend: {
             data: ['Historis BPS', 'Proyeksi Formula IKW BRANTAS', 'Target RPJMN 2026'],
             bottom: '0%',
-            textStyle: { color: '#334155', fontSize: 11, fontWeight: 600 }
+            textStyle: { color: textMuted, fontSize: 10.5, fontWeight: 600 }
           },
-          grid: { left: '3%', right: '5%', bottom: '14%', top: '8%', containLabel: true },
+          grid: { left: '3%', right: '4%', bottom: '15%', top: '8%', containLabel: true },
           xAxis: {
             type: 'category',
             boundaryGap: false,
             data: ['2021', '2022', '2023', '2024', '2025', '2026 (Target)', '2027 (Proyeksi)'],
-            axisLabel: { color: '#0f172a', fontWeight: 600 }
+            axisLabel: { color: textColor, fontWeight: 600, fontSize: 10 }
           },
           yAxis: {
             type: 'value',
             min: 5,
             max: 11,
-            axisLabel: { formatter: '{value}%', color: '#334155', fontWeight: 600 },
-            splitLine: { lineStyle: { color: '#e2e8f0' } }
+            axisLabel: { formatter: '{value}%', color: textMuted, fontWeight: 600, fontSize: 10 },
+            splitLine: { lineStyle: { color: splitLineColor } }
           },
           series: [
             {
