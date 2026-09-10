@@ -2,7 +2,7 @@
   <div class="header-left">
     <h1>Audit Integritas & Anomali Alokasi</h1>
     <p class="header-subtitle">
-      Deteksi mismatch alokasi anggaran terhadap kebutuhan kemiskinan dan anomali data mikro bansos · Periode <strong>{{ summary()?.period ?? '2026-03' }}</strong>
+      Deteksi ketimpangan alokasi anggaran terhadap kebutuhan kemiskinan dan anomali data mikro bansos
     </p>
   </div>
   <div class="header-right">
@@ -37,10 +37,10 @@
       </div>
     </article>
     
-    <!-- KPI 2: Under-Allocation -->
+    <!-- KPI 2: Alokasi Kurang -->
     <article class="kpi-card kpi-amber">
       <div class="kpi-top">
-        <span class="kpi-title">Under-Allocation</span>
+        <span class="kpi-title">Alokasi Kurang</span>
         <div class="kpi-icon"><i class="pi pi-arrow-down-right"></i></div>
       </div>
       <div class="kpi-num">{{ data.underAllocationCount }} <small>Wilayah</small></div>
@@ -55,10 +55,10 @@
       </div>
     </article>
     
-    <!-- KPI 3: Over-Allocation -->
+    <!-- KPI 3: Alokasi Berlebih -->
     <article class="kpi-card kpi-blue">
       <div class="kpi-top">
-        <span class="kpi-title">Over-Allocation</span>
+        <span class="kpi-title">Alokasi Berlebih</span>
         <div class="kpi-icon"><i class="pi pi-arrow-up-right"></i></div>
       </div>
       <div class="kpi-num">{{ data.overAllocationCount }} <small>Wilayah</small></div>
@@ -87,20 +87,22 @@
         <i class="pi pi-check"></i> Potensi Inefisiensi Belanja
       </div>
       <div class="kpi-sub">
-        <span>Value at Risk (VaR) Deviasi Statistik APBN</span>
+        <span>Estimasi Nilai Berisiko (VaR) APBN</span>
       </div>
     </article>
   </section>
 
   @if (anomalies().length > 0) {
     <section class="panel">
-      <header class="panel-head">
+      <header class="panel-head ribbon-rose">
         <div class="panel-titles">
-          <span class="badge-accent"><i class="pi pi-bolt"></i> HASIL DETEKSI ANOMALI RESIDUAL</span>
-          <h2>Daftar Temuan Prioritas Intervensi</h2>
+          <span class="badge-accent rose"><i class="pi pi-bolt"></i> HASIL DETEKSI ANOMALI ANGGARAN (RESIDUAL)</span>
+          <div class="heading-row">
+            <h2>Daftar Temuan Prioritas Intervensi</h2>
+          </div>
         </div>
         <div class="head-legend">
-          <span class="target-badge"><i class="pi pi-exclamation-triangle"></i> {{ anomalies().length }} Wilayah Teridentifikasi</span>
+          <span class="status-capsule rose"><i class="pi pi-exclamation-triangle"></i> {{ anomalies().length }} Wilayah Teridentifikasi</span>
         </div>
       </header>
       <div class="table-wrap">
@@ -110,9 +112,9 @@
               <th>Wilayah</th>
               <th>Klasifikasi</th>
               <th>Tingkat Keparahan</th>
-              <th class="number">Deviasi (Z-score)</th>
+              <th class="number">Tingkat Deviasi (Z-Score)</th>
               <th class="number">Nilai Berisiko</th>
-              <th>Dasar Temuan & Analisis</th>
+              <th>Uraian Masalah & Implikasi Anggaran</th>
               <th>Tinjauan Otoritas</th>
             </tr>
           </thead>
@@ -125,22 +127,22 @@
                 </td>
                 <td>
                   <span [class]="item.type === 'Under-allocation' ? 'type under' : 'type over'">
-                    {{ item.type }}
+                    {{ translateType(item.type) }}
                   </span>
                 </td>
                 <td>
-                  <span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'">
-                    {{ item.severity }}
+                  <span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">
+                    {{ translateSeverity(item.severity) }}
                   </span>
                 </td>
                 <td class="number mono"><strong>{{ item.zScore.toFixed(2) }}σ</strong></td>
                 <td class="number mono font-bold">{{ formatRisk(item.valueAtRisk) }}</td>
-                <td class="explanation">{{ item.explanation }}</td>
+                <td class="explanation">{{ formatFiscalExplanation(item) }}</td>
                 <td>
                   <select [value]="item.reviewStatus" [disabled]="updatingReviewId() === item.id" (change)="updateReview(item, $event)" aria-label="Status tinjauan {{ item.region }}">
                     <option value="InVerification">Dalam Verifikasi</option>
                     <option value="Valid">Valid (Tindak Lanjut)</option>
-                    <option value="FalsePositive">False Positive</option>
+                    <option value="FalsePositive">Bukan Pelanggaran (Wajar)</option>
                   </select>
                 </td>
               </tr>
@@ -155,13 +157,15 @@
 
   @if (beneficiarySummary(); as beneficiaries) {
     <section class="beneficiary-section">
-      <header class="panel-head">
+      <header class="panel-head ribbon-teal">
         <div class="panel-titles">
-          <span class="badge-accent"><i class="pi pi-users"></i> AUDIT INTEGRITAS KEPESERTAAN MIKRO</span>
-          <h2>Indikator Risiko Data Penerima Bantuan (P3KE/DTKS)</h2>
+          <span class="badge-accent teal"><i class="pi pi-users"></i> AUDIT INTEGRITAS KEPESERTAAN MIKRO</span>
+          <div class="heading-row">
+            <h2>Indikator Risiko Data Penerima Bantuan (P3KE/DTKS)</h2>
+          </div>
         </div>
         <div class="head-legend">
-          <span class="head-total"><i class="pi pi-database"></i> {{ beneficiaries.totalBeneficiaries.toLocaleString('id-ID') }} Rekor Data Mikro</span>
+          <span class="status-capsule teal"><i class="pi pi-database"></i> {{ beneficiaries.totalBeneficiaries.toLocaleString('id-ID') }} Rekor Data Mikro</span>
         </div>
       </header>
       <div class="executive-kpi-grid" aria-label="Indikator risiko data penerima bantuan">
@@ -215,14 +219,14 @@
             <i class="pi pi-refresh"></i> Pembaruan Dukcapil
           </div>
           <div class="kpi-sub">
-            <span>Perlu graduasi & rekonsiliasi data kematian</span>
+            <span>Perlu penghentian bantuan (graduasi) & rekonsiliasi data kematian</span>
           </div>
         </article>
 
-        <!-- Card 4: Aset Mewah -->
+        <!-- Card 4: Aset Ekonomis -->
         <article class="kpi-card kpi-purple">
           <div class="kpi-top">
-            <span class="kpi-title">KEPEMILIKAN ASET MEWAH</span>
+            <span class="kpi-title">KEPEMILIKAN ASET EKONOMIS</span>
             <div class="kpi-icon"><i class="pi pi-car"></i></div>
           </div>
           <div class="kpi-num">{{ beneficiaries.economicAssetCount.toLocaleString('id-ID') }} <small>Kasus</small></div>
@@ -233,7 +237,7 @@
             <i class="pi pi-shield"></i> Inklusi Tidak Tepat
           </div>
           <div class="kpi-sub">
-            <span>Mismatch proksi status desil ekonomi keluarga</span>
+            <span>Ketidaksesuaian tingkat kesejahteraan desil ekonomi</span>
           </div>
         </article>
       </div>
@@ -242,13 +246,15 @@
 
   @if (onnxReport(); as onnx) {
     <section class="panel">
-      <header class="panel-head">
+      <header class="panel-head ribbon-purple">
         <div class="panel-titles">
-          <span class="badge-accent"><i class="pi pi-microchip"></i> MODEL DETEKSI MULTIVARIAT NATIVE ONNX</span>
-          <h2>{{ onnx.model }}</h2>
+          <span class="badge-accent purple"><i class="pi pi-microchip"></i> INFERENSI KECERDASAN BUATAN (AI)</span>
+          <div class="heading-row">
+            <h2>Deteksi Anomali Multivariat AI</h2>
+          </div>
         </div>
         <div class="head-legend">
-          <span class="target-badge"><i class="pi pi-shield"></i> {{ onnx.criticalCount }} Kritis · {{ onnx.highCount }} Tinggi</span>
+          <span class="status-capsule purple"><i class="pi pi-shield"></i> {{ onnx.criticalCount }} Kritis · {{ onnx.highCount }} Tinggi</span>
         </div>
       </header>
       <div class="table-wrap">
@@ -256,10 +262,10 @@
           <thead>
             <tr>
               <th>Wilayah</th>
-              <th class="number">Skor Anomali Multivariat</th>
+              <th class="number">Skor Anomali Gabungan</th>
               <th class="number">Keyakinan AI</th>
               <th>Tingkat Keparahan</th>
-              <th>Penjelasan Teknis Model</th>
+              <th>Indikasi Ketidakwajaran oleh AI</th>
             </tr>
           </thead>
           <tbody>
@@ -268,8 +274,8 @@
                 <td><strong>{{ item.regionName }}</strong></td>
                 <td class="number mono"><strong>{{ item.anomalyScore.toFixed(2) }}</strong></td>
                 <td class="number mono">{{ item.confidenceScore.toFixed(0) }}%</td>
-                <td><span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ item.severity }}</span></td>
-                <td class="explanation">{{ item.explanation }}</td>
+                <td><span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ translateSeverity(item.severity) }}</span></td>
+                <td class="explanation">{{ formatOnnxExplanation(item) }}</td>
               </tr>
             }
           </tbody>
@@ -280,13 +286,15 @@
 
   @if (beneficiaryFindings().length > 0) {
     <section class="panel">
-      <header class="panel-head">
+      <header class="panel-head ribbon-blue">
         <div class="panel-titles">
-          <span class="badge-accent"><i class="pi pi-compass"></i> PRIORITAS VERIFIKASI LAPANGAN</span>
-          <h2>Temuan Kepesertaan per Wilayah</h2>
+          <span class="badge-accent blue"><i class="pi pi-compass"></i> PRIORITAS VERIFIKASI LAPANGAN</span>
+          <div class="heading-row">
+            <h2>Temuan Kepesertaan per Wilayah</h2>
+          </div>
         </div>
         <div class="head-legend">
-          <span class="timestamp-tag"><i class="pi pi-list"></i> {{ beneficiaryFindings().length }} Agregasi Temuan</span>
+          <span class="status-capsule blue"><i class="pi pi-list"></i> {{ beneficiaryFindings().length }} Agregasi Temuan</span>
         </div>
       </header>
       <div class="table-wrap">
@@ -297,7 +305,7 @@
               <th>Indikator Risiko</th>
               <th class="number">Jumlah Kasus</th>
               <th>Tingkat Keparahan</th>
-              <th>Dasar Temuan</th>
+              <th>Uraian Pelanggaran & Tindak Lanjut</th>
             </tr>
           </thead>
           <tbody>
@@ -306,8 +314,8 @@
                 <td><strong>{{ item.region }}</strong><small>Keyakinan {{ item.confidenceScore.toFixed(0) }}%</small></td>
                 <td>{{ item.type }}</td>
                 <td class="number mono font-bold">{{ item.count.toLocaleString('id-ID') }}</td>
-                <td><span class="severity" [class.high]="item.severity === 'High'">{{ item.severity }}</span></td>
-                <td class="explanation">{{ item.explanation }}</td>
+                <td><span class="severity" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ translateSeverity(item.severity) }}</span></td>
+                <td class="explanation">{{ formatBeneficiaryExplanation(item) }}</td>
               </tr>
             }
           </tbody>
@@ -318,29 +326,47 @@
 
   @if (exclusionErrors().length > 0) {
     <section class="exclusion">
-      <header class="panel-head">
+      <header class="panel-head ribbon-amber">
         <div class="panel-titles">
-          <span class="badge-accent"><i class="pi pi-exclamation-circle"></i> EXCLUSION ERROR DETECTOR</span>
-          <h2>Wilayah dengan Gap Cakupan Bantuan Sosial</h2>
+          <span class="badge-accent amber"><i class="pi pi-exclamation-circle"></i> DETEKSI KELUARGA LAYAK TERLEWAT (EXCLUSION ERROR)</span>
+          <div class="heading-row">
+            <h2>Wilayah dengan Kesenjangan Cakupan Bantuan Sosial</h2>
+          </div>
         </div>
         <div class="head-legend">
-          <span class="target-badge"><i class="pi pi-exclamation-triangle"></i> {{ exclusionErrors().length }} Wilayah Rentan</span>
+          <span class="status-capsule amber"><i class="pi pi-exclamation-triangle"></i> {{ exclusionErrors().length }} Wilayah Rentan</span>
         </div>
       </header>
-      <div class="gap-grid">
-        @for (item of exclusionErrors().slice(0, 6); track item.region) {
-          <div class="gap-card">
-            <div class="gap-head">
-              <strong>{{ item.region }}</strong>
-              <span class="gap-rate">{{ (item.gapRate * 100).toFixed(1) }}% Gap</span>
+      <div class="gap-list">
+        @for (item of exclusionErrors().slice(0, 8); track item.region; let idx = $index) {
+          <div class="gap-row">
+            <div class="gap-col-rank">
+              <span class="rank-pill">{{ idx + 1 }}</span>
             </div>
-            <p>{{ item.gap.toLocaleString('id-ID') }} keluarga rentan belum tercakup</p>
-            <div class="gap-bar">
-              <div class="gap-fill" [style.width.%]="item.gapRate * 100"></div>
+            <div class="gap-col-info">
+              <div class="gap-region-name">{{ item.region }}</div>
+              <div class="gap-count-desc">
+                <i class="pi pi-users"></i>
+                <strong>{{ item.gap.toLocaleString('id-ID') }}</strong> keluarga rentan belum terjangkau bansos
+              </div>
+            </div>
+            <div class="gap-col-bar">
+              <div class="gap-bar-label">
+                <span>Tingkat Kesenjangan</span>
+                <span class="gap-percent font-bold">{{ (item.gapRate * 100).toFixed(1) }}%</span>
+              </div>
+              <div class="gap-progress-track">
+                <div class="gap-progress-fill" [style.width.%]="item.gapRate * 100"></div>
+              </div>
+            </div>
+            <div class="gap-col-badge">
+              <span class="gap-alert-tag">
+                <i class="pi pi-exclamation-circle"></i> {{ (item.gapRate * 100).toFixed(1) }}% Kesenjangan
+              </span>
             </div>
           </div>
         }
       </div>
     </section>
   }
-}
+}

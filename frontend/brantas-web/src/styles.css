@@ -1304,15 +1304,87 @@ body.theme-light .target-badge,
 /* Dashboard & Anomaly Unified Panel Head & Badges in Light Mode */
 body.theme-light .badge-accent,
 [data-theme='light'] .badge-accent {
-  color: #0f766e !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 10.5px !important;
   font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  margin-bottom: 3px !important;
+  text-transform: uppercase !important;
 }
 
+body.theme-light .badge-accent.rose,
+[data-theme='light'] .badge-accent.rose {
+  color: #e11d48 !important;
+}
+
+body.theme-light .badge-accent.teal,
+[data-theme='light'] .badge-accent.teal {
+  color: #0f766e !important;
+}
+
+body.theme-light .badge-accent.purple,
+[data-theme='light'] .badge-accent.purple {
+  color: #7e22ce !important;
+}
+
+body.theme-light .badge-accent.blue,
+[data-theme='light'] .badge-accent.blue {
+  color: #0284c7 !important;
+}
+
+body.theme-light .badge-accent.amber,
+[data-theme='light'] .badge-accent.amber {
+  color: #b45309 !important;
+}
+
+/* Executive Cap Header Bar */
 body.theme-light .panel-head,
 [data-theme='light'] .panel-head {
-  border-bottom: 1px solid #f1f5f9 !important;
-  margin-bottom: 10px !important;
-  padding-bottom: 6px !important;
+  background: #f8fafc !important;
+  border-bottom: 1.5px solid #e2e8f0 !important;
+  margin-bottom: 0 !important;
+  padding: 12px 18px !important;
+  border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Left Accent Ribbon on Header Bar */
+body.theme-light .panel-head.ribbon-rose,
+[data-theme='light'] .panel-head.ribbon-rose {
+  border-left: 4.5px solid #e11d48 !important;
+}
+
+body.theme-light .panel-head.ribbon-teal,
+[data-theme='light'] .panel-head.ribbon-teal {
+  border-left: 4.5px solid #0d9488 !important;
+}
+
+body.theme-light .panel-head.ribbon-purple,
+[data-theme='light'] .panel-head.ribbon-purple {
+  border-left: 4.5px solid #9333ea !important;
+}
+
+body.theme-light .panel-head.ribbon-blue,
+[data-theme='light'] .panel-head.ribbon-blue {
+  border-left: 4.5px solid #0284c7 !important;
+}
+
+body.theme-light .panel-head.ribbon-amber,
+[data-theme='light'] .panel-head.ribbon-amber {
+  border-left: 4.5px solid #d97706 !important;
+}
+
+body.theme-light .heading-row,
+[data-theme='light'] .heading-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
 }
 
 body.theme-light .panel-head h2,
@@ -1320,10 +1392,88 @@ body.theme-light .panel-head h2,
 body.theme-light .panel-titles h2,
 [data-theme='light'] .panel-titles h2 {
   color: #0f172a !important;
-  font-size: 14.5px !important;
+  font-size: 15px !important;
   font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 !important;
 }
 
+/* Sub-Label Badge & Tech Runtime Pill */
+body.theme-light .sub-label-badge,
+[data-theme='light'] .sub-label-badge {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 2.5px 8.5px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.theme-light .tech-runtime-badge,
+[data-theme='light'] .tech-runtime-badge {
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 3px 9px !important;
+  border-radius: 6px !important;
+  background: #ede9fe !important;
+  color: #6b21a8 !important;
+  border: 1px solid #c4b5fd !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* High-Contrast Executive Status Capsules in Header */
+body.theme-light .status-capsule,
+[data-theme='light'] .status-capsule {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 5px 12px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.theme-light .status-capsule.rose,
+[data-theme='light'] .status-capsule.rose {
+  background: #ffe4e6 !important;
+  color: #9f1239 !important;
+  border: 1.5px solid #f43f5e !important;
+}
+
+body.theme-light .status-capsule.teal,
+[data-theme='light'] .status-capsule.teal {
+  background: #ccfbf1 !important;
+  color: #0f766e !important;
+  border: 1.5px solid #14b8a6 !important;
+}
+
+body.theme-light .status-capsule.purple,
+[data-theme='light'] .status-capsule.purple {
+  background: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border: 1.5px solid #a855f7 !important;
+}
+
+body.theme-light .status-capsule.blue,
+[data-theme='light'] .status-capsule.blue {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1.5px solid #0284c7 !important;
+}
+
+body.theme-light .status-capsule.amber,
+[data-theme='light'] .status-capsule.amber {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1.5px solid #f59e0b !important;
+}
+
+/* Clean Card Separation for Light Mode */
 body.theme-light .panel,
 [data-theme='light'] .panel,
 body.theme-light .beneficiary-section,
@@ -1331,11 +1481,104 @@ body.theme-light .beneficiary-section,
 body.theme-light .exclusion,
 [data-theme='light'] .exclusion {
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
+  border: 1.5px solid #e2e8f0 !important;
   border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-sm) !important;
-  padding: 12px 16px !important;
-  margin-bottom: 14px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+  padding: 0 !important;
+  margin-bottom: 18px !important;
+  overflow: hidden !important;
+}
+
+body.theme-light .beneficiary-section .executive-kpi-grid,
+[data-theme='light'] .beneficiary-section .executive-kpi-grid {
+  padding: 14px 16px 16px !important;
+}
+
+/* Light Mode Styling for Exclusion Gap List */
+body.theme-light .gap-list,
+[data-theme='light'] .gap-list {
+  background: #ffffff !important;
+}
+
+body.theme-light .gap-row,
+[data-theme='light'] .gap-row {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+body.theme-light .gap-row:hover,
+[data-theme='light'] .gap-row:hover {
+  background: #f8fafc !important;
+}
+
+body.theme-light .rank-pill,
+[data-theme='light'] .rank-pill {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.theme-light .gap-region-name,
+[data-theme='light'] .gap-region-name {
+  color: #0f172a !important;
+}
+
+body.theme-light .gap-count-desc,
+[data-theme='light'] .gap-count-desc {
+  color: #64748b !important;
+}
+
+body.theme-light .gap-count-desc strong,
+[data-theme='light'] .gap-count-desc strong {
+  color: #0f172a !important;
+}
+
+body.theme-light .gap-bar-label,
+[data-theme='light'] .gap-bar-label {
+  color: #64748b !important;
+}
+
+body.theme-light .gap-percent,
+[data-theme='light'] .gap-percent {
+  color: #b45309 !important;
+}
+
+body.theme-light .gap-progress-track,
+[data-theme='light'] .gap-progress-track {
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.theme-light .gap-alert-tag,
+[data-theme='light'] .gap-alert-tag {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1.5px solid #f59e0b !important;
+}
+
+/* Severity Badges in Light Mode: Kritis merah pekat, Tinggi merah biasa, Sedang kuning */
+body.theme-light .severity.critical,
+[data-theme='light'] .severity.critical {
+  background: #991b1b !important;
+  color: #ffffff !important;
+  border: 1.5px solid #7f1d1d !important;
+  font-weight: 800 !important;
+  box-shadow: 0 1px 4px rgba(153, 27, 27, 0.3) !important;
+}
+
+body.theme-light .severity.high,
+[data-theme='light'] .severity.high {
+  background: #ffe4e6 !important;
+  color: #e11d48 !important;
+  border: 1.5px solid #f43f5e !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .severity.medium,
+[data-theme='light'] .severity.medium {
+  background: #fef9c3 !important;
+  color: #a16207 !important;
+  border: 1.5px solid #eab308 !important;
+  font-weight: 700 !important;
 }
 
 body.theme-light .head-total,
