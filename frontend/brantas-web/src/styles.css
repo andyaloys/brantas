@@ -2101,3 +2101,46 @@ button, input, select, textarea {
   letter-spacing: 0.01em;
 }
 
+/* Optimization Simulation Light Mode Unification */
+body.theme-light .aside-card,
+[data-theme='light'] .aside-card,
+body.theme-light .result-panel,
+[data-theme='light'] .result-panel {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+}
+
+
+
+body.theme-light .slider-group,
+[data-theme='light'] .slider-group {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.theme-light .history-item,
+[data-theme='light'] .history-item {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.theme-light .history-item:hover,
+[data-theme='light'] .history-item:hover {
+  background: #f1f5f9 !important;
+  border-color: #0d9488 !important;
+}
+
+body.theme-light .history-item.active,
+[data-theme='light'] .history-item.active {
+  background: #f0fdfa !important;
+  border-color: #0d9488 !important;
+}
+
+body.theme-light .save-input-group input,
+[data-theme='light'] .save-input-group input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+

@@ -1,192 +1,219 @@
-<section class="page-header">
-  <div>
-    <p class="eyebrow">OPTIMASI LINIER BERKENDALA (GOOGLE OR-TOOLS)</p>
+<section class="dashboard-header-strip">
+  <div class="header-left">
+    <span class="badge-accent teal"><i class="pi pi-sliders-h"></i> SIMULASI & OPTIMASI ALOKASI APBN</span>
     <h1>Simulasi Alokasi Anggaran & Formula IKW</h1>
-    <p class="subtitle">Penyesuaian rekomendasi alokasi perlindungan sosial berbasis Indeks Kerentanan Wilayah (IKW) dengan batas stabilitas fiskal.</p>
+    <p class="header-subtitle">
+      Pemodelan redistribusi belanja perlindungan sosial berbasis Indeks Kerentanan Wilayah (IKW) dengan kendala stabilitas fiskal daerah
+    </p>
   </div>
-  <div class="header-actions">
-    <button type="button" class="btn-secondary" (click)="exportCsv()"><i class="pi pi-download" aria-hidden="true"></i> Ekspor CSV</button>
-    <button type="button" class="btn-primary" (click)="runSimulation()"><i class="pi pi-play" aria-hidden="true"></i> Hitung Ulang</button>
+  <div class="header-right">
+    <!-- Pagu Total Anggaran APBN -->
+    <div class="moran-capsule" title="Total Pagu Belanja Perlinsos APBN yang dialokasikan ke 38 Provinsi">
+      <i class="pi pi-wallet moran-icon" aria-hidden="true"></i>
+      <span class="moran-caption">Pagu Total:</span>
+      <strong class="moran-num">{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</strong>
+    </div>
+
+    <div class="export-group">
+      <button type="button" class="btn-export secondary" (click)="exportCsv()" [disabled]="recommendations().length === 0" title="Unduh tabulasi rekomendasi alokasi CSV">
+        <i class="pi pi-file-excel" aria-hidden="true"></i> CSV
+      </button>
+      <button type="button" class="btn-export primary" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan kalkulasi simulasi alokasi">
+        <i class="pi" [ngClass]="isRunning() ? 'pi-spin pi-spinner' : 'pi-play'" aria-hidden="true"></i>
+        <span>{{ isRunning() ? 'Menghitung...' : 'Jalankan Simulasi' }}</span>
+      </button>
+    </div>
   </div>
 </section>
 
 <section class="simulation-grid">
   <!-- Controls Aside -->
-  <aside class="controls">
-    <div class="aside-head">
-      <div class="aside-title-group">
-        <p class="panel-kicker">PARAMETER MODEL</p>
-        <h2>Bobot & Kendala Stabilitas</h2>
-      </div>
-      @if (activeScenarioName() || povertyWeight() !== 30 || capPercent() !== 25) {
-        <button type="button" class="btn-reset-param" (click)="resetParameters()" title="Kembalikan ke parameter default APBN">
-          <i class="pi pi-refresh"></i> Reset Default
-        </button>
-      }
-    </div>
-
-    @if (activeScenarioName()) {
-      <div class="active-scenario-banner">
-        <div class="active-banner-info">
-          <i class="pi pi-bookmark-fill text-teal"></i>
-          <div>
-            <span class="active-tag">Skenario Aktif</span>
-            <strong class="active-name">{{ activeScenarioName() }}</strong>
-          </div>
+  <aside class="controls-aside">
+    <!-- Card 1: Parameter & Kendala Stabilitas -->
+    <div class="aside-card">
+      <header class="panel-head ribbon-teal">
+        <div class="panel-titles">
+          <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> PARAMETER MODEL</span>
+          <h2>Bobot & Batas Toleransi Alokasi</h2>
         </div>
-      </div>
-    }
-    
-    <div class="slider-group">
-      <div class="slider-label">
-        <span>Bobot Tingkat Kemiskinan</span>
-        <strong class="slider-val">{{ povertyWeight() }}%</strong>
-      </div>
-      <input type="range" min="10" max="60" [value]="povertyWeight()" (input)="updatePovertyWeight($event)" class="modern-slider">
-      <div class="slider-range-labels">
-        <small>10% (Konservatif)</small>
-        <small>60% (Afirmatif Ekstrem)</small>
-      </div>
-    </div>
+        @if (activeScenarioName() || povertyWeight() !== 30 || capPercent() !== 25) {
+          <button type="button" class="btn-reset-param" (click)="resetParameters()" title="Kembalikan ke parameter default APBN">
+            <i class="pi pi-refresh"></i> Reset Default
+          </button>
+        }
+      </header>
 
-    <div class="slider-group">
-      <div class="slider-label">
-        <span>Batas Deviasi Maksimal (Cap)</span>
-        <strong class="slider-val">{{ capPercent() }}%</strong>
-      </div>
-      <input type="range" min="10" max="40" [value]="capPercent()" (input)="updateCap($event)" class="modern-slider">
-      <div class="slider-range-labels">
-        <small>±10% (Stabilitas Tinggi)</small>
-        <small>±40% (Reorientasi Total)</small>
-      </div>
-    </div>
-
-    <dl class="constraints-list">
-      <div>
-        <dt>Pagu Total APBN</dt>
-        <dd>{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</dd>
-      </div>
-      <div>
-        <dt>Alokasi Minimum (Floor)</dt>
-        <dd>Rp500 juta / Prov</dd>
-      </div>
-      <div>
-        <dt>Solver Optimasi</dt>
-        <dd class="text-teal">Google OR-Tools (GLOP)</dd>
-      </div>
-    </dl>
-
-    <div class="save-scenario">
-      <label for="scenario-name">Simpan Skenario Analisis</label>
-      <div class="save-input-group">
-        <input id="scenario-name" [value]="scenarioName()" (input)="updateScenarioName($event)" placeholder="Nama skenario (mis: Afirmatif 2026)...">
-        <button type="button" class="btn-save" (click)="saveScenario()"><i class="pi pi-save" aria-hidden="true"></i> Simpan</button>
-      </div>
-      @if (saveMessage()) { <p class="save-feedback"><i class="pi pi-check-circle"></i> {{ saveMessage() }}</p> }
-    </div>
-
-    @if (scenarios().length > 0) {
-      <div class="scenario-history">
-        <div class="history-header">
-          <p class="panel-kicker">RIWAYAT SKENARIO TERSIMPAN</p>
-          <span class="history-hint">Klik untuk memuat</span>
-        </div>
-        <div class="history-list">
-          @for (scenario of scenarios().slice(0, 6); track scenario.id) {
-            <div 
-              class="history-item" 
-              [class.active]="activeScenarioId() === scenario.id"
-              (click)="loadScenario(scenario)"
-              role="button"
-              tabindex="0"
-              title="Klik untuk memuat skenario {{ scenario.name }}">
-              <div class="history-item-main">
-                <i class="pi" [class.pi-bookmark-fill]="activeScenarioId() === scenario.id" [class.pi-bookmark]="activeScenarioId() !== scenario.id"></i>
-                <div class="history-info">
-                  <div class="history-title-row">
-                    <strong>{{ scenario.name }}</strong>
-                    @if (activeScenarioId() === scenario.id) {
-                      <span class="pill-active-badge">Aktif</span>
-                    }
-                  </div>
-                  <div class="history-meta">
-                    <small>{{ scenario.createdAt | date:'dd MMM yyyy, HH:mm' }}</small>
-                    @if (scenario.povertyWeight !== undefined) {
-                      <span class="meta-dot">·</span>
-                      <span class="meta-param">Bobot {{ scenario.povertyWeight }}%</span>
-                    }
-                    @if (scenario.capPercent !== undefined) {
-                      <span class="meta-dot">·</span>
-                      <span class="meta-param">Cap ±{{ scenario.capPercent }}%</span>
-                    }
-                  </div>
-                </div>
-              </div>
-              <div class="history-item-actions">
-                <button 
-                  type="button" 
-                  class="btn-icon-load" 
-                  (click)="loadScenario(scenario)" 
-                  title="Terapkan skenario ini">
-                  <i class="pi pi-arrow-right"></i>
-                </button>
-                <button 
-                  type="button" 
-                  class="btn-icon-del" 
-                  (click)="deleteScenario(scenario.id, $event)" 
-                  title="Hapus skenario">
-                  <i class="pi pi-trash"></i>
-                </button>
+      <div class="aside-card-body">
+        @if (activeScenarioName()) {
+          <div class="active-scenario-banner">
+            <div class="active-banner-info">
+              <i class="pi pi-bookmark-fill text-teal"></i>
+              <div>
+                <span class="active-tag">Skenario Aktif</span>
+                <strong class="active-name">{{ activeScenarioName() }}</strong>
               </div>
             </div>
-          }
+          </div>
+        }
+        
+        <div class="slider-group">
+          <div class="slider-label">
+            <span>Bobot Prioritas Kemiskinan</span>
+            <strong class="slider-val">{{ povertyWeight() }}%</strong>
+          </div>
+          <input type="range" min="10" max="60" [value]="povertyWeight()" (input)="updatePovertyWeight($event)" class="modern-slider">
+          <div class="slider-range-labels">
+            <small>10% (Berimbang)</small>
+            <small>60% (Afirmasi Prioritas)</small>
+          </div>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span>Batas Penyesuaian Maksimal (Cap)</span>
+            <strong class="slider-val">{{ capPercent() }}%</strong>
+          </div>
+          <input type="range" min="10" max="40" [value]="capPercent()" (input)="updateCap($event)" class="modern-slider">
+          <div class="slider-range-labels">
+            <small>±10% (Stabilitas Tinggi)</small>
+            <small>±40% (Fleksibilitas Alokasi)</small>
+          </div>
+        </div>
+
+        <dl class="constraints-list">
+          <div>
+            <dt>Pagu Total APBN</dt>
+            <dd>{{ totalBudget() === null ? '—' : formatMoney(totalBudget()!) }}</dd>
+          </div>
+          <div>
+            <dt>Pagu Minimum Wilayah (Alokasi Dasar)</dt>
+            <dd>Rp500 Juta / Prov</dd>
+          </div>
+        </dl>
+
+        <div class="save-scenario">
+          <label for="scenario-name">Simpan Skenario Analisis</label>
+          <div class="save-input-group">
+            <input id="scenario-name" [value]="scenarioName()" (input)="updateScenarioName($event)" placeholder="Nama skenario (mis: Afirmatif 2026)...">
+            <button type="button" class="btn-save" (click)="saveScenario()"><i class="pi pi-save" aria-hidden="true"></i> Simpan</button>
+          </div>
+          @if (saveMessage()) { <p class="save-feedback"><i class="pi pi-check-circle"></i> {{ saveMessage() }}</p> }
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Riwayat Skenario Tersimpan -->
+    @if (scenarios().length > 0) {
+      <div class="aside-card">
+        <header class="panel-head ribbon-blue">
+          <div class="panel-titles">
+            <span class="badge-accent blue"><i class="pi pi-bookmark"></i> RIWAYAT SKENARIO</span>
+            <h2>Skenario Analisis Tersimpan</h2>
+          </div>
+          <span class="history-count-badge">{{ scenarios().length }} Tersimpan</span>
+        </header>
+
+        <div class="aside-card-body">
+          <div class="history-list">
+            @for (scenario of scenarios().slice(0, 6); track scenario.id) {
+              <div 
+                class="history-item" 
+                [class.active]="activeScenarioId() === scenario.id"
+                (click)="loadScenario(scenario)"
+                role="button"
+                tabindex="0"
+                title="Klik untuk memuat skenario {{ scenario.name }}">
+                <div class="history-item-main">
+                  <i class="pi" [class.pi-bookmark-fill]="activeScenarioId() === scenario.id" [class.pi-bookmark]="activeScenarioId() !== scenario.id"></i>
+                  <div class="history-info">
+                    <div class="history-title-row">
+                      <strong>{{ scenario.name }}</strong>
+                      @if (activeScenarioId() === scenario.id) {
+                        <span class="pill-active-badge">Aktif</span>
+                      }
+                    </div>
+                    <div class="history-meta">
+                      <small>{{ scenario.createdAt | date:'dd MMM yyyy, HH:mm' }}</small>
+                      @if (scenario.povertyWeight !== undefined) {
+                        <span class="meta-dot">·</span>
+                        <span class="meta-param">Bobot {{ scenario.povertyWeight }}%</span>
+                      }
+                      @if (scenario.capPercent !== undefined) {
+                        <span class="meta-dot">·</span>
+                        <span class="meta-param">Cap ±{{ scenario.capPercent }}%</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="history-item-actions">
+                  <button 
+                    type="button" 
+                    class="btn-icon-load" 
+                    (click)="loadScenario(scenario)" 
+                    title="Terapkan skenario ini">
+                    <i class="pi pi-arrow-right"></i>
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn-icon-del" 
+                    (click)="deleteScenario(scenario.id, $event)" 
+                    title="Hapus skenario">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
         </div>
       </div>
     }
   </aside>
 
-  <!-- Results Table Section -->
+  <!-- Results Section -->
   <section class="panel result-panel">
-    <header class="panel-header">
-      <div>
-        <p class="panel-kicker">HASIL FORMULASI LINEAR</p>
+    <header class="panel-head ribbon-teal">
+      <div class="panel-titles">
+        <span class="badge-accent teal"><i class="pi pi-chart-bar"></i> HASIL SIMULASI & DISTRIBUSI ALOKASI DAERAH</span>
         <h2>Rekomendasi Penyesuaian Alokasi Per Wilayah</h2>
       </div>
-      <span class="badge-count">{{ recommendations().length }} Provinsi</span>
+      <span class="status-capsule teal"><i class="pi pi-database"></i> {{ recommendations().length }} Provinsi Terformulasi</span>
     </header>
 
-    @if (error()) {
-      <p class="error-msg">{{ error() }}</p>
-    } @else {
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Provinsi</th>
-              <th>Indeks Kerentanan (IKW)</th>
-              <th class="num">Alokasi Eksisting (APBN)</th>
-              <th class="num">Rekomendasi BRANTAS</th>
-              <th class="num">Pergeseran Anggaran (Delta)</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of recommendations(); track item.region) {
+    <div class="result-body">
+      @if (error()) {
+        <p class="error-msg"><i class="pi pi-exclamation-circle"></i> {{ error() }}</p>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
               <tr>
-                <td><strong>{{ item.region }}</strong></td>
-                <td><span class="ikw-pill">{{ item.vulnerabilityIndex.toFixed(3) }}</span></td>
-                <td class="num">{{ formatMoney(item.baselineAllocation) }}</td>
-                <td class="num font-bold">{{ formatMoney(item.recommendedAllocation) }}</td>
-                <td class="num">
-                  <span class="delta-pill" [class.positive]="item.delta > 0" [class.negative]="item.delta < 0">
-                    {{ item.delta > 0 ? '+' : '' }}{{ formatMoney(item.delta) }} ({{ (item.deltaPercent * 100).toFixed(1) }}%)
-                  </span>
-                </td>
+                <th>Provinsi</th>
+                <th title="Indeks Kerentanan Wilayah (IKW). Nilai makin tinggi mencerminkan kebutuhan prioritas alokasi.">
+                  Indeks Kerentanan (IKW) <i class="pi pi-info-circle text-muted" aria-hidden="true"></i>
+                </th>
+                <th class="num">Alokasi Eksisting (APBN)</th>
+                <th class="num">Rekomendasi BRANTAS</th>
+                <th class="num">Penyesuaian Anggaran (Selisih)</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
+            </thead>
+            <tbody>
+              @for (item of recommendations(); track item.region) {
+                <tr>
+                  <td><strong>{{ item.region }}</strong></td>
+                  <td><span class="ikw-pill">{{ item.vulnerabilityIndex.toFixed(3) }}</span></td>
+                  <td class="num">{{ formatMoney(item.baselineAllocation) }}</td>
+                  <td class="num font-bold">{{ formatMoney(item.recommendedAllocation) }}</td>
+                  <td class="num">
+                    <span class="delta-pill" [class.positive]="item.delta > 0" [class.negative]="item.delta < 0">
+                      {{ item.delta > 0 ? '+' : '' }}{{ formatMoney(item.delta) }} ({{ (item.deltaPercent * 100).toFixed(1) }}%)
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
   </section>
 </section>
-

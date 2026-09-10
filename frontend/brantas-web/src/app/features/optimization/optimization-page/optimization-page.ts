@@ -1,9 +1,9 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AllocationRecommendation, OptimizationDataService, SimulationScenario } from '../data/optimization-data.service';
 
-@Component({ selector: 'app-optimization-page', templateUrl: './optimization-page.html', styleUrl: './optimization-page.css', changeDetection: ChangeDetectionStrategy.OnPush, imports: [DatePipe] })
+@Component({ selector: 'app-optimization-page', templateUrl: './optimization-page.html', styleUrl: './optimization-page.css', changeDetection: ChangeDetectionStrategy.OnPush, imports: [CommonModule] })
 export class OptimizationPageComponent {
   private readonly optimizationData = inject(OptimizationDataService);
   protected readonly povertyWeight = signal(30);
@@ -14,20 +14,57 @@ export class OptimizationPageComponent {
   protected readonly scenarios = signal<SimulationScenario[]>([]);
   protected readonly saveMessage = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
+  protected readonly isRunning = signal<boolean>(false);
 
   protected readonly activeScenarioId = signal<string | null>(null);
   protected readonly activeScenarioName = signal<string | null>(null);
   protected readonly isLoadingScenario = signal<boolean>(false);
 
+  // Ringkasan dampak fiskal eksekutif
+  protected readonly summaryImpact = computed(() => {
+    const list = this.recommendations();
+    let increasedCount = 0;
+    let increasedTotal = 0;
+    let decreasedCount = 0;
+    let decreasedTotal = 0;
+    let unchangedCount = 0;
+
+    for (const item of list) {
+      if (item.delta > 0) {
+        increasedCount++;
+        increasedTotal += item.delta;
+      } else if (item.delta < 0) {
+        decreasedCount++;
+        decreasedTotal += Math.abs(item.delta);
+      } else {
+        unchangedCount++;
+      }
+    }
+
+    return {
+      totalCount: list.length,
+      increasedCount,
+      increasedTotal,
+      decreasedCount,
+      decreasedTotal,
+      unchangedCount
+    };
+  });
+
   async ngOnInit(): Promise<void> { await Promise.all([this.runSimulation(), this.loadScenarios()]); }
 
   protected async runSimulation(): Promise<void> {
     this.error.set(null);
+    this.isRunning.set(true);
     try {
       const result = await firstValueFrom(this.optimizationData.getRecommendations(this.povertyWeight(), this.capPercent()));
       this.totalBudget.set(result.totalBudget);
       this.recommendations.set(result.recommendations);
-    } catch { this.error.set('Simulasi belum dapat dihitung. Pastikan layanan BRANTAS aktif.'); }
+    } catch { 
+      this.error.set('Simulasi belum dapat dihitung. Pastikan layanan BRANTAS aktif.'); 
+    } finally {
+      this.isRunning.set(false);
+    }
   }
 
   protected updatePovertyWeight(event: Event): void {
