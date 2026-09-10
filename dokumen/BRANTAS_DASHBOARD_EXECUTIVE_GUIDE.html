@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panduan Eksekutif: Arsitektur & Komponen Page Dashboard BRANTAS</title>
+  <style>
+    :root {
+      --bg-base: #060913;
+      --bg-surface: #0b1329;
+      --bg-surface-elevated: #111e3e;
+      --border-subtle: rgba(45, 212, 191, 0.2);
+      --border-highlight: rgba(45, 212, 191, 0.45);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --teal-primary: #0d9488;
+      --teal-glow: #2dd4bf;
+      --blue-accent: #0284c7;
+      --blue-glow: #38bdf8;
+      --rose-accent: #e11d48;
+      --rose-glow: #fb7185;
+      --amber-accent: #d97706;
+      --amber-glow: #fbbf24;
+      --emerald-accent: #059669;
+      --emerald-glow: #34d399;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.6;
+      padding: 30px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header Banner */
+    .doc-header {
+      background: linear-gradient(135deg, #042f2e 0%, #0f172a 50%, #0c4a6e 100%);
+      border: 1px solid var(--border-highlight);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+    .doc-header::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--teal-glow), var(--blue-glow), var(--amber-glow));
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(45, 212, 191, 0.15);
+      border: 1px solid var(--border-highlight);
+      color: var(--teal-glow);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .doc-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+    .doc-header p {
+      font-size: 15px;
+      color: #cbd5e1;
+      max-width: 950px;
+      line-height: 1.5;
+    }
+    .doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .doc-meta span strong { color: #f1f5f9; }
+
+    /* TOC Section */
+    .toc-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 35px;
+    }
+    .toc-card h2 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--teal-glow);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      list-style: none;
+    }
+    .toc-grid a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.2s ease;
+    }
+    .toc-grid a:hover {
+      background: rgba(45, 212, 191, 0.15);
+      color: var(--teal-glow);
+      transform: translateX(3px);
+    }
+
+    /* Section Styling */
+    .section-block {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .section-head {
+      border-bottom: 1.5px solid var(--border-subtle);
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+    }
+    .section-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--teal-glow);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    /* Flowchart / Diagram CSS */
+    .flow-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 20px 0;
+      background: rgba(6, 9, 19, 0.6);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-highlight);
+      border-radius: 8px;
+      padding: 12px 16px;
+      min-width: 200px;
+      flex: 1;
+    }
+    .flow-step-num {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--teal-glow);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .flow-step-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+    .flow-step-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .flow-arrow {
+      color: var(--teal-glow);
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    /* KPI Cards Demo Grid */
+    .kpi-demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .kpi-demo-card {
+      background: var(--bg-surface-elevated);
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-demo-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .kpi-teal::before { background: linear-gradient(90deg, #14b8a6, #2dd4bf); }
+    .kpi-blue::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+    .kpi-emerald::before { background: linear-gradient(90deg, #059669, #34d399); }
+    .kpi-rose::before { background: linear-gradient(90deg, #e11d48, #fb7185); }
+
+    .kpi-demo-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    .kpi-demo-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      margin-bottom: 6px;
+    }
+    .kpi-demo-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+    .kpi-tooltip-hint {
+      display: inline-block;
+      background: rgba(45, 212, 191, 0.12);
+      border: 1px dashed var(--teal-glow);
+      color: var(--teal-glow);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      margin-top: 6px;
+    }
+
+    /* Comparison Table */
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 12.5px;
+    }
+    .spec-table th, .spec-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .spec-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--teal-glow);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+    .spec-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .spec-table code {
+      font-family: var(--font-mono);
+      color: var(--blue-glow);
+      background: rgba(2, 132, 199, 0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11.5px;
+    }
+
+    /* Callout Alert */
+    .callout {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 18px 0;
+      font-size: 13px;
+      border-left: 4px solid;
+    }
+    .callout-info {
+      background: rgba(2, 132, 199, 0.1);
+      border-color: var(--blue-glow);
+      color: #bae6fd;
+    }
+    .callout-success {
+      background: rgba(13, 148, 136, 0.1);
+      border-color: var(--teal-glow);
+      color: #ccfbf1;
+    }
+    .callout-warning {
+      background: rgba(217, 119, 6, 0.1);
+      border-color: var(--amber-glow);
+      color: #fef3c7;
+    }
+
+    /* Footer */
+    .doc-footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    @media print {
+      body { background: #ffffff; color: #000000; padding: 0; }
+      .section-block { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; }
+      .doc-header { background: #f1f5f9; color: #000; border: 1px solid #ccc; }
+      .doc-header h1, .section-title { color: #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header Banner -->
+    <header class="doc-header">
+      <span class="badge-pill">DOKUMEN ARSITEKTUR RESMI SISTEM BRANTAS</span>
+      <h1>Panduan Eksekutif & Teknis: Page Dashboard BRANTAS</h1>
+      <p>
+        Dokumentasi komprehensif mengenai arsitektur sistem, aliran data real-time, logika kalkulasi metrik, serta dekomposisi visual komponen pada halaman Dashboard Pemantauan Kemiskinan & Anggaran APBN (<code>DashboardPageComponent</code>).
+      </p>
+      <div class="doc-meta">
+        <span>Sistem: <strong>BRANTAS Core APBN</strong></span>
+        <span>Modul: <strong>Executive Dashboard (Frontend Web)</strong></span>
+        <span>Route: <code>/dashboard</code></span>
+        <span>Versi Dokumen: <strong>2.4 (Revisi Format Nominal Dinamis)</strong></span>
+        <span>Tanggal: <strong>September 2026</strong></span>
+      </div>
+    </header>
+
+    <!-- Table of Contents -->
+    <nav class="toc-card" aria-label="Daftar Isi">
+      <h2>Daftar Isi Panduan</h2>
+      <ul class="toc-grid">
+        <li><a href="#overview">1. Ikhtisar & Tujuan Dashboard</a></li>
+        <li><a href="#data-pipeline">2. Aliran Data & Siklus Hidup (Lifecycle)</a></li>
+        <li><a href="#tab-navigation">3. Tab Switcher & Mode Tayang Kiosk (12s)</a></li>
+        <li><a href="#tab-macro">4. Tab 1: Peta Spasial & Indikator Makro</a></li>
+        <li><a href="#kpi-cards">5. Empat Kartu KPI Eksekutif</a></li>
+        <li><a href="#gis-map">6. Panel Peta Spasial GIS (LOD & Klaster)</a></li>
+        <li><a href="#insights-hotspots">7. Panel JUSI AI & TOP 5 Wilayah</a></li>
+        <li><a href="#tab-allocation">8. Tab 2: Matriks Kuadran & Wilayah Prioritas</a></li>
+        <li><a href="#quadrant-chart">9. Matriks Kuadran Alokasi vs Kemiskinan</a></li>
+        <li><a href="#trend-chart">10. Trajektori Penurunan RPJMN 2026</a></li>
+        <li><a href="#priority-radar">11. Radar Prioritas Alokasi Eksekutif</a></li>
+        <li><a href="#currency-utility">12. Utilitas Format Nominal Dinamis</a></li>
+        <li><a href="#api-specs">13. Spesifikasi Backend API Endpoints</a></li>
+      </ul>
+    </nav>
+
+    <!-- SECTION 1: OVERVIEW -->
+    <section id="overview" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 1</span>
+        <h2 class="section-title">Ikhtisar & Tujuan Dashboard</h2>
+      </div>
+      <p>
+        Halaman <strong>Dashboard</strong> merupakan beranda operasional dan intelijen eksekutif utama pada platform <strong>BRANTAS</strong> (Basis Relokasi Anggaran & Analisis Tematik Akurat Spasial). Dirancang secara khusus untuk pembuat kebijakan level tinggi (Menteri Keuangan, Dirjen Anggaran, Dirjen Perimbangan Keuangan, dan Bappenas), dashboard ini menggabungkan pemantauan makroekonomi kemiskinan dengan pengawasan alokasi belanja perlindungan sosial (Perlinsos) APBN senilai lebih dari <strong>Rp470 Triliun</strong>.
+      </p>
+      
+      <div class="callout callout-success">
+        <strong>Tujuan Strategis:</strong> Mengeliminasi ketimpangan fiskal (<em>under-allocation</em>) di kantong kemiskinan ekstrem Indonesia timur, mendeteksi anomali integritas data desil penerima bansos, serta memastikan alokasi APBN konvergen menuju sasaran kemiskinan nasional <strong>7,5% pada tahun 2026</strong>.
+      </div>
+    </section>
+
+    <!-- SECTION 2: DATA PIPELINE -->
+    <section id="data-pipeline" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 2</span>
+        <h2 class="section-title">Aliran Data & Siklus Hidup (Data Pipeline & Lifecycle)</h2>
+      </div>
+      <p>
+        Dashboard memproses data secara asinkron dan reaktif menggunakan fitur Angular Signals dan RxJS. Diagram di bawah mengilustrasikan alur sejak pengguna membuka halaman hingga data dirender:
+      </p>
+
+      <div class="flow-diagram">
+        <div class="flow-row">
+          <div class="flow-step">
+            <div class="flow-step-num">Langkah 1</div>
+            <div class="flow-step-title">Inisialisasi & Query Params</div>
+            <div class="flow-step-desc"><code>ngOnInit()</code> membaca parameter <code>?tab=macro</code> atau <code>?tab=allocation</code> untuk menentukan tab awal.</div>
+          </div>
+          <span class="flow-arrow">➔</span>
+          <div class="flow-step">
+            <div class="flow-step-num">Langkah 2</div>
+            <div class="flow-step-title">Parallel API Ingestion</div>
+            <div class="flow-step-desc">Mengeksekusi <code>Promise.all</code> untuk 6 endpoint REST backend (Summary, Priority, Corridors, Ranks, Distribution, GeoJSON).</div>
+          </div>
+          <span class="flow-arrow">➔</span>
+          <div class="flow-step">
+            <div class="flow-step-num">Langkah 3</div>
+            <div class="flow-step-title">Reactive Signal State</div>
+            <div class="flow-step-desc">Menyimpan respons API ke dalam signals (<code>summary</code>, <code>priorityRegions</code>, <code>corridors</code>, dll.).</div>
+          </div>
+        </div>
+        <div class="flow-row" style="margin-top: 10px;">
+          <span class="flow-arrow">➔</span>
+          <div class="flow-step">
+            <div class="flow-step-num">Langkah 4</div>
+            <div class="flow-step-title">Render GIS Map (Leaflet)</div>
+            <div class="flow-step-desc">Jika Tab 1 aktif, poligon 514 kabupaten diinjeksi ke <code>GisChoroplethAdapter</code> dengan pewarnaan klaster spasial.</div>
+          </div>
+          <span class="flow-arrow">➔</span>
+          <div class="flow-step">
+            <div class="flow-step-num">Langkah 5</div>
+            <div class="flow-step-title">Render Charts (ECharts)</div>
+            <div class="flow-step-desc">Membangun visualisasi kuadran scatter dan garis trajektori RPJMN 2026 di luar zona Angular (<code>runOutsideAngular</code>) demi performa 60 FPS.</div>
+          </div>
+          <span class="flow-arrow">➔</span>
+          <div class="flow-step">
+            <div class="flow-step-num">Langkah 6</div>
+            <div class="flow-step-title">Auto-Cycle & Kiosk Listeners</div>
+            <div class="flow-step-desc">Memantau event <code>window:resize</code>, perubahan tema dark/light, serta mode layar penuh command center.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: TAB NAVIGATION -->
+    <section id="tab-navigation" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 3</span>
+        <h2 class="section-title">Tab Switcher & Mode Tayang Command Center (Auto-Cycle)</h2>
+      </div>
+      <p>
+        Dashboard mengorganisasikan informasi kompleks ke dalam dua perspektif terfokus:
+      </p>
+      <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+        <li><strong>Tab 1: Peta Spasial & Indikator Makro (<code>'macro'</code>)</strong> — Fokus pada sebaran wilayah rentan, agregat angka kemiskinan nasional, dan intelijen ringkasan strategis.</li>
+        <li><strong>Tab 2: Matriks Kuadran & Wilayah Prioritas (<code>'allocation'</code>)</strong> — Fokus pada efisiensi belanja fiskal per jiwa miskin, radar kuadran ketepatan sasaran, kurva proyeksi sasaran nasional, dan kartu aksi penanganan daerah defisit bantuan.</li>
+      </ul>
+
+      <div class="callout callout-info" style="margin-top: 14px;">
+        <strong>Mode Tayang Otomatis (Auto-Switch 12s):</strong> Dilengkapi indikator <code>Mode Tayang Auto-Switch Aktif (12s)</code> yang secara otomatis beralih antar-tab setiap 12 detik, sangat ideal untuk operasional TV Wall di Command Center Kemenkeu/Bappenas tanpa memerlukan interaksi mouse terus-menerus.
+      </div>
+    </section>
+
+    <!-- SECTION 4: TAB MACRO & 5: KPI CARDS -->
+    <section id="tab-macro" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 4 & 5</span>
+        <h2 class="section-title">Anatomi Tab 1: Empat Kartu KPI Eksekutif</h2>
+      </div>
+      <p>
+        Pada bagian atas Tab 1, terdapat 4 kartu metrik utama yang menyajikan indikator agregat nasional secara tegas, proporsional, dan ringkas:
+      </p>
+
+      <div class="kpi-demo-grid">
+        <!-- KPI 1 -->
+        <div class="kpi-demo-card kpi-teal">
+          <div class="kpi-demo-title">Rerata Kemiskinan Nasional</div>
+          <div class="kpi-demo-val">11.22%</div>
+          <div class="kpi-demo-sub">
+            <span>Min: 3.8% (Bali)</span>
+            <span>Max: 30.03% (Papua Peg.)</span>
+          </div>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="kpi-demo-card kpi-blue">
+          <div class="kpi-demo-title">Penduduk Miskin</div>
+          <div class="kpi-demo-val">31.580.171</div>
+          <div class="kpi-demo-sub">
+            <span>Target Bansos APBN</span>
+            <span>38 Prov / 514 Daerah</span>
+          </div>
+        </div>
+
+        <!-- KPI 3 -->
+        <div class="kpi-demo-card kpi-emerald">
+          <div class="kpi-demo-title">Pagu Alokasi APBN</div>
+          <div class="kpi-demo-val">Rp437.7 T</div>
+          <div class="kpi-demo-sub">
+            <span>Baseline Terverifikasi</span>
+            <span>Belanja Perlinsos</span>
+          </div>
+          <div class="kpi-tooltip-hint">Tooltip: Rp437.676.320.000.000</div>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="kpi-demo-card kpi-rose">
+          <div class="kpi-demo-title">Temuan Anomali & Risiko</div>
+          <div class="kpi-demo-val">10 Kasus</div>
+          <div class="kpi-demo-sub">
+            <span>Rp at Risk (VaR):</span>
+            <strong style="color: #fb7185;">Rp108.9 T</strong>
+          </div>
+          <div class="kpi-tooltip-hint">Tooltip: Rp108.932.390.000.000</div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 15px; margin: 20px 0 10px; color: var(--teal-glow);">Inovasi Format Nominal Dinamis:</h3>
+      <p>
+        Berdasarkan arahan pimpinan, angka ratusan ribu juta kini ditampilkan secara dinamis dengan satuan <strong>T (Triliun)</strong> untuk nilai $\ge 1.000$ (misal: <code>Rp437.7 T</code> dan <code>Rp108.9 T</code>). Pengguna yang membutuhkan rincian angka eksak hingga rupiah satuan dapat mengarahkan kursor (<em>hover</em>) untuk melihat tooltip nominal penuh.
+      </p>
+    </section>
+
+    <!-- SECTION 6: GIS MAP & 7: INSIGHTS -->
+    <section id="gis-map" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 6 & 7</span>
+        <h2 class="section-title">Peta Spasial GIS, JUSI AI & Wilayah Prioritas</h2>
+      </div>
+      <p>
+        Area tengah Tab 1 terbagi menjadi grid proporsional <strong>65% (Kiri: Peta GIS)</strong> dan <strong>35% (Kanan: Intelijen AI & Prioritas)</strong>:
+      </p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Komponen</th>
+            <th>Porsi Layout</th>
+            <th>Fungsi Analitik & Interaksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Peta Spasial Eksekutif (Leaflet)</strong></td>
+            <td>65% (Kiri)</td>
+            <td>
+              • Menampilkan visualisasi Choropleth 514 poligon daerah Indonesia.<br>
+              • Menggunakan klasifikasi autokorelasi spasial Moran: <em>Hotspot High-High</em> (Merah pekat), <em>Outlier High-Low</em> (Merah), <em>Outlier Low-High</em> (Oranye), dan <em>Coldspot Low-Low</em> (Kuning).<br>
+              • Dilengkapi fitur <strong>Multi-Scale LOD</strong>: Zoom otomatis menampilkan label kota.<br>
+              • Tombol aksi langsung: <code>Buka Peta Spasial Detail (GIS)</code> menuju modul <code>/peta-spasial</code>.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Ringkasan Strategis (JUSI AI)</strong></td>
+            <td>35% (Kanan Atas)</td>
+            <td>
+              Menyajikan 4 butir sintesis kecerdasan buatan terkurasi:<br>
+              1. <em>Analisis Spasial:</em> Jurang kemiskinan (P1) timur 3,42x lebih dalam.<br>
+              2. <em>Peluang Efisiensi:</em> Relokasi Rp5,4 T tutup gap alokasi.<br>
+              3. <em>Integritas Data:</em> 14.280 NIK ganda & ASN selamatkan VaR Rp4,2 T.<br>
+              4. <em>Rekomendasi Kebijakan:</em> Penajaman graduasi bansos mandiri PKH & Sembako.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>TOP 5 Wilayah Prioritas Tertinggi</strong></td>
+            <td>35% (Kanan Bawah)</td>
+            <td>
+              Leaderboard 5 daerah paling rentan (Papua Pegunungan 32.8%, Papua Tengah 29.4%, Papua Barat 21.3%, Maluku 16.2%, NTT 19.8%). Menampilkan jumlah warga miskin, skor IPM, dan progress bar komparasi terhadap rata-rata nasional (11.22%).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 8, 9, 10: TAB ALLOCATION & CHARTS -->
+    <section id="tab-allocation" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 8, 9 & 10</span>
+        <h2 class="section-title">Anatomi Tab 2: Matriks Kuadran Alokasi & Trajektori RPJMN</h2>
+      </div>
+      <p>
+        Tab 2 menyajikan analisis alokasi anggaran daerah melalui 2 grafik analitik visual ECharts beresolusi tinggi:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin: 20px 0;">
+        <div style="background: var(--bg-surface-elevated); padding: 18px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <h4 style="color: var(--teal-glow); font-size: 14px; margin-bottom: 8px;">Chart 1: Matriks Kuadran Kebutuhan vs Alokasi</h4>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Scatter matrix 38 provinsi yang menguji apakah alokasi anggaran perlinsos per jiwa miskin (sumbu Y) sejalan dengan tingkat kemiskinan daerah (sumbu X):
+          </p>
+          <ul style="font-size: 11.5px; line-height: 1.7; margin-left: 16px; color: #cbd5e1;">
+            <li><strong style="color: #fb7185;">Defisit Kritis (Merah):</strong> Kemiskinan tinggi, pagu rendah (misal: Papua Pegunungan, Papua Tengah).</li>
+            <li><strong style="color: #fbbf24;">Perlu Afirmasi (Kuning):</strong> Kemiskinan di atas rata-rata (misal: Maluku, NTT, Aceh).</li>
+            <li><strong style="color: #2dd4bf;">Sesuai Kebutuhan (Teal):</strong> Kemiskinan moderat dengan alokasi proporsional (misal: Jateng, Jatim).</li>
+            <li><strong style="color: #38bdf8;">Melampaui Rerata (Biru):</strong> Kemiskinan rendah namun pagu tinggi (misal: DKI Jakarta, Bali, Jabar).</li>
+          </ul>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 18px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <h4 style="color: var(--blue-glow); font-size: 14px; margin-bottom: 8px;">Chart 2: Trajektori Target RPJMN 2026</h4>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Line chart multi-kurva yang mengevaluasi keberhasilan intervensi formula afirmatif BRANTAS dibandingkan dengan target nasional:
+          </p>
+          <ul style="font-size: 11.5px; line-height: 1.7; margin-left: 16px; color: #cbd5e1;">
+            <li><strong style="color: #38bdf8;">Realisasi Historis BPS (2021–2025):</strong> Tren aktual dari 10.14% turun lambat ke 8.85%.</li>
+            <li><strong style="color: #2dd4bf;">Simulasi Formula BRANTAS (2025–2027):</strong> Proyeksi penurunan tajam menuju 7.43% (2026) dan 6.82% (2027).</li>
+            <li><strong style="color: #fb7185;">Garis Sasaran RPJMN 2026 (7.5%):</strong> Batas keberhasilan nasional yang berhasil ditembus oleh skenario afirmasi IKW.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 11: RADAR PRIORITAS -->
+    <section id="priority-radar" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 11</span>
+        <h2 class="section-title">Radar Prioritas Alokasi Eksekutif (Leaderboard Cards)</h2>
+      </div>
+      <p>
+        Bagian bawah Tab 2 menyajikan <strong>5 Kartu Aksi Prioritas</strong> yang membutuhkan intervensi anggaran segera, dilengkapi angka defisit fiskal dan rekomendasi kebijakan operasional:
+      </p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Rank & Wilayah</th>
+            <th>Kesenjangan (Defisit)</th>
+            <th>Metrik Kedalaman Kemiskinan (P1)</th>
+            <th>Kebutuhan Tambahan Pagu</th>
+            <th>Rekomendasi Kebijakan Spesifik</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Papua Pegunungan</strong></td>
+            <td><span style="color: #fb7185; font-weight: 800;">Defisit -Rp6,8 M</span></td>
+            <td>Tingkat: 32.8% · P1: 6.42</td>
+            <td><strong style="color: #2dd4bf;">+Rp18,4 Miliar</strong></td>
+            <td>Afirmasi Pangan & Aksesibilitas IKW</td>
+          </tr>
+          <tr>
+            <td><strong>2. Papua Tengah</strong></td>
+            <td><span style="color: #fb7185; font-weight: 800;">Defisit -Rp5,2 M</span></td>
+            <td>Tingkat: 29.4% · P1: 5.88</td>
+            <td><strong style="color: #2dd4bf;">+Rp14,1 Miliar</strong></td>
+            <td>Tambahan Kuota Bantuan Bersyarat</td>
+          </tr>
+          <tr>
+            <td><strong>3. Nusa Tenggara Timur</strong></td>
+            <td><span style="color: #fbbf24; font-weight: 800;">Defisit -Rp4,6 M</span></td>
+            <td>Tingkat: 19.8% · P1: 3.91</td>
+            <td><strong style="color: #2dd4bf;">+Rp22,8 Miliar</strong></td>
+            <td>Peningkatan Kuota PKH Afirmatif</td>
+          </tr>
+          <tr>
+            <td><strong>4. Maluku</strong></td>
+            <td><span style="color: #fbbf24; font-weight: 800;">Defisit -Rp3,8 M</span></td>
+            <td>Tingkat: 16.2% · P1: 3.24</td>
+            <td><strong style="color: #2dd4bf;">+Rp11,5 Miliar</strong></td>
+            <td>Penyesuaian Indeks Kemahalan Kepulauan</td>
+          </tr>
+          <tr>
+            <td><strong>5. Gorontalo</strong></td>
+            <td><span style="color: #fbbf24; font-weight: 800;">Defisit -Rp2,4 M</span></td>
+            <td>Tingkat: 14.7% · P1: 2.85</td>
+            <td><strong style="color: #2dd4bf;">+Rp7,2 Miliar</strong></td>
+            <td>Verifikasi Sasaran & Realokasi SiLPA</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 12: CURRENCY UTILITY -->
+    <section id="currency-utility" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 12</span>
+        <h2 class="section-title">Logika Utilitas Format Nominal Dinamis (Currency Formatter)</h2>
+      </div>
+      <p>
+        Seluruh nominal pada matriks KPI dan indikator ringkasan diolah melalui modul utilitas <code>currency-formatter.ts</code>:
+      </p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Nilai Mentah (Database)</th>
+            <th>Kriteria Besaran</th>
+            <th>Tampilan Ringkas (Compact)</th>
+            <th>Tooltip Lengkap (Title Hover)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>437676.32</code></td>
+            <td>$\ge 1.000$ (Triliun)</td>
+            <td><strong>Rp437.7 T</strong></td>
+            <td><code>Nominal Lengkap: Rp437.676.320.000.000</code></td>
+          </tr>
+          <tr>
+            <td><code>108932.39</code></td>
+            <td>$\ge 1.000$ (Triliun)</td>
+            <td><strong>Rp108.9 T</strong></td>
+            <td><code>Nominal Lengkap: Rp108.932.390.000.000</code></td>
+          </tr>
+          <tr>
+            <td><code>52209.43</code></td>
+            <td>$\ge 1.000$ (Triliun, Signed)</td>
+            <td><strong>+Rp52.2 T</strong></td>
+            <td><code>Nominal Lengkap: +Rp52.209.430.000.000</code></td>
+          </tr>
+          <tr>
+            <td><code>80.90</code></td>
+            <td>$1 \le x < 1.000$ (Miliar)</td>
+            <td><strong>Rp80.9 M</strong></td>
+            <td><code>Nominal Lengkap: Rp80.900.000.000</code></td>
+          </tr>
+          <tr>
+            <td><code>0.1279</code></td>
+            <td>$< 1$ (Juta)</td>
+            <td><strong>Rp127.9 Juta</strong></td>
+            <td><code>Nominal Lengkap: Rp127.900.000</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 13: API SPECS -->
+    <section id="api-specs" class="section-block">
+      <div class="section-head">
+        <span class="section-tag">Bab 13</span>
+        <h2 class="section-title">Spesifikasi Backend REST API Endpoints</h2>
+      </div>
+      <p>
+        Daftar endpoint backend .NET Web API (<code>Brantas.Api</code>) yang dikonsumsi secara langsung oleh komponen Dashboard:
+      </p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Metode HTTP</th>
+            <th>Endpoint URI</th>
+            <th>Fungsi Layanan Data</th>
+            <th>Payload Output Utama</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/v1/dashboard/summary</code></td>
+            <td>Ringkasan indikator makro nasional</td>
+            <td><code>totalBudget</code>, <code>averagePovertyRate</code>, <code>totalPoorPopulation</code>, <code>totalValueAtRisk</code></td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/v1/dashboard/priority-regions</code></td>
+            <td>5 provinsi kemiskinan tertinggi</td>
+            <td>Daftar objek: <code>region</code>, <code>povertyRate</code>, <code>poorPopulation</code>, <code>humanDevelopmentIndex</code></td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/v1/dashboard/corridors</code></td>
+            <td>Agregasi 6 koridor spasial kepulauan</td>
+            <td>Daftar objek koridor, rata-rata kemiskinan, total pagu belanja per kepulauan</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/v1/dashboard/regency-ranks</code></td>
+            <td>Ranking kemiskinan kabupaten/kota</td>
+            <td><code>topPoverty[]</code> dan <code>lowestPoverty[]</code> 514 kabupaten</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/v1/dashboard/distribution</code></td>
+            <td>Distribusi desil alokasi bansos</td>
+            <td>Distribusi bucket frekuensi alokasi anggaran</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/v1/spatial/geojson/kabupaten</code></td>
+            <td>Peta poligon spasial tematik daerah</td>
+            <td>FeatureCollection GeoJSON batas administratif 514 daerah</td>
+          </tr>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/api/v1/pipeline/run</code></td>
+            <td>Sinkronisasi ulang pipeline data</td>
+            <td>Memicu re-generasi data sintetis & re-evaluasi model anomali</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Footer -->
+    <footer class="doc-footer">
+      <p>&copy; 2026 BRANTAS Platform — Kementerian Keuangan Republik Indonesia & Bappenas</p>
+      <p style="margin-top: 4px;">Dokumen ini digenerate secara otomatis untuk dokumentasi arsitektur sistem dan panduan eksekutif.</p>
+    </footer>
+  </div>
+
+</body>
+</html>

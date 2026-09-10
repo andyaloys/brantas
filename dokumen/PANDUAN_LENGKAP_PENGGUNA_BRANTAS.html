@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buku Panduan Pengguna Lengkap: Seluruh Modul Platform BRANTAS</title>
+  <style>
+    :root {
+      --bg-base: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-nav: #091224;
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --primary-light: #ccfbf1;
+      --secondary: #0284c7;
+      --accent: #d97706;
+      --danger: #be123c;
+      --danger-bg: #fff1f2;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --warning: #b45309;
+      --warning-bg: #fefce8;
+      --info-bg: #f0f9ff;
+      --purple: #7c3aed;
+      --purple-bg: #f5f3ff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --text-light: #f8fafc;
+      --border: #e2e8f0;
+      --border-teal: #2dd4bf;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 80px;
+    }
+
+    /* Top Sticky Navigation Bar */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--bg-nav);
+      color: white;
+      border-bottom: 2px solid var(--primary);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-logo {
+      background: linear-gradient(135deg, #14b8a6, #0284c7);
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      letter-spacing: 0.06em;
+    }
+    .brand-text h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: -0.01em;
+    }
+    .brand-text p {
+      font-size: 11px;
+      color: #94a3b8;
+      margin: 0;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-nav:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, #091224 0%, #0f766e 100%);
+      color: white;
+      padding: 45px 24px;
+      text-align: center;
+      position: relative;
+    }
+    .hero-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .badge-pill {
+      display: inline-block;
+      background: rgba(45, 212, 191, 0.2);
+      border: 1px solid var(--border-teal);
+      color: #5eead4;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .hero-banner h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+    .hero-banner p {
+      font-size: 16px;
+      color: #cbd5e1;
+      max-width: 800px;
+      margin: 0 auto 16px auto;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1140px;
+      margin: -30px auto 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Quick Jump Grid */
+    .jump-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      padding: 24px;
+      margin-bottom: 35px;
+      border-left: 6px solid var(--primary);
+    }
+    .jump-card h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .jump-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      list-style: none;
+    }
+    .jump-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: #0369a1;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .jump-link:hover {
+      background: #e0f2fe;
+      border-color: #7dd3fc;
+      transform: translateX(4px);
+    }
+    .jump-badge {
+      background: #0284c7;
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* Page Section Cards */
+    .page-section {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      padding: 34px;
+      margin-bottom: 35px;
+      scroll-margin-top: 80px;
+    }
+    .page-section:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .page-header {
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .page-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-num {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      font-weight: 900;
+      font-size: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .page-route {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 20px 0 10px 0;
+    }
+    p { margin-bottom: 14px; }
+    ul, ol { margin-left: 20px; margin-bottom: 16px; }
+    li { margin-bottom: 6px; }
+
+    /* Callouts */
+    .callout {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 18px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .callout-icon { font-size: 20px; flex-shrink: 0; }
+    .callout-tip { background: #f0fdfa; border-left: 4px solid var(--primary); color: #134e4a; }
+    .callout-warning { background: var(--warning-bg); border-left: 4px solid var(--warning); color: #78350f; }
+    .callout-danger { background: var(--danger-bg); border-left: 4px solid var(--danger); color: #881337; }
+    .callout-info { background: var(--info-bg); border-left: 4px solid var(--secondary); color: #075985; }
+    .callout-purple { background: var(--purple-bg); border-left: 4px solid var(--purple); color: #4c1d95; }
+
+    /* Mockup Display Box */
+    .mockup-box {
+      background: #0f172a;
+      color: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+    .mockup-title {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Tooltip Demonstration */
+    .tooltip-tag {
+      position: relative;
+      border-bottom: 1px dashed #2dd4bf;
+      cursor: help;
+      display: inline-block;
+      color: #5eead4;
+      font-weight: 700;
+    }
+    .tooltip-tag::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #020617;
+      color: #f8fafc;
+      border: 1px solid #2dd4bf;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 50;
+      pointer-events: none;
+    }
+    .tooltip-tag:hover::after {
+      opacity: 1;
+      visibility: visible;
+      bottom: 135%;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin: 18px 0;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    /* Feature Featurette Cards */
+    .feat-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      background: #f8fafc;
+    }
+    .feat-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .feat-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* Tables */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .info-table th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+    .info-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .info-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    /* Severity Badges */
+    .badge-crit { background: #ffe4e6; color: #9f1239; border: 1px solid #f43f5e; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 11px; }
+    .badge-high { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 11px; }
+    .badge-med { background: #e0f2fe; color: #075985; border: 1px solid #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 11px; }
+
+    /* SOP Steps Flow */
+    .sop-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .sop-box {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .sop-num {
+      background: var(--primary);
+      color: white;
+      font-size: 14px;
+      font-weight: 900;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sop-detail h5 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .sop-detail p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* Footer */
+    .doc-footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 12px;
+      color: #94a3b8;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      .top-nav, .btn-nav { display: none; }
+      .page-section { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; }
+      .mockup-box { background: #f1f5f9; color: black; border: 1px solid #cbd5e1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation -->
+  <nav class="top-nav">
+    <div class="brand-group">
+      <div class="brand-logo">BRANTAS</div>
+      <div class="brand-text">
+        <h1>Panduan Operasional Lengkap: Seluruh Modul Sistem</h1>
+        <p>Buku Panduan Pengguna Resmi Kemenkeu & Bappenas</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-nav" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+      <a href="#sop-flow" class="btn-nav">📋 Alur SOP Terpadu</a>
+      <a href="#glosarium" class="btn-nav">📖 Glosarium</a>
+    </div>
+  </nav>
+
+  <!-- Hero Header -->
+  <header class="hero-banner">
+    <div class="hero-wrap">
+      <span class="badge-pill">Dokumentasi Pengguna Aplikasi</span>
+      <h2>Panduan Praktis Penggunaan Platform BRANTAS</h2>
+      <p>
+        Buku panduan lengkap dan mudah dipahami untuk seluruh halaman kerja: dari pemantauan makro, deteksi kebocoran anggaran, eksplorasi peta wilayah, simulasi pergeseran alokasi, hingga evaluasi dampak kebijakan bansos di 514 kabupaten/kota.
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <!-- Quick Navigation Index -->
+    <div class="jump-card">
+      <h3>📑 Daftar Menu Halaman Aplikasi</h3>
+      <ul class="jump-grid">
+        <li>
+          <a href="#halaman-dashboard" class="jump-link">
+            <span class="jump-badge">01</span>
+            <span>Dashboard / Beranda Eksekutif</span>
+          </a>
+        </li>
+        <li>
+          <a href="#halaman-anomali" class="jump-link">
+            <span class="jump-badge">02</span>
+            <span>Deteksi Anomali Fiskal</span>
+          </a>
+        </li>
+        <li>
+          <a href="#halaman-spasial" class="jump-link">
+            <span class="jump-badge">03</span>
+            <span>Peta Spasial & Autokorelasi</span>
+          </a>
+        </li>
+        <li>
+          <a href="#halaman-simulasi" class="jump-link">
+            <span class="jump-badge">04</span>
+            <span>Simulasi & Optimasi Alokasi</span>
+          </a>
+        </li>
+        <li>
+          <a href="#halaman-dampak" class="jump-link">
+            <span class="jump-badge">05</span>
+            <span>Evaluasi Dampak Kebijakan (DiD)</span>
+          </a>
+        </li>
+        <li>
+          <a href="#halaman-laporan" class="jump-link">
+            <span class="jump-badge">06</span>
+            <span>Rekomendasi Kebijakan & Metadata</span>
+          </a>
+        </li>
+        <li>
+          <a href="#fitur-jusi" class="jump-link">
+            <span class="jump-badge">AI</span>
+            <span>Asisten Cerdas JUSI AI</span>
+          </a>
+        </li>
+        <li>
+          <a href="#sop-flow" class="jump-link">
+            <span class="jump-badge">SOP</span>
+            <span>Alur Kerja Terpadu 5 Langkah</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- HALAMAN 1: DASHBOARD / BERANDA -->
+    <!-- ======================================================== -->
+    <section id="halaman-dashboard" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">01</div>
+          <h3 class="page-title">Halaman Dashboard / Beranda Eksekutif</h3>
+        </div>
+        <span class="page-route">Rute: /beranda</span>
+      </div>
+
+      <p>
+        <strong>Halaman Beranda</strong> merupakan pusat komando utama sistem BRANTAS yang dirancang untuk pimpinan kementerian dan analis kebijakan agar dapat memahami kondisi pengentasan kemiskinan dan alokasi anggaran secara nasional dalam waktu kurang dari satu menit.
+      </p>
+
+      <h4>1. Membaca 4 Kartu Indikator Utama (KPI Makro)</h4>
+      <div class="mockup-box">
+        <div class="mockup-title">
+          <span>Contoh Tampilan Angka Dinamis di Layar (Arahkan Mouse ke Angka)</span>
+          <span>Tooltip Hover Aktif</span>
+        </div>
+        <div class="grid-2">
+          <div style="background: #1e293b; padding: 14px; border-radius: 6px;">
+            <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Total Anggaran Perlinsos</div>
+            <div style="font-size: 24px; font-weight: 800; margin: 4px 0;">
+              <span class="tooltip-tag" data-tooltip="Nominal Lengkap: Rp437.676.320.000.000">Rp437.7 T</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">Pagu Anggaran Bantuan Sosial Berjalan</div>
+          </div>
+          <div style="background: #1e293b; padding: 14px; border-radius: 6px;">
+            <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Anggaran Berisiko (Value at Risk)</div>
+            <div style="font-size: 24px; font-weight: 800; margin: 4px 0; color: #fb7185;">
+              <span class="tooltip-tag" data-tooltip="Nominal Lengkap: Rp108.932.390.000.000">Rp108.9 T</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">Potensi Inefisiensi Alokasi & Salah Sasaran</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div>
+          <strong>Aturan Format Angka Dinamis & Tooltip Lengkap:</strong><br>
+          Untuk kenyamanan membaca, angka besar disederhanakan:
+          <strong>&ge; Rp1 Triliun</strong> ditulis dengan singkatan <strong>T</strong> (contoh: <code>Rp437.7 T</code>),
+          <strong>Rp1 Miliar s.d. Rp999 Miliar</strong> disingkat <strong>M</strong> (contoh: <code>Rp80.9 M</code>), dan
+          <strong>di bawah Rp1 Miliar</strong> disingkat <strong>Juta</strong> (contoh: <code>Rp127.9 Juta</code>).<br>
+          <em>Arahkan kursor mouse (hover) ke atas teks angka untuk memunculkan kotak tooltip dengan nominal rupiah lengkap sampai satuan per sen.</em>
+        </div>
+      </div>
+
+      <h4>2. Memilih Sudut Pandang Tampilan (Tab 1 vs Tab 2)</h4>
+      <div class="grid-2">
+        <div class="feat-card" style="border-left: 4px solid var(--secondary);">
+          <div class="feat-title">🗺️ Tab 1: Makro Spasial</div>
+          <p class="feat-desc">
+            Menampilkan <strong>Peta Tematik Indonesia (Leaflet GIS)</strong> dan <strong>Panel Rekomendasi JUSI AI</strong>. Gunakan tab ini untuk melihat sebaran geografis tingkat kemiskinan dan usulan tindakan cepat dari kecerdasan buatan.
+          </p>
+        </div>
+        <div class="feat-card" style="border-left: 4px solid var(--accent);">
+          <div class="feat-title">⚖️ Tab 2: Alokasi & Efisiensi</div>
+          <p class="feat-desc">
+            Menampilkan <strong>Matriks Kuadran 4-Sektor</strong> (Alokasi vs Kemiskinan), <strong>Grafik Trajektori RPJMN 2026</strong>, dan <strong>Top 5 Daerah Prioritas</strong>. Gunakan tab ini saat rapat evaluasi ketepatan alokasi fiskal.
+          </p>
+        </div>
+      </div>
+
+      <h4>3. Fitur Saklar Mode Kiosk / Auto-Cycle 12 Detik</h4>
+      <p>
+        Di pojok kanan atas, nyalakan tombol saklar <em>"Mode Kiosk: 12s Berganti Otomatis"</em> saat Anda menampilkan dashboard pada layar proyektor atau TV Command Center. Layar akan berganti antara Tab Makro dan Tab Alokasi secara mulus setiap 12 detik tanpa intervensi pengguna.
+      </p>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- HALAMAN 2: ANOMALI FISKAL -->
+    <!-- ======================================================== -->
+    <section id="halaman-anomali" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">02</div>
+          <h3 class="page-title">Halaman Deteksi Anomali Fiskal & Kebocoran</h3>
+        </div>
+        <span class="page-route">Rute: /anomali</span>
+      </div>
+
+      <p>
+        <strong>Halaman Anomali Fiskal</strong> berfungsi sebagai radar pengawasan dan audit analitik untuk mendeteksi ketidaksesuaian alokasi bansos di tingkat kabupaten/kota menggunakan model Machine Learning multivariate (ONNX).
+      </p>
+
+      <h4>1. Dua Bentuk Anomali Fiskal Utama</h4>
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">Tipe Anomali</th>
+            <th style="width: 45%;">Definisi Kondisi Riil di Lapangan</th>
+            <th style="width: 30%;">Rekomendasi Tindakan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: #be123c;">Alokasi Kurang (Under-allocation)</strong></td>
+            <td>Daerah dengan jumlah warga miskin tinggi namun mendapatkan alokasi pagu belanja bansos sangat minim.</td>
+            <td>Segera prioritaskan penambahan pagu belanja pada revisi APBN berikutnya.</td>
+          </tr>
+          <tr>
+            <td><strong style="color: #d97706;">Alokasi Berlebih (Over-allocation)</strong></td>
+            <td>Daerah dengan tingkat kemiskinan rendah namun mendapatkan kucuran bansos yang jauh melebihi kebutuhan riil.</td>
+            <td>Lakukan audit verifikasi data dan alihkan surplus pagu ke daerah yang membutuhkan.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>2. Membaca Tingkat Keparahan Anomali</h4>
+      <p>Setiap temuan anomali ditandai dengan badge tingkat risiko:</p>
+      <ul>
+        <li><span class="badge-crit">KRITIS</span> : Deviasi anggaran sangat ekstrem, potensi inefisiensi di atas puluhan miliar rupiah. Wajib ditindaklanjuti segera.</li>
+        <li><span class="badge-high">TINGGI</span> : Deviasi di atas ambang batas toleransi normal (&plusmn;25%), membutuhkan perhatian khusus tim verifikasi.</li>
+        <li><span class="badge-med">SEDANG</span> : Deviasi ringan yang perlu dipantau secara berkala pada triwulan berikutnya.</li>
+      </ul>
+
+      <h4>3. Deteksi Exclusion Error (Warga Miskin Belum Menerima Bansos)</h4>
+      <p>
+        Bagian bawah halaman menampilkan daftar estimasi jumlah keluarga miskin ekstrem di tiap kabupaten yang belum ter-cover oleh bansos pusat (exclusion error). Data ini menjadi dasar validasi bagi Kemensos dalam pemutakhiran DTKS (Data Terpadu Kesejahteraan Sosial).
+      </p>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- HALAMAN 3: PETA SPASIAL -->
+    <!-- ======================================================== -->
+    <section id="halaman-spasial" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">03</div>
+          <h3 class="page-title">Halaman Peta Spasial & Autokorelasi Wilayah</h3>
+        </div>
+        <span class="page-route">Rute: /peta-spasial</span>
+      </div>
+
+      <p>
+        <strong>Halaman Peta Spasial</strong> menyajikan analisis spasial geografis mendalam dengan autokorelasi wilayah (Moran's I) untuk melihat fenomena pengelompokan (*spatial clustering*) kemiskinan di 514 kabupaten/kota.
+      </p>
+
+      <h4>1. Memahami 4 Klaster Spasial LISA (Local Indicators of Spatial Association)</h4>
+      <div class="grid-2">
+        <div class="feat-card" style="background: #fff1f2; border-color: #fda4af;">
+          <div class="feat-title" style="color: #9f1239;">🔴 Klaster High-High (Kantong Kemiskinan)</div>
+          <p class="feat-desc" style="color: #881337;">
+            Daerah dengan kemiskinan tinggi yang dikelilingi oleh daerah tetangga yang juga berpenghasilan rendah. <em>Memerlukan pendekatan intervensi koridor terpadu lintas batas daerah.</em>
+          </p>
+        </div>
+        <div class="feat-card" style="background: #ecfdf5; border-color: #6ee7b7;">
+          <div class="feat-title" style="color: #065f46;">🟢 Klaster Low-Low (Kawasan Makmur)</div>
+          <p class="feat-desc" style="color: #064e3b;">
+            Daerah berpenghasilan baik yang bertetangga dengan kawasan berdaya beli tinggi. <em>Prioritas program pemeliharaan ekonomi dan penciptaan lapangan kerja mandiri.</em>
+          </p>
+        </div>
+        <div class="feat-card" style="background: #fefce8; border-color: #fde047;">
+          <div class="feat-title" style="color: #854d0e;">🟡 Klaster High-Low (Pulau Kemiskinan)</div>
+          <p class="feat-desc" style="color: #713f12;">
+            Daerah miskin yang berada di tengah-tengah kawasan maju. <em>Potensi kebocoran ekonomi (*spillover leak*) atau ketimpangan akses layanan publik lokal.</em>
+          </p>
+        </div>
+        <div class="feat-card" style="background: #f0f9ff; border-color: #7dd3fc;">
+          <div class="feat-title" style="color: #075985;">🔵 Klaster Low-High (Kawasan Penyangga)</div>
+          <p class="feat-desc" style="color: #0c4a6e;">
+            Daerah relatif maju yang berada di tengah kawasan miskin. <em>Dapat difungsikan sebagai pusat pertumbuhan ekonomi regional (*growth hub*).</em>
+          </p>
+        </div>
+      </div>
+
+      <h4>2. Fitur Interaktif pada Peta:</h4>
+      <ul>
+        <li><strong>Pemilihan Basemap Kartografi:</strong> Anda dapat mengganti latar peta antara tampilan <em>Topografi</em>, <em>Citra Satelit</em>, <em>Dark Mode</em>, atau <em>OpenStreetMap</em> standar melalui tombol kontrol di sisi kanan atas peta.</li>
+        <li><strong>Beralih Mode Tampilan (Peta vs Tabel):</strong> Klik tombol <em>"Tabel Data"</em> untuk melihat seluruh data angka statistik 514 daerah dalam bentuk tabel yang dapat diurutkan berdasarkan persentase kemiskinan tertinggi.</li>
+        <li><strong>Penyaringan Provinsi & Unduh Data:</strong> Pilih nama provinsi pada menu dropdown untuk memperbesar otomatis ke provinsi tersebut, dan klik tombol <em>"Ekspor CSV"</em> untuk mengunduh dataset spasial ke komputer Anda.</li>
+      </ul>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- HALAMAN 4: SIMULASI ALOKASI -->
+    <!-- ======================================================== -->
+    <section id="halaman-simulasi" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">04</div>
+          <h3 class="page-title">Halaman Simulasi & Optimasi Alokasi Anggaran</h3>
+        </div>
+        <span class="page-route">Rute: /simulasi-alokasi</span>
+      </div>
+
+      <p>
+        <strong>Halaman Simulasi Alokasi</strong> adalah laboratorium kebijakan anggaran interaktif. Di sini pengguna dapat bereksperimen menggeser parameter formula alokasi bansos berbasis Indeks Kebutuhan Wilayah (IKW) dan melihat langsung dampaknya terhadap pagu belanja 514 daerah.
+      </p>
+
+      <h4>1. Parameter Slider yang Dapat Disesuaikan</h4>
+      <div class="grid-2">
+        <div class="feat-card">
+          <div class="feat-title">🎚️ Bobot Kemiskinan (Poverty Weight)</div>
+          <p class="feat-desc">
+            Mengatur seberapa besar persentase jumlah penduduk miskin memengaruhi besaran alokasi dana (rentang slider: 10% hingga 80%). Semakin tinggi bobot ini, semakin besar anggaran yang dialihkan ke daerah dengan populasi miskin tinggi.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">🛡️ Batas Toleransi Cap (Cap Tolerance)</div>
+          <p class="feat-desc">
+            Batas pengaman agar perubahan anggaran suatu daerah tidak terlalu drastis (&plusmn;10% hingga &plusmn;50%). Menjaga kestabilan fiskal daerah agar tidak terjadi gejolak anggaran belanja sosial yang mendadak.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">✨</div>
+        <div>
+          <strong>Tombol Pintar "Bobot Ideal":</strong><br>
+          Jika Anda ragu menentukan angka parameter, cukup klik tombol <strong>"Bobot Ideal"</strong>. Sistem BRANTAS akan otomatis menyetel <strong>Bobot Kemiskinan ke 45%</strong> dan <strong>Batas Cap ke &plusmn;20%</strong> (rekomendasi berbasis simulasi machine learning yang terbukti menghasilkan penurunan kemiskinan paling optimal dengan risiko fiskal minimal).
+        </div>
+      </div>
+
+      <h4>2. Membaca Ringkasan Dampak Fiskal</h4>
+      <p>Setelah simulasi dijalankan, perhatikan kartu ringkasan dampak:</p>
+      <ul>
+        <li><strong>Daerah Bertambah (+Rp):</strong> Jumlah kabupaten/kota yang mendapatkan tambahan alokasi dan total nominal kenaikan anggarannya.</li>
+        <li><strong>Daerah Berkurang (-Rp):</strong> Jumlah kabupaten/kota yang anggarannya diefisiensikan dan total nilai efisiensi yang berhasil dialihkan.</li>
+        <li><strong>Daerah Tetap:</strong> Daerah yang tidak mengalami perubahan alokasi secara signifikan.</li>
+      </ul>
+
+      <h4>3. Menyimpan & Mengelola Skenario</h4>
+      <p>
+        Ketik nama skenario pada kolom isian (contoh: <em>"Skenario APBN-P 2026 Opsi B"</em>) lalu klik <strong>"Simpan Skenario"</strong>. Skenario yang tersimpan akan muncul di daftar riwayat dan dapat Anda buka kembali sewaktu-waktu untuk dipresentasikan dalam rapat anggaran.
+      </p>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- HALAMAN 5: DAMPAK KEBIJAKAN -->
+    <!-- ======================================================== -->
+    <section id="halaman-dampak" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">05</div>
+          <h3 class="page-title">Halaman Evaluasi Dampak Kebijakan (Analisis Kausal)</h3>
+        </div>
+        <span class="page-route">Rute: /dampak</span>
+      </div>
+
+      <p>
+        <strong>Halaman Dampak Kebijakan</strong> menjawab pertanyaan penting dari Menteri Keuangan atau Dirjen: <em>"Apakah tambahan triliunan rupiah bansos yang disalurkan benar-benar menurunkan angka kemiskinan secara nyata, atau kemiskinan turun semata-mata karena pertumbuhan ekonomi alami?"</em>
+      </p>
+
+      <h4>1. Metode Ilmiah Difference-in-Differences (DiD)</h4>
+      <p>
+        Sistem BRANTAS menerapkan metode ekonometrika standar internasional <strong>Difference-in-Differences (DiD)</strong> dengan membandingkan laju penurunan kemiskinan antara:
+      </p>
+      <ul>
+        <li><strong>Kelompok Perlakuan (Daerah Prioritas):</strong> Kabupaten/kota yang menerima tambahan pagu alokasi bansos khusus.</li>
+        <li><strong>Kelompok Pembanding (Daerah Kontrol):</strong> Kabupaten/kota dengan karakteristik serupa yang tidak menerima tambahan alokasi khusus.</li>
+      </ul>
+
+      <h4>2. Membaca 4 Indikator Eksekutif pada Halaman Dampak:</h4>
+      <div class="grid-2">
+        <div class="feat-card">
+          <div class="feat-title">⚡ Laju Penurunan Kemiskinan Bersih</div>
+          <p class="feat-desc">
+            Nilai persentase penurunan kemiskinan yang 100% murni dihasilkan oleh intervensi anggaran bansos (contoh: <code>-1.45%</code>). Artinya daerah penerima intervensi mengalami penurunan kemiskinan 1.45% lebih cepat dibanding daerah lain.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">🎯 Perkiraan Rentang Dampak (95% CI)</div>
+          <p class="feat-desc">
+            Rentang batas bawah dan batas atas efektivitas kebijakan (contoh: <code>-1.82% s.d. -1.08%</code>). Membuktikan bahwa dampak positif bantuan sosial konsisten terjadi di lapangan.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">🔒 Tingkat Kepastian Hasil (p-value)</div>
+          <p class="feat-desc">
+            Derajat validitas statistik (contoh: <code>Keyakinan 99% / p &lt; 0.001</code>). Menjamin bahwa temuan evaluasi ini sahih secara metodologis dan bukan akibat kebetulan data statistik semata.
+          </p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">📊 Jumlah Data Pengamatan (N Observasi)</div>
+          <p class="feat-desc">
+            Total baris pengamatan panel data yang digunakan (514 kabupaten/kota dikalikan deret waktu tahun 2020 hingga 2026).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- HALAMAN 6: REKOMENDASI KEBIJAKAN & METADATA -->
+    <!-- ======================================================== -->
+    <section id="halaman-laporan" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">06</div>
+          <h3 class="page-title">Halaman Rekomendasi Kebijakan & Metadata</h3>
+        </div>
+        <span class="page-route">Rute: /laporan</span>
+      </div>
+
+      <p>
+        <strong>Halaman Rekomendasi Kebijakan & Metadata</strong> menyediakan dokumen resmi siap pakai yang digenerate langsung dari sistem BRANTAS untuk keperluan bahan rapat pimpinan, nota dinas, atau lampiran resmi dokumen perencanaan anggaran.
+      </p>
+
+      <h4>3 Berkas Eksekutif yang Dapat Diunduh:</h4>
+      <div class="grid-3">
+        <div class="feat-card" style="border-top: 4px solid #be123c;">
+          <div class="feat-title">📄 Rekomendasi Kebijakan (PDF)</div>
+          <p class="feat-desc">
+            Naskah rekomendasi kebijakan resmi BRANTAS lengkap dengan kop aplikasi (tanpa embel-embel kementerian), narasi yang mudah dipahami, peta sebaran wilayah, grafik evaluasi, tabel lengkap, rekomendasi aksi 2026, serta tanggal dan waktu generate dalam zona waktu WIB.
+          </p>
+        </div>
+        <div class="feat-card" style="border-top: 4px solid #059669;">
+          <div class="feat-title">📊 Data Rekomendasi Alokasi Anggaran (Excel .xlsx)</div>
+          <p class="feat-desc">
+            Tabel data spreadsheet alokasi anggaran seluruh 38 provinsi hasil optimasi berbasis IKW format Microsoft Excel (.xlsx) dengan nominal Rupiah lengkap, pemisah ribuan, pergeseran anggaran, dan jumlah penduduk rentan.
+          </p>
+        </div>
+        <div class="feat-card" style="border-top: 4px solid #0284c7;">
+          <div class="feat-title">📑 Daftar Temuan Ketimpangan Anggaran (Excel .xlsx)</div>
+          <p class="feat-desc">
+            Tabel data spreadsheet temuan ketimpangan alokasi fiskal (*under-allocation* dan *over-allocation*) format Microsoft Excel (.xlsx) dengan nominal nilai risiko finansial Rupiah lengkap dan uraian implikasi kebijakan.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- ASISTEN CERDAS JUSI AI -->
+    <!-- ======================================================== -->
+    <section id="fitur-jusi" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num" style="background: linear-gradient(135deg, #7c3aed, #0284c7);">AI</div>
+          <h3 class="page-title">Asisten Cerdas JUSI AI (Panduan Membaca Rekomendasi)</h3>
+        </div>
+        <span class="page-route">Fitur Lintas Modul Platform</span>
+      </div>
+
+      <p>
+        <strong>JUSI AI (Justified Unified Spatial Intelligence)</strong> adalah mesin analitik cerdas yang tertanam di seluruh sistem BRANTAS. JUSI bertugas merangkum ribuan parameter data kompleks menjadi narasi rekomendasi yang mudah dieksekusi.
+      </p>
+
+      <div class="callout callout-purple">
+        <div class="callout-icon">🤖</div>
+        <div>
+          <strong>3 Rekomendasi Tindakan Cepat (Quick Wins) yang Dihasilkan AI:</strong>
+          <ol style="margin-top: 8px; margin-bottom: 0;">
+            <li><strong>Rekomendasi Realokasi Pagu:</strong> Usulan pemindahan anggaran dari daerah surplus ke daerah kantong kemiskinan (contoh: relokasi Rp12.4 Triliun ke koridor Nusa Tenggara dan Maluku-Papua).</li>
+            <li><strong>Rekomendasi Penertiban Exclusion Error:</strong> Usulan pemutakhiran data penerima bansos pada 14 kabupaten prioritas yang memiliki kesenjangan pendaftaran warga miskin tertinggi.</li>
+            <li><strong>Rekomendasi Pengamanan Target RPJMN:</strong> Tindakan penyesuaian bobot kemiskinan menjadi 45% agar garis trajektori kemiskinan nasional mencapai target 6.5% – 7.5% di tahun 2026.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- ALUR SOP TERPADU LINTAS HALAMAN -->
+    <!-- ======================================================== -->
+    <section id="sop-flow" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">SOP</div>
+          <h3 class="page-title">Standar Operasional Prosedur (SOP) Analisis Terpadu 5 Langkah</h3>
+        </div>
+        <span class="page-route">Alur Kerja Harian Analis</span>
+      </div>
+
+      <p>
+        Ketika menjalankan analisis kebijakan anggaran perlindungan sosial, ikuti alur kerja berurutan antar-halaman berikut:
+      </p>
+
+      <div class="sop-flow">
+        <div class="sop-box">
+          <div class="sop-num">1</div>
+          <div class="sop-detail">
+            <h5>Langkah 1: Pantau Situasi Makro di Dashboard (/beranda)</h5>
+            <p>Buka halaman Beranda. Periksa kartu <em>Total Anggaran</em> dan <em>Anggaran Berisiko (VaR)</em>. Arahkan mouse untuk melihat nominal lengkap. Baca 3 butir rekomendasi cepat dari JUSI AI di sisi kanan.</p>
+          </div>
+        </div>
+
+        <div class="sop-box">
+          <div class="sop-num">2</div>
+          <div class="sop-detail">
+            <h5>Langkah 2: Audit Daerah Kritis di Halaman Anomali (/anomali)</h5>
+            <p>Klik menu <strong>Anomali Fiskal</strong>. Cari kabupaten/kota yang berstatus <em>Alokasi Kurang (Kritis)</em>. Catat daerah mana saja yang mengalami defisit anggaran bansos paling parah.</p>
+          </div>
+        </div>
+
+        <div class="sop-box">
+          <div class="sop-num">3</div>
+          <div class="sop-detail">
+            <h5>Langkah 3: Konfirmasi Keterkaitan Wilayah di Peta Spasial (/peta-spasial)</h5>
+            <p>Buka menu <strong>Peta Spasial</strong>. Identifikasi apakah daerah kritis tersebut tergabung dalam klaster merah <em>High-High</em> bersama kabupaten tetangganya untuk merancang penanganan koridor terpadu.</p>
+          </div>
+        </div>
+
+        <div class="sop-box">
+          <div class="sop-num">4</div>
+          <div class="sop-detail">
+            <h5>Langkah 4: Jalankan Simulasi Alokasi Anggaran Baru (/simulasi-alokasi)</h5>
+            <p>Buka menu <strong>Simulasi Alokasi</strong>. Tekan tombol <strong>"Bobot Ideal"</strong> (Bobot 45%, Cap 20%). Lihat berapa puluh triliun pagu yang berhasil dialihkan ke daerah miskin, lalu simpan skenario.</p>
+          </div>
+        </div>
+
+        <div class="sop-box">
+          <div class="sop-num">5</div>
+          <div class="sop-detail">
+            <h5>Langkah 5: Cetak Rekomendasi Kebijakan & Unduh CSV di Halaman Rekomendasi (/laporan)</h5>
+            <p>Buka menu <strong>Rekomendasi</strong>. Unduh berkas <em>Rekomendasi Kebijakan PDF</em> dan <em>Simulasi Alokasi CSV</em> sebagai bahan lampiran rapat kerja pimpinan.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- GLOSARIUM LENGKAP -->
+    <!-- ======================================================== -->
+    <section id="glosarium" class="page-section">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-num">📖</div>
+          <h3 class="page-title">Kamus Istilah Umum (Glosarium)</h3>
+        </div>
+        <span class="page-route">Definisi Istilah Platform</span>
+      </div>
+
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">Istilah</th>
+            <th style="width: 75%;">Penjelasan dengan Bahasa Sederhana</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Perlinsos</strong></td>
+            <td>Perlindungan Sosial; pos anggaran belanja negara (APBN) yang dikhususkan untuk membantu masyarakat miskin melalui bansos tunai, sembako, dan beasiswa pendidikan.</td>
+          </tr>
+          <tr>
+            <td><strong>Value at Risk (VaR)</strong></td>
+            <td>Estimasi nilai uang anggaran yang berisiko terbuang atau kurang berdampak akibat penyaluran yang tidak tepat sasaran ke wilayah yang sebenarnya sudah mampu.</td>
+          </tr>
+          <tr>
+            <td><strong>Exclusion Error</strong></td>
+            <td>Kesalahan pengecualian; kondisi di mana warga yang benar-benar miskin dan berhak tetapi belum terdaftar dalam sistem penerima bantuan sosial.</td>
+          </tr>
+          <tr>
+            <td><strong>Moran's I</strong></td>
+            <td>Ukuran statistik (nilai -1 hingga +1) untuk mendeteksi apakah daerah-daerah miskin cenderung mengelompok di wilayah tertentu atau tersebar merata secara acak.</td>
+          </tr>
+          <tr>
+            <td><strong>LISA Cluster</strong></td>
+            <td>Pengelompokan spasial lokal (High-High, Low-Low, dsb.) yang menunjukkan hubungan tingkat kesejahteraan suatu daerah dengan daerah di sekelilingnya.</td>
+          </tr>
+          <tr>
+            <td><strong>Indeks Kebutuhan Wilayah (IKW)</strong></td>
+            <td>Skor gabungan tingkat urgensi suatu daerah berdasarkan persentase kemiskinan, jumlah penduduk miskin, dan Indeks Pembangunan Manusia (IPM).</td>
+          </tr>
+          <tr>
+            <td><strong>Batas Toleransi Cap</strong></td>
+            <td>Ambang batas maksimum kenaikan atau penurunan anggaran suatu daerah agar keuangan daerah tidak mengalami kejutan drastis saat ada formula baru.</td>
+          </tr>
+          <tr>
+            <td><strong>Difference-in-Differences (DiD)</strong></td>
+            <td>Metode evaluasi statistik untuk membandingkan laju perkembangan kelompok penerima program dan kelompok pembanding agar dampak program terbukti secara ilmiah.</td>
+          </tr>
+          <tr>
+            <td><strong>RPJMN</strong></td>
+            <td>Rencana Pembangunan Jangka Menengah Nasional; dokumen target kerja 5 tahunan pemerintah di mana target kemiskinan 2026 dipatok di rentang 6.5% – 7.5%.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Footer -->
+    <footer class="doc-footer">
+      <p><strong>Platform BRANTAS &copy; 2026</strong> — Kementerian Keuangan Republik Indonesia & Badan Perencanaan Pembangunan Nasional (Bappenas)</p>
+      <p style="margin-top: 4px;">Panduan ini disusun untuk standarisasi operasional dan optimalisasi pemanfaatan platform analitik intelijen fiskal.</p>
+    </footer>
+
+  </div>
+
+</body>
+</html>
