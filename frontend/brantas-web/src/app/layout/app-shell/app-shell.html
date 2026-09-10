@@ -171,7 +171,11 @@
     }
 
     <!-- Main Dynamic Content Outlet -->
-    <main class="content-area">
+    <main
+      class="workspace"
+      [class.workspace-dashboard]="isDashboard()"
+      [class.workspace-kiosk]="kiosk.isKioskActive()"
+    >
       <router-outlet />
     </main>
   </div>
