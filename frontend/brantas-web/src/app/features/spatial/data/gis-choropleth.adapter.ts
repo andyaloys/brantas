@@ -294,6 +294,29 @@ export class GisChoroplethAdapter {
     this.updateLabelsVisibility();
   }
 
+  zoomToRegion(regionName: string): void {
+    if (!this.map || !regionName) return;
+    const layer = this.regencyLayerMap.get(regionName.toLowerCase());
+    if (layer && typeof layer.getBounds === 'function') {
+      const bounds = layer.getBounds();
+      if (bounds.isValid()) {
+        this.map.fitBounds(bounds, {
+          padding: [60, 60],
+          maxZoom: 9,
+          animate: true
+        });
+        layer.setStyle({
+          weight: 2.5,
+          color: '#0f172a',
+          fillOpacity: 0.95
+        });
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+          layer.bringToFront();
+        }
+      }
+    }
+  }
+
   invalidateSize(): void {
     if (this.map) {
       setTimeout(() => {

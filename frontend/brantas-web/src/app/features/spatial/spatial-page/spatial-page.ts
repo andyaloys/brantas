@@ -204,6 +204,7 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.mapAdapter.invalidateSize();
       this.mapAdapter.filterAndZoomProvince(region.parent);
+      this.mapAdapter.zoomToRegion(region.name);
     }, 60);
   }
 
