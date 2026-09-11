@@ -124,28 +124,18 @@
       </header>
       
       <div class="chart-container" aria-label="Grafik Tren Dinamika Penurunan Kemiskinan">
-        @for (point of data.eventStudy; track point.year) {
-          <div class="event-column">
-            <div class="bar-track">
-              <div
-                class="bar-fill"
-                [class.post]="point.year >= data.treatmentStartYear"
-                [style.height.%]="width(point.effectPercentagePoints)"
-                [attr.title]="'Tahun ' + point.year + ': ' + point.effectPercentagePoints.toFixed(2) + '%'">
-              </div>
-            </div>
-            <span class="point-val">{{ point.effectPercentagePoints.toFixed(2) }}%</span>
-            <span class="point-year" [class.post-year]="point.year >= data.treatmentStartYear">{{ point.year }}</span>
-          </div>
-        }
+        <div #eventStudyChartRef class="echarts-event-study"></div>
       </div>
 
       <div class="chart-legend-bar">
         <div class="legend-item">
-          <span class="dot-teal"></span> Sebelum Program Berjalan (Kondisi Awal / Garis Dasar)
+          <span class="dot-teal"></span> Sebelum Program (Garis Dasar 2020–2023)
         </div>
         <div class="legend-item">
-          <span class="dot-rose"></span> Setelah Program Berjalan (Dampak Nyata Intervensi APBN)
+          <span class="dot-rose"></span> Setelah Program (Dampak Nyata APBN 2024–2026)
+        </div>
+        <div class="legend-item">
+          <span class="line-baseline"></span> Garis Dasar Netral (0.00%)
         </div>
       </div>
     </article>
@@ -163,9 +153,40 @@
       </header>
       
       <div class="evidence-body">
-        <p class="narrative">
-          Sebanyak <strong>{{ data.treatedRegionCount }} provinsi prioritas</strong> menerima tambahan alokasi bantuan sosial berbasis Indeks Kerentanan Wilayah (IKW) sejak Tahun Anggaran <strong>{{ data.treatmentStartYear }}</strong>. Hasil evaluasi membuktikan bahwa tingkat kemiskinan di provinsi-provinsi tersebut turun <strong>{{ data.effectPercentagePoints.toFixed(2) }}%</strong> lebih cepat dibandingkan provinsi pembanding yang tidak menerima alokasi tambahan.
-        </p>
+        <div class="narrative-box">
+          <p class="narrative-text">
+            Sebanyak <strong>{{ data.treatedRegionCount }} provinsi prioritas</strong> ditetapkan menerima intervensi belanja bantuan sosial afirmatif (+35% di atas pagu dasar) sejak Tahun Anggaran <strong>{{ data.treatmentStartYear }}</strong>. Penetapan wilayah tersebut didasarkan pada peringkat teratas <strong>Indeks Kerentanan Wilayah (IKW)</strong> sebagai tindak lanjut mandat <em>Instruksi Presiden No. 4 Tahun 2022 tentang Percepatan Penghapusan Kemiskinan Ekstrem</em>.
+          </p>
+          <p class="narrative-text">
+            Hasil evaluasi membuktikan bahwa laju penurunan kemiskinan di provinsi prioritas tercatat <strong>{{ data.effectPercentagePoints.toFixed(2) }}% poin lebih cepat</strong> dibandingkan 28 provinsi pembanding dengan tren karakteristik awal yang setara.
+          </p>
+        </div>
+
+        <div class="policy-meta-grid">
+          <div class="meta-card">
+            <div class="meta-card-head">
+              <i class="pi pi-database text-teal"></i>
+              <span class="meta-title">Sumber Data Resmi</span>
+            </div>
+            <ul class="meta-list">
+              <li><strong>Kemiskinan &amp; Sosial:</strong> Susenas BPS (2020–2026)</li>
+              <li><strong>Realisasi Anggaran:</strong> LKPP &amp; DIPA Bansos Kemenkeu RI</li>
+              <li><strong>Risiko Bencana:</strong> Indeks Risiko Bencana (IRBI) BNPB</li>
+            </ul>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-card-head">
+              <i class="pi pi-book text-indigo"></i>
+              <span class="meta-title">Dasar Regulasi &amp; Kriteria</span>
+            </div>
+            <ul class="meta-list">
+              <li><strong>Regulasi:</strong> Inpres No. 4/2022 &amp; UU HKPD No. 1/2022</li>
+              <li><strong>Kriteria Wilayah:</strong> Desil tertinggi komposit IKW 6 indikator</li>
+              <li><strong>Skema Belanja:</strong> Alokasi afirmatif perlindungan sosial terpadu</li>
+            </ul>
+          </div>
+        </div>
 
         <div class="stat-metrics-list">
           <div class="stat-item">
