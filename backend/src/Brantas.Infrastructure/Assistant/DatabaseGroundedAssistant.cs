@@ -13,6 +13,8 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
     private static List<RegionLookup>? CachedRegions;
     private static readonly SemaphoreSlim CacheLock = new(1, 1);
 
+    public const string GentleRefusalMessage = "Mohon maaf, saya tidak bisa membantu untuk hal itu. Saya ditugaskan khusus sebagai Juru Bantuan Sosial Interaktif dengan ruang lingkup analisis data kemiskinan, alokasi anggaran APBN/TKDD, dan rekomendasi kebijakan pada sistem BRANTAS. Terima kasih.";
+
     public async Task<AssistantResponse> AskAsync(string question, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(question))
@@ -25,17 +27,18 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
             await RecordAuditAsync(question, "Rejected", null, cancellationToken);
             throw new InvalidOperationException("Pertanyaan tidak dapat diproses karena memuat pola identitas pribadi.");
         }
-        if (OutOfDomainPattern().IsMatch(question))
-        {
-            await RecordAuditAsync(question, "Rejected", null, cancellationToken);
-            throw new InvalidOperationException("JUSI hanya melayani pertanyaan tentang data kemiskinan, anggaran sosial, anomali, peta spasial, formula alokasi, dan evaluasi kebijakan BRANTAS.");
-        }
 
         var version = await database.DatasetVersions
             .Where(item => item.Status == DatasetStatus.Completed)
             .OrderByDescending(item => item.IngestedAt)
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw new InvalidOperationException("Dataset aktif belum tersedia.");
+
+        if (OutOfDomainPattern().IsMatch(question))
+        {
+            await RecordAuditAsync(question, "GentleRefusal", version.Id, cancellationToken);
+            return new AssistantResponse(GentleRefusalMessage, "Guardrail Sistem BRANTAS", version.Id.ToString(), version.Period, true);
+        }
 
         var normalized = question.ToLowerInvariant();
 
@@ -63,9 +66,14 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
         {
             answer = await AllocationAnswerAsync(version.Id, cancellationToken);
         }
-        else
+        else if (IsBrantasDomainQuestion(normalized))
         {
             answer = await PovertyAnswerAsync(version.Id, cancellationToken);
+        }
+        else
+        {
+            await RecordAuditAsync(question, "GentleRefusal", version.Id, cancellationToken);
+            return new AssistantResponse(GentleRefusalMessage, "Guardrail Sistem BRANTAS", version.Id.ToString(), version.Period, true);
         }
 
         EnsureSafeResponse(answer);
@@ -258,7 +266,43 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
     [GeneratedRegex("\\b[a-fA-F0-9]{64}\\b")]
     private static partial Regex IdentityHashPattern();
 
-    [GeneratedRegex("politik praktis|partai politik|opini pribadi|hiburan|saran hukum", RegexOptions.IgnoreCase)]
+    private static bool IsBrantasDomainQuestion(string normalized)
+    {
+        return normalized.Contains("kemiskinan") ||
+               normalized.Contains("miskin") ||
+               normalized.Contains("penduduk") ||
+               normalized.Contains("bansos") ||
+               normalized.Contains("anggaran") ||
+               normalized.Contains("pagu") ||
+               normalized.Contains("alokasi") ||
+               normalized.Contains("anomali") ||
+               normalized.Contains("formula") ||
+               normalized.Contains("ikw") ||
+               normalized.Contains("bobot") ||
+               normalized.Contains("dampak") ||
+               normalized.Contains("kebijakan") ||
+               normalized.Contains("did") ||
+               normalized.Contains("evaluasi") ||
+               normalized.Contains("bencana") ||
+               normalized.Contains("irbi") ||
+               normalized.Contains("ipm") ||
+               normalized.Contains("pdrb") ||
+               normalized.Contains("fiskal") ||
+               normalized.Contains("apbn") ||
+               normalized.Contains("tkdd") ||
+               normalized.Contains("brantas") ||
+               normalized.Contains("rekomendasi") ||
+               normalized.Contains("indikator") ||
+               normalized.Contains("provinsi") ||
+               normalized.Contains("kabupaten") ||
+               normalized.Contains("kota") ||
+               normalized.Contains("wilayah") ||
+               normalized.Contains("bantuan sosial") ||
+               normalized.Contains("dtks") ||
+               normalized.Contains("regsosek");
+    }
+
+    [GeneratedRegex(@"(politik praktis|partai politik|pemilu|pilpres|caleg|capres|menteri|presiden luar negeri|siapa presiden|hiburan|film|bioskop|lagu|musik|selebriti|artis|gosip|resep|masak|kuliner|olahraga|sepak bola|klub bola|zodiak|ramalan|lelucon|humor|cerpen|puisi|saran hukum|saran medis|resep obat|dokter|game|gaming|pariwisata|cuaca hari ini|chord gitar|lirik lagu|sinopsis)", RegexOptions.IgnoreCase)]
     private static partial Regex OutOfDomainPattern();
 }
 

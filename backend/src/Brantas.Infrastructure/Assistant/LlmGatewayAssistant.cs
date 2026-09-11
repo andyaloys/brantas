@@ -67,6 +67,8 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
         }
     }
 
+    public const string GentleRefusalMessage = "Mohon maaf, saya tidak bisa membantu untuk hal itu. Saya ditugaskan khusus sebagai Juru Bantuan Sosial Interaktif dengan ruang lingkup analisis data kemiskinan, alokasi anggaran APBN/TKDD, dan rekomendasi kebijakan pada sistem BRANTAS. Terima kasih.";
+
     public async Task<AssistantResponse> AskAsync(string question, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(question))
@@ -79,11 +81,6 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
             await RecordAuditAsync(question, "Rejected", null, cancellationToken);
             throw new InvalidOperationException("Pertanyaan tidak dapat diproses karena memuat pola identitas pribadi.");
         }
-        if (OutOfDomainPattern().IsMatch(question))
-        {
-            await RecordAuditAsync(question, "Rejected", null, cancellationToken);
-            throw new InvalidOperationException("JUSI hanya melayani pertanyaan tentang data kemiskinan, anggaran sosial, anomali, peta spasial, formula alokasi, dan evaluasi kebijakan BRANTAS.");
-        }
 
         var version = await _database.DatasetVersions
             .Where(item => item.Status == DatasetStatus.Completed)
@@ -93,6 +90,18 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
         if (version is null)
         {
             throw new InvalidOperationException("Dataset aktif belum tersedia.");
+        }
+
+        // Strict Guardrail: Pertanyaan di luar domain ditolak secara sopan (Gentle Refusal)
+        if (OutOfDomainPattern().IsMatch(question))
+        {
+            await RecordAuditAsync(question, "GentleRefusal", version.Id, cancellationToken);
+            return new AssistantResponse(
+                GentleRefusalMessage,
+                "Guardrail Sistem BRANTAS",
+                version.Id.ToString(),
+                version.Period,
+                true);
         }
 
         if (string.IsNullOrWhiteSpace(_options.ApiKey))
@@ -159,6 +168,11 @@ PANDUAN UTAMA MENJAWAB (WAJIB DIIKUTI):
      * Butir 2 (Pengentasan Kemiskinan Terpadu): Padukan bansos reguler (PKH/Sembako) dengan program padat karya produktif dan pemutakhiran DTKS daerah agar tepat sasaran.
 5. PENEKANAN KATA KUNCI:
    - Gunakan format **tebal** untuk angka, persentase, nominal anggaran, nama daerah, dan status risiko agar informasi pokok langsung terbaca sekilas.
+6. SISTEM GUARDRAIL KETAT & SIKAP PENOLAKAN OTOMATIS (GENTLE REFUSAL):
+   - PEMBATASAN RUANG LINGKUP: Anda adalah asisten khusus yang DIBATASI HANYA untuk menjawab topik seputar proyek BRANTAS, meliputi: analisis data kemiskinan BPS (tingkat kemiskinan, kedalaman P1, keparahan P2, IPM, PDRB per kapita), alokasi anggaran belanja perlindungan sosial APBN & TKDD, anomali fiskal daerah, risiko bencana alam dan Perlindungan Sosial Adaptif (ASP / IRBI BNPB), simulasi alokasi IKW, evaluasi kausalitas (DiD), dan rekomendasi kebijakan resmi BRANTAS.
+   - SIKAP PENOLAKAN OTOMATIS (GENTLE REFUSAL): Jika pengguna menanyakan hal di luar cakupan tersebut (misal: trivia umum, politik praktis/pemilu/partai politik, hiburan, musik, film, selebriti, resep masakan, olahraga/sepak bola, ramalan/zodiak, lelucon/cerpen, saran medis/hukum umum, tutorial di luar BRANTAS, atau obrolan santai yang tidak terkait data BRANTAS), Anda WAJIB menolak secara sopan dengan PERSIS menjawab:
+   ""Mohon maaf, saya tidak bisa membantu untuk hal itu. Saya ditugaskan khusus sebagai Juru Bantuan Sosial Interaktif dengan ruang lingkup analisis data kemiskinan, alokasi anggaran APBN/TKDD, dan rekomendasi kebijakan pada sistem BRANTAS. Terima kasih.""
+   - Dilarang menambahkan kata pengantar lain atau memberikan jawaban spekulatif terhadap topik di luar cakupan BRANTAS.
 
 DATA TERVERIFIKASI BRANTAS (Maret 2026):
 {verifiedContext}";
@@ -196,6 +210,11 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
             .GetString() ?? string.Empty;
 
         content = Regex.Replace(content, @"<think>[\s\S]*?</think>", string.Empty).Trim();
+        if (content.Contains("Mohon maaf, saya tidak bisa membantu untuk hal itu", StringComparison.OrdinalIgnoreCase) ||
+            content.Contains("Juru Bantuan Sosial Interaktif", StringComparison.OrdinalIgnoreCase) && (content.Contains("ruang lingkup", StringComparison.OrdinalIgnoreCase) || content.Contains("di luar cakupan", StringComparison.OrdinalIgnoreCase)))
+        {
+            return GentleRefusalMessage;
+        }
         return content;
     }
 
@@ -471,7 +490,7 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
     [GeneratedRegex("\\b[a-fA-F0-9]{64}\\b")]
     private static partial Regex IdentityHashPattern();
 
-    [GeneratedRegex("politik praktis|partai politik|opini pribadi|hiburan|saran hukum", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"(politik praktis|partai politik|pemilu|pilpres|caleg|capres|menteri|presiden luar negeri|siapa presiden|hiburan|film|bioskop|lagu|musik|selebriti|artis|gosip|resep|masak|kuliner|olahraga|sepak bola|klub bola|zodiak|ramalan|lelucon|humor|cerpen|puisi|saran hukum|saran medis|resep obat|dokter|game|gaming|pariwisata|cuaca hari ini|chord gitar|lirik lagu|sinopsis)", RegexOptions.IgnoreCase)]
     private static partial Regex OutOfDomainPattern();
 }
 
