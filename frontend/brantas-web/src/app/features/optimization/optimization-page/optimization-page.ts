@@ -4,14 +4,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, of, firstValueFrom } from 'rxjs';
 import { debounceTime, switchMap, catchError, finalize } from 'rxjs/operators';
 import { AllocationRecommendation, OptimizationDataService, SimulationScenario } from '../data/optimization-data.service';
-import { ReportingDataService } from '../../reporting/data/reporting-data.service';
 import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
 
 @Component({ selector: 'app-optimization-page', templateUrl: './optimization-page.html', styleUrl: './optimization-page.css', changeDetection: ChangeDetectionStrategy.OnPush, imports: [CommonModule] })
 export class OptimizationPageComponent {
   protected readonly formatCurrency = formatCompactCurrency;
   private readonly optimizationData = inject(OptimizationDataService);
-  private readonly reportingData = inject(ReportingDataService);
   private readonly autoCalculate$ = new Subject<void>();
 
   protected readonly povertyWeight = signal(30);
@@ -212,70 +210,6 @@ export class OptimizationPageComponent {
     this.activeScenarioName.set(null);
     this.saveMessage.set('Parameter dikembalikan ke standar APBN (30% kemiskinan, 10% bencana, 25% cap).');
     await this.runSimulation();
-  }
-
-  protected exportXlsx(): void {
-    this.reportingData.downloadAllocationsXlsx().subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `rekomendasi-alokasi-anggaran-2026.xlsx`;
-        link.click();
-        URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.exportCsv();
-      }
-    });
-  }
-
-  protected exportCsv(): void {
-    const list = this.recommendations();
-    if (list.length === 0) return;
-    let csv = 'Provinsi,BaselineJuta,RekomendasiJuta,PergeseranJuta,PergeseranPersen,IndeksIKW,PendudukMiskin\n';
-    for (const r of list) {
-      csv += `"${r.region}",${r.baselineAllocation},${r.recommendedAllocation},${r.delta},${r.deltaPercent},${r.vulnerabilityIndex},${r.poorPopulation ?? ''}\n`;
-    }
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `simulasi-alokasi-bobot-${this.povertyWeight()}pct-cap-${this.capPercent()}pct.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  protected readonly isDownloadingPdf = signal(false);
-
-  protected downloadPolicyBriefPdf(): void {
-    if (this.isDownloadingPdf() || this.recommendations().length === 0) return;
-    this.isDownloadingPdf.set(true);
-
-    const activeName = this.activeScenarioName() || (this.activeScenarioId() ? 'Skenario Tersimpan' : `Skenario Kustom (Kemiskinan ${this.povertyWeight()}%, Bencana ${this.disasterWeight()}%, Cap ${this.capPercent()}%)`);
-
-    this.reportingData.downloadPolicyBrief({
-      scenarioId: this.activeScenarioId() || undefined,
-      scenarioName: activeName,
-      povertyWeight: this.povertyWeight(),
-      disasterWeight: this.disasterWeight(),
-      capPercent: this.capPercent()
-    }).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const slug = activeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        link.download = `rekomendasi-kebijakan-${slug}-2026.pdf`;
-        link.click();
-        URL.revokeObjectURL(url);
-        this.isDownloadingPdf.set(false);
-      },
-      error: () => {
-        this.error.set('Gagal mengunduh naskah rekomendasi kebijakan PDF.');
-        this.isDownloadingPdf.set(false);
-      }
-    });
   }
 
   protected async loadScenarios(): Promise<void> {

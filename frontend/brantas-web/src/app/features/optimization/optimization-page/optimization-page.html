@@ -13,19 +13,6 @@
       <span class="moran-caption">Pagu Total:</span>
       <strong class="moran-num">{{ totalBudget() === null ? '—' : formatCurrency(totalBudget()!).compact }}</strong>
     </div>
-
-    <div class="export-group">
-      <button type="button" class="btn-export pdf" (click)="downloadPolicyBriefPdf()" [disabled]="isDownloadingPdf() || recommendations().length === 0" title="Unduh naskah rekomendasi kebijakan PDF resmi berbasis parameter skenario simulasi aktif">
-        <i class="pi" [ngClass]="isDownloadingPdf() ? 'pi-spin pi-spinner' : 'pi-file-pdf'" aria-hidden="true"></i>
-        <span>{{ isDownloadingPdf() ? 'Memproses PDF...' : 'Naskah Kebijakan (PDF)' }}</span>
-      </button>
-      <button type="button" class="btn-export primary" (click)="exportXlsx()" [disabled]="recommendations().length === 0" title="Unduh data rekomendasi alokasi format Excel (.xlsx)">
-        <i class="pi pi-file-excel" aria-hidden="true"></i> Ekspor Excel (.xlsx)
-      </button>
-      <button type="button" class="btn-export secondary" (click)="exportCsv()" [disabled]="recommendations().length === 0" title="Unduh tabulasi rekomendasi alokasi CSV">
-        <i class="pi pi-file-spreadsheet" aria-hidden="true"></i> Ekspor CSV
-      </button>
-    </div>
   </div>
 </section>
 
@@ -145,7 +132,7 @@
         <header class="panel-head ribbon-blue">
           <div class="panel-titles">
             <span class="badge-accent blue"><i class="pi pi-bookmark"></i> RIWAYAT SKENARIO</span>
-            <h2>Skenario Analisis Tersimpan</h2>
+            <h2>Skenario Tersimpan</h2>
           </div>
           <span class="history-count-badge">{{ scenarios().length }} Tersimpan</span>
         </header>
