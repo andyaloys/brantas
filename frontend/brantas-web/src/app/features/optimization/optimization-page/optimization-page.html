@@ -15,6 +15,10 @@
     </div>
 
     <div class="export-group">
+      <button type="button" class="btn-export pdf" (click)="downloadPolicyBriefPdf()" [disabled]="isDownloadingPdf() || recommendations().length === 0" title="Unduh naskah rekomendasi kebijakan PDF resmi berbasis parameter skenario simulasi aktif">
+        <i class="pi" [ngClass]="isDownloadingPdf() ? 'pi-spin pi-spinner' : 'pi-file-pdf'" aria-hidden="true"></i>
+        <span>{{ isDownloadingPdf() ? 'Memproses PDF...' : 'Naskah Kebijakan (PDF)' }}</span>
+      </button>
       <button type="button" class="btn-export primary" (click)="exportXlsx()" [disabled]="recommendations().length === 0" title="Unduh data rekomendasi alokasi format Excel (.xlsx)">
         <i class="pi pi-file-excel" aria-hidden="true"></i> Ekspor Excel (.xlsx)
       </button>

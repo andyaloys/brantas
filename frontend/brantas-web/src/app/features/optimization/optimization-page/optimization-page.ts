@@ -246,6 +246,38 @@ export class OptimizationPageComponent {
     URL.revokeObjectURL(url);
   }
 
+  protected readonly isDownloadingPdf = signal(false);
+
+  protected downloadPolicyBriefPdf(): void {
+    if (this.isDownloadingPdf() || this.recommendations().length === 0) return;
+    this.isDownloadingPdf.set(true);
+
+    const activeName = this.activeScenarioName() || (this.activeScenarioId() ? 'Skenario Tersimpan' : `Skenario Kustom (Kemiskinan ${this.povertyWeight()}%, Bencana ${this.disasterWeight()}%, Cap ${this.capPercent()}%)`);
+
+    this.reportingData.downloadPolicyBrief({
+      scenarioId: this.activeScenarioId() || undefined,
+      scenarioName: activeName,
+      povertyWeight: this.povertyWeight(),
+      disasterWeight: this.disasterWeight(),
+      capPercent: this.capPercent()
+    }).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const slug = activeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        link.download = `rekomendasi-kebijakan-${slug}-2026.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.isDownloadingPdf.set(false);
+      },
+      error: () => {
+        this.error.set('Gagal mengunduh naskah rekomendasi kebijakan PDF.');
+        this.isDownloadingPdf.set(false);
+      }
+    });
+  }
+
   protected async loadScenarios(): Promise<void> {
     try {
       this.scenarios.set(await firstValueFrom(this.optimizationData.getScenarios()));

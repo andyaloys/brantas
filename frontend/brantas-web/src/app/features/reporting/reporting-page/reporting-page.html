@@ -90,14 +90,32 @@
     <div class="card-content">
       <h2>Rekomendasi Kebijakan</h2>
       <p>
-        Naskah rekomendasi kebijakan resmi platform BRANTAS lengkap dengan kop aplikasi, ringkasan eksekutif berbasis data, bukti evaluasi dampak kebijakan, daftar provinsi prioritas, dan rekomendasi alokasi anggaran.
+        Naskah rekomendasi kebijakan resmi platform BRANTAS lengkap dengan kop aplikasi, analisis 6 dimensi (kemiskinan, P1, P2, IPM, PDRB, dan risiko bencana BNPB), parameter skenario simulasi alokasi, serta bukti evaluasi dampak kebijakan.
       </p>
       
       <div class="doc-specs">
-        <div class="spec-item"><i class="pi pi-check-circle"></i> Kop Dokumen Resmi Aplikasi BRANTAS (A4 Standar)</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Integrasi 6 Dimensi Analitik Termasuk Risiko Bencana (IRBI BNPB) &amp; ASP</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Sesuai Parameter Skenario yang Dijalankan pada Menu Simulasi Alokasi</div>
         <div class="spec-item"><i class="pi pi-check-circle"></i> Dilengkapi Peta Sebaran Wilayah, Grafik Evaluasi, dan Tabel Lengkap</div>
-        <div class="spec-item"><i class="pi pi-check-circle"></i> Rekomendasi Aksi Alokasi Pagu Fiskal 2026</div>
-        <div class="spec-item"><i class="pi pi-check-circle"></i> Tanggal dan Waktu File Digenerate dalam Zona Waktu Indonesia Barat (WIB)</div>
+        <div class="spec-item"><i class="pi pi-check-circle"></i> Waktu File Digenerate Resmi dalam Zona Waktu Indonesia Barat (WIB)</div>
+      </div>
+
+      <!-- Skenario Selector -->
+      <div class="scenario-pick-wrap">
+        <label for="repScenarioSelect" class="scenario-pick-label">
+          <i class="pi pi-sliders-h"></i> Pilih Skenario Simulasi:
+        </label>
+        <select
+          id="repScenarioSelect"
+          class="scenario-pick-select"
+          [value]="selectedScenarioId()"
+          (change)="onScenarioChange($event)"
+          [disabled]="isDownloading()">
+          <option value="">Skenario Standar BRANTAS (Basis IKW &amp; ASP)</option>
+          @for (s of scenarios(); track s.id) {
+            <option [value]="s.id">{{ s.name }} (Simulasi Alokasi)</option>
+          }
+        </select>
       </div>
 
       <button
