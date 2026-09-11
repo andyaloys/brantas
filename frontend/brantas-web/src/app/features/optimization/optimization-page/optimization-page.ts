@@ -111,21 +111,18 @@ export class OptimizationPageComponent {
     this.povertyWeight.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
-    this.autoCalculate$.next();
   }
 
   protected updateDisasterWeight(event: Event): void {
     this.disasterWeight.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
-    this.autoCalculate$.next();
   }
 
   protected updateCap(event: Event): void {
     this.capPercent.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
-    this.autoCalculate$.next();
   }
 
   protected updateScenarioName(event: Event): void { this.scenarioName.set((event.target as HTMLInputElement).value); }

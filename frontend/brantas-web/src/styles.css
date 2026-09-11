@@ -2331,3 +2331,13 @@ body.theme-light .save-input-group input,
   color: #0f172a !important;
 }
 
+/* Global ECharts Tooltip Text Wrapping */
+.echarts-tooltip,
+div[style*="z-index: 9999999"],
+div[style*="z-index: 999999"] {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+}
+

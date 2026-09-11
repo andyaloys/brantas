@@ -599,6 +599,153 @@
 }
 
 /* =========================================================================
+   SPATIAL TABLE COLUMN WIDTHS & STATISTICAL TOOLTIPS
+   ========================================================================= */
+.spatial-data-table th.col-no,
+.spatial-data-table td.col-no {
+  width: 48px;
+  text-align: center;
+}
+
+.spatial-data-table th.col-kab,
+.spatial-data-table td.col-kab {
+  min-width: 170px;
+}
+
+.spatial-data-table th.col-prov,
+.spatial-data-table td.col-prov {
+  min-width: 140px;
+}
+
+.spatial-data-table th.col-stat,
+.spatial-data-table td.col-stat {
+  width: 125px;
+  text-align: right;
+}
+
+.spatial-data-table th.col-cluster,
+.spatial-data-table td.col-cluster {
+  width: 135px;
+}
+
+.spatial-data-table th.col-action,
+.spatial-data-table td.col-action {
+  width: 85px;
+  text-align: center;
+}
+
+.spatial-data-table .th-stat {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: help;
+  user-select: none;
+}
+
+.spatial-data-table .th-stat.right {
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.spatial-data-table .th-info-icon {
+  font-size: 11px;
+  color: #0d9488;
+  opacity: 0.85;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.spatial-data-table .th-stat:hover .th-info-icon {
+  color: #0f766e;
+  opacity: 1;
+  transform: scale(1.22);
+}
+
+.spatial-data-table .stat-tooltip {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 11px 14px;
+  width: 290px;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+  text-align: left;
+}
+
+.spatial-data-table .th-stat:hover .stat-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.spatial-data-table .stat-tooltip-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f766e;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.spatial-data-table .stat-tooltip-head i {
+  font-size: 12px;
+  color: #0d9488;
+}
+
+.spatial-data-table .stat-tooltip-body {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #1e293b;
+}
+
+.spatial-data-table .stat-tooltip-body p {
+  margin: 0 0 6px;
+  color: #334155;
+}
+
+.spatial-data-table .stat-tooltip-body p strong {
+  color: #0f172a;
+}
+
+.spatial-data-table .stat-tooltip-calc {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 9px;
+  margin-top: 6px;
+}
+
+.spatial-data-table .stat-tooltip-calc .calc-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.spatial-data-table .stat-tooltip-calc small {
+  font-size: 9.5px;
+  color: #94a3b8;
+  display: block;
+  line-height: 1.35;
+}
+
+/* =========================================================================
    INSPECTOR PANEL & LEGEND (Executive Cap Card Architecture)
    ========================================================================= */
 .inspector-panel {

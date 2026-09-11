@@ -32,12 +32,8 @@
     <div class="aside-card">
       <header class="panel-head ribbon-teal">
         <div class="panel-titles">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px;">
+          <div style="margin-bottom: 4px;">
             <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> PARAMETER MODEL</span>
-            <span class="badge-live-calc" [class.calculating]="isRunning()" title="Perhitungan optimasi berjalan otomatis secara langsung saat slider digeser">
-              <span class="live-dot" [class.pulse]="isRunning()"></span>
-              {{ isRunning() ? 'Mengoptimasi...' : 'Live Auto' }}
-            </span>
           </div>
           <h2>Bobot & Batas Toleransi Alokasi</h2>
         </div>
@@ -73,7 +69,7 @@
               <div class="ideal-icon-circle">
                 <i class="pi pi-sparkles"></i>
               </div>
-              <span class="ideal-title">Bobot Ideal (SRSP)</span>
+              <span class="ideal-title">Bobot Ideal</span>
             </div>
             <span class="ideal-status-pill">
               @if (isIdealActive()) {
@@ -134,10 +130,10 @@
           </div>
         </div>
 
-        <!-- Tombol Aksi: Berjalan otomatis saat slider digeser, namun dapat diklik untuk kalkulasi ulang manual -->
-        <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Simulasi berjalan otomatis setiap slider digeser. Klik untuk kalkulasi ulang seketika.">
+        <!-- Tombol Aksi: Menjalankan simulasi kalkulasi alokasi secara manual -->
+        <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan simulasi alokasi APBN dengan parameter yang telah ditentukan">
           <i class="pi" [ngClass]="isRunning() ? 'pi-spin pi-spinner' : 'pi-bolt'" aria-hidden="true"></i>
-          <span>{{ isRunning() ? 'Menghitung Optimasi...' : 'Kalkulasi Ulang (Auto Aktif)' }}</span>
+          <span>{{ isRunning() ? 'Menjalankan Simulasi...' : 'Jalankan Simulasi' }}</span>
         </button>
 
         <div class="save-scenario">
@@ -293,23 +289,55 @@
           <table>
             <thead>
               <tr>
-                <th>Provinsi</th>
-                <th title="Indeks Kerentanan Wilayah (IKW). Nilai makin tinggi mencerminkan kebutuhan prioritas alokasi.">
-                  Indeks Kerentanan (IKW) <i class="pi pi-info-circle text-muted" aria-hidden="true"></i>
+                <th class="col-prov">Provinsi</th>
+                <th class="col-ikw">
+                  <div class="th-stat center">
+                    <span>Indeks Kerentanan (IKW)</span>
+                    <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                    <div class="stat-tooltip">
+                      <div class="stat-tooltip-head">
+                        <i class="pi pi-shield"></i> Indeks Kerentanan (IKW)
+                      </div>
+                      <div class="stat-tooltip-body">
+                        <p>Skor kebutuhan bantuan provinsi (skala 0–1). Makin tinggi nilainya, makin darurat provinsi membutuhkan alokasi bansos.</p>
+                        <div class="stat-tooltip-calc">
+                          <span class="calc-label">Dasar Perhitungan:</span>
+                          <small>Gabungan berbobot dari persentase kemiskinan, jumlah warga miskin, ketimpangan pengeluaran (Gini), kerawanan bencana alam, dan kapasitas fiskal daerah.</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </th>
-                <th class="num">Alokasi Eksisting (APBN)</th>
-                <th class="num">Rekomendasi BRANTAS</th>
-                <th class="num">Penyesuaian Anggaran (Selisih)</th>
+                <th class="col-baseline num">Alokasi Eksisting (APBN)</th>
+                <th class="col-recommended num">Rekomendasi BRANTAS</th>
+                <th class="col-delta num">
+                  <div class="th-stat right">
+                    <span>Penyesuaian Anggaran</span>
+                    <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                    <div class="stat-tooltip align-right">
+                      <div class="stat-tooltip-head">
+                        <i class="pi pi-chart-line"></i> Usulan Penyesuaian Anggaran
+                      </div>
+                      <div class="stat-tooltip-body">
+                        <p>Selisih nominal usulan alokasi ideal BRANTAS dibanding alokasi APBN eksisting.</p>
+                        <div class="stat-tooltip-calc">
+                          <span class="calc-label">Dasar Perhitungan:</span>
+                          <small>Dihitung dari selisih rekomendasi dikurangi pagu awal, dengan batas toleransi maksimal agar keuangan daerah tidak terguncang mendadak.</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
               @for (item of recommendations(); track item.region) {
                 <tr>
-                  <td><strong>{{ item.region }}</strong></td>
-                  <td><span class="ikw-pill">{{ item.vulnerabilityIndex.toFixed(3) }}</span></td>
-                  <td class="num" [title]="'Nominal Lengkap: ' + formatCurrency(item.baselineAllocation).full">{{ formatCurrency(item.baselineAllocation).compact }}</td>
-                  <td class="num font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.recommendedAllocation).full">{{ formatCurrency(item.recommendedAllocation).compact }}</td>
-                  <td class="num" [title]="'Nominal Lengkap: ' + formatCurrency(item.delta, true).full">
+                  <td class="col-prov"><strong>{{ item.region }}</strong></td>
+                  <td class="col-ikw"><span class="ikw-pill">{{ item.vulnerabilityIndex.toFixed(3) }}</span></td>
+                  <td class="col-baseline num" [title]="'Nominal Lengkap: ' + formatCurrency(item.baselineAllocation).full">{{ formatCurrency(item.baselineAllocation).compact }}</td>
+                  <td class="col-recommended num font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.recommendedAllocation).full">{{ formatCurrency(item.recommendedAllocation).compact }}</td>
+                  <td class="col-delta num" [title]="'Nominal Lengkap: ' + formatCurrency(item.delta, true).full">
                     <span class="delta-pill" [class.positive]="item.delta > 0" [class.negative]="item.delta < 0">
                       {{ formatCurrency(item.delta, true).compact }} ({{ (item.deltaPercent * 100).toFixed(1) }}%)
                     </span>

@@ -227,41 +227,126 @@
             <table class="spatial-data-table">
               <thead>
                 <tr>
-                  <th>No</th>
-                  <th>Kabupaten / Kota</th>
-                  <th>Provinsi</th>
-                  <th class="text-right">Kemiskinan (%)</th>
-                  <th class="text-right">Penduduk Miskin</th>
-                  <th class="text-right">Indeks IPM</th>
-                  <th class="text-right">Kedalaman (P1)</th>
-                  <th class="text-right">Keparahan (P2)</th>
-                  <th class="text-right">Risiko Bencana</th>
-                  <th>Klaster Spasial</th>
-                  <th>Aksi</th>
+                  <th class="col-no">No</th>
+                  <th class="col-kab">Kabupaten / Kota</th>
+                  <th class="col-prov">Provinsi</th>
+                  <th class="col-stat text-right">
+                    <div class="th-stat right">
+                      <span>Kemiskinan (%)</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-percentage"></i> Persentase Kemiskinan
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Persentase warga yang pengeluarannya berada di bawah Garis Kemiskinan resmi BPS.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Jumlah warga miskin dibagi total jumlah penduduk wilayah dikali 100%.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-stat text-right">Penduduk Miskin</th>
+                  <th class="col-stat text-right">
+                    <div class="th-stat right">
+                      <span>Indeks IPM</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-star"></i> Indeks Pembangunan Manusia (IPM)
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Kualitas hidup masyarakat daerah (kesehatan, pendidikan, dan standar hidup layak).</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Rata-rata capaian umur harapan hidup, lama sekolah, dan kemampuan daya beli per kapita (skala 0–100).</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-stat text-right">
+                    <div class="th-stat right">
+                      <span>Kedalaman (P1)</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-arrow-down-right"></i> Kedalaman Kemiskinan (P1)
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Seberapa jauh rata-rata pengeluaran warga miskin berada di bawah garis kemiskinan.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Makin tinggi angka P1, makin besar kebutuhan bantuan uang bansos untuk mengangkat mereka keluar dari kemiskinan.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-stat text-right">
+                    <div class="th-stat right">
+                      <span>Keparahan (P2)</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-exclamation-triangle"></i> Keparahan Kemiskinan (P2)
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Tingkat kesenjangan pengeluaran di antara sesama warga miskin itu sendiri.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Angka P2 yang tinggi menandakan ada kelompok warga yang kondisinya sangat terpuruk jauh dibanding warga miskin lainnya.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-stat text-right">
+                    <div class="th-stat right">
+                      <span>Risiko Bencana</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-shield"></i> Risiko Bencana Terpadu
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Tingkat kerentanan daerah terhadap bencana alam terpadu dari BNPB.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Skor normalisasi kerawanan bencana (0–100%). Wilayah &ge; 70% dikategorikan risiko tinggi terhadap guncangan bencana.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-cluster">Klaster Spasial</th>
+                  <th class="col-action">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 @for (r of filteredRegions(); track r.regionId; let i = $index) {
                   <tr (click)="selectRegionFromTable(r)">
-                    <td>{{ i + 1 }}</td>
-                    <td><strong>{{ r.name }}</strong></td>
-                    <td>{{ r.parent }}</td>
-                    <td class="text-right"><strong>{{ r.povertyRate.toFixed(2) }}%</strong></td>
-                    <td class="text-right mono">{{ r.poorPopulation.toLocaleString('id-ID') }}</td>
-                    <td class="text-right font-bold">{{ r.humanDevelopmentIndex.toFixed(2) }}</td>
-                    <td class="text-right mono">{{ r.povertyDepthIndex.toFixed(3) }}</td>
-                    <td class="text-right mono">{{ r.povertySeverityIndex.toFixed(3) }}</td>
-                    <td class="text-right">
+                    <td class="col-no">{{ i + 1 }}</td>
+                    <td class="col-kab"><strong>{{ r.name }}</strong></td>
+                    <td class="col-prov">{{ r.parent }}</td>
+                    <td class="col-stat text-right"><strong>{{ r.povertyRate.toFixed(2) }}%</strong></td>
+                    <td class="col-stat text-right mono">{{ r.poorPopulation.toLocaleString('id-ID') }}</td>
+                    <td class="col-stat text-right font-bold">{{ r.humanDevelopmentIndex.toFixed(2) }}</td>
+                    <td class="col-stat text-right mono">{{ r.povertyDepthIndex.toFixed(3) }}</td>
+                    <td class="col-stat text-right mono">{{ r.povertySeverityIndex.toFixed(3) }}</td>
+                    <td class="col-stat text-right">
                       <span class="mono font-bold" [style.color]="(r.disasterRisk ?? 0.5) >= 0.7 ? '#dc2626' : ((r.disasterRisk ?? 0.5) >= 0.45 ? '#ea580c' : '#16a34a')">
                         {{ r.disasterRisk ? (r.disasterRisk * 100).toFixed(0) + '%' : '-' }}
                       </span>
                     </td>
-                    <td>
+                    <td class="col-cluster">
                       <span class="cluster-capsule" [ngClass]="getClusterClass(r.cluster)">
                         {{ translateClusterShort(r.cluster) }}
                       </span>
                     </td>
-                    <td>
+                    <td class="col-action">
                       <button type="button" class="btn-inspect-small" (click)="selectRegionFromTable(r); $event.stopPropagation()">
                         Lihat <i class="pi pi-arrow-right"></i>
                       </button>
