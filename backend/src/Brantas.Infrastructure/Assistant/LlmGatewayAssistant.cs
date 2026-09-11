@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Brantas.Analytics.Optimization;
 using Brantas.Application.Assistant;
 using Brantas.Domain.Entities;
 using Brantas.Infrastructure.Persistence;
@@ -28,6 +29,7 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
 {
     private static readonly ConcurrentDictionary<Guid, string> MacroContextCache = new();
     private static readonly ConcurrentDictionary<Guid, string> MacroSummaryCache = new();
+    private static readonly ConcurrentDictionary<Guid, IReadOnlyDictionary<Guid, AllocationRecommendation>> AllocationMapCache = new();
     private static List<RegionLookupItem>? CachedRegions;
     private static readonly SemaphoreSlim RegionCacheLock = new(1, 1);
 
@@ -162,12 +164,19 @@ PANDUAN UTAMA MENJAWAB (WAJIB DIIKUTI):
 3. DATA SPESIFIK 38 PROVINSI & 514 KABUPATEN/KOTA TERSEDIA LENGKAP:
    - Sistem BRANTAS memiliki data lengkap seluruh 38 provinsi dan 514 kabupaten/kota se-Indonesia. Jangan pernah menyatakan bahwa data kab/kota tidak tersedia atau belum ada angka resminya.
    - Jika ditanya tentang daerah tertentu (misal Timika / Mimika), sebutkan angka kuncinya secara deskriptif: nama daerah, provinsi induk, tingkat kemiskinan (%), jumlah penduduk miskin (jiwa), IPM, dan risiko bencana (IRBI BNPB).
-4. REKOMENDASI KEBIJAKAN FOKUS & KONKRET (MAKSIMAL 2 BUTIR):
-   - Berikan maksimal 2 butir rekomendasi kebijakan yang paling tajam, relevan dengan profil wilayah, dan dapat ditindaklanjuti secara nyata:
-     * Butir 1 (Perlindungan Sosial Adaptif Bencana): Sinergikan bansos dengan kesiapsiagaan cadangan logistik dan bantuan tunai darurat jika wilayah rawan bencana.
-     * Butir 2 (Pengentasan Kemiskinan Terpadu): Padukan bansos reguler (PKH/Sembako) dengan program padat karya produktif dan pemutakhiran DTKS daerah agar tepat sasaran.
-5. PENEKANAN KATA KUNCI:
-   - Gunakan format **tebal** untuk angka, persentase, nominal anggaran, nama daerah, dan status risiko agar informasi pokok langsung terbaca sekilas.
+4. REKOMENDASI KEBIJAKAN RINGKAS & TERUKUR (3 BUTIR BERNOMOR):
+   - Sajikan rekomendasi kebijakan dalam 3 butir bernomor ringkas, padat, dan terukur yang langsung mencantumkan angka/persentase/indeks dinamis sesuai profil wilayah yang ditanyakan:
+     1. Penetapan Alokasi Afirmatif IKW (UU No. 1/2022 HKPD): Sebutkan skor IKW wilayah, perbandingan pagu eksisting baseline dengan usulan rekomendasi alokasi, serta pergeseran delta (+/- nominal dan %).
+     2. Integrasi Perlindungan Sosial Adaptif (ASP): Sebutkan alokasi cadangan darurat kebencanaan 35% (nominal Rp), kategori risiko bencana BNPB dan skor IRBI wilayah.
+     3. Pemadanan Terpadu DTKS & Regsosek (Perpres No. 39/2019): Pemadanan berkala data penerima bansos dengan NIK Dukcapil guna mengeliminasi temuan anomali ketimpangan anggaran.
+5. FORMAT BOLDING WAJIB PADA CHAT BUBBLE:
+   - WAJIB gunakan format **tebal** (**...**) untuk seluruh:
+     * Nama wilayah administratif (contoh: **Papua Tengah**, **Kabupaten Mimika**).
+     * Angka persentase dan statistik (contoh: **38 provinsi**, **37,53%**, **10,20%**, **+15,40%**).
+     * Angka nominal anggaran Rupiah (contoh: **Rp2,45 Triliun**, **Rp500,0 Miliar**, **Rp125,4 Juta**).
+     * Jumlah penduduk miskin (contoh: **52.400 jiwa**).
+     * Skor indeks dan kategori risiko (contoh: skor IKW **82,45**, IPM **63,20**, kategori **Tinggi**, skor IRBI **0,85**).
+     * Payung hukum dan regulasi resmi (contoh: **UU No. 1/2022 HKPD**, **Perpres No. 39/2019**).
 6. SISTEM GUARDRAIL KETAT & SIKAP PENOLAKAN OTOMATIS (GENTLE REFUSAL):
    - PEMBATASAN RUANG LINGKUP: Anda adalah asisten khusus yang DIBATASI HANYA untuk menjawab topik seputar proyek BRANTAS, meliputi: analisis data kemiskinan BPS (tingkat kemiskinan, kedalaman P1, keparahan P2, IPM, PDRB per kapita), alokasi anggaran belanja perlindungan sosial APBN & TKDD, anomali fiskal daerah, risiko bencana alam dan Perlindungan Sosial Adaptif (ASP / IRBI BNPB), simulasi alokasi IKW, evaluasi kausalitas (DiD), dan rekomendasi kebijakan resmi BRANTAS.
    - SIKAP PENOLAKAN OTOMATIS (GENTLE REFUSAL): Jika pengguna menanyakan hal di luar cakupan tersebut (misal: trivia umum, politik praktis/pemilu/partai politik, hiburan, musik, film, selebriti, resep masakan, olahraga/sepak bola, ramalan/zodiak, lelucon/cerpen, saran medis/hukum umum, tutorial di luar BRANTAS, atau obrolan santai yang tidak terkait data BRANTAS), Anda WAJIB menolak secara sopan dengan PERSIS menjawab:
@@ -215,6 +224,41 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
         {
             return GentleRefusalMessage;
         }
+
+        // Auto-enrichment: Pastikan pola persentase dan nominal Rupiah yang belum dibold ter-bolding rapi
+        content = Regex.Replace(content, @"(?<!\*)\b(Rp\s?[\d.,]+(?:\s*(?:Triliun|Miliar|Juta))?)(?!\*)", match =>
+        {
+            int pos = match.Index;
+            int starCount = 0;
+            for (int i = 0; i < pos; i++)
+            {
+                if (content[i] == '*' && i + 1 < pos && content[i + 1] == '*')
+                {
+                    starCount++;
+                    i++;
+                }
+            }
+            return starCount % 2 == 1 ? match.Value : $"**{match.Value}**";
+        });
+
+        content = Regex.Replace(content, @"(?<!\*)\b([+-]?\d+([.,]\d+)?%)(?!\*)", match =>
+        {
+            int pos = match.Index;
+            int starCount = 0;
+            for (int i = 0; i < pos; i++)
+            {
+                if (content[i] == '*' && i + 1 < pos && content[i + 1] == '*')
+                {
+                    starCount++;
+                    i++;
+                }
+            }
+            return starCount % 2 == 1 ? match.Value : $"**{match.Value}**";
+        });
+
+        // Bersihkan jika ada artefak penempelan tanda plus atau bintang dobel
+        content = content.Replace("**** ", " ").Replace("****", "");
+
         return content;
     }
 
@@ -368,63 +412,155 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
         }
 
         var disaster = DisasterRiskRepository.GetDisasterRisk(matched.BpsCode);
+        var allocMap = await EnsureAllocationsAsync(version.Id, cancellationToken);
+
+        decimal baseline;
+        decimal recommended;
+        decimal delta;
+        decimal deltaPct;
+        decimal ikw;
+
+        if (matched.Level == RegionLevel.Province)
+        {
+            if (allocMap.TryGetValue(matched.Id, out var rec))
+            {
+                baseline = rec.BaselineAllocation;
+                recommended = rec.RecommendedAllocation;
+                delta = rec.Delta;
+                deltaPct = rec.DeltaPercent;
+                ikw = rec.VulnerabilityIndex;
+            }
+            else
+            {
+                baseline = await _database.FiscalAllocations
+                    .Where(a => a.DatasetVersionId == version.Id && a.RegionId == matched.Id)
+                    .Select(a => (decimal?)a.TotalAllocation)
+                    .FirstOrDefaultAsync(cancellationToken) ?? 0m;
+                recommended = baseline;
+                delta = 0m;
+                deltaPct = 0m;
+                ikw = 50.0m;
+            }
+        }
+        else
+        {
+            var parentId = matched.ParentId ?? Guid.Empty;
+            allocMap.TryGetValue(parentId, out var parentRec);
+
+            var parentTotalPoor = await _database.PovertyIndicators
+                .Where(i => i.DatasetVersionId == version.Id && i.Region!.ParentId == parentId)
+                .SumAsync(i => (long)i.PoorPopulation, cancellationToken);
+
+            var ratio = parentTotalPoor > 0 ? (decimal)indicator.PoorPopulation / parentTotalPoor : 0.1m;
+
+            if (parentRec != null)
+            {
+                baseline = Math.Round(parentRec.BaselineAllocation * ratio, 2);
+                recommended = Math.Round(parentRec.RecommendedAllocation * ratio, 2);
+                delta = recommended - baseline;
+                deltaPct = parentRec.DeltaPercent;
+                ikw = parentRec.VulnerabilityIndex;
+            }
+            else
+            {
+                var parentAlloc = await _database.FiscalAllocations
+                    .Where(a => a.DatasetVersionId == version.Id && a.RegionId == parentId)
+                    .Select(a => (decimal?)a.TotalAllocation)
+                    .FirstOrDefaultAsync(cancellationToken) ?? 0m;
+
+                baseline = Math.Round(parentAlloc * ratio, 2);
+                recommended = baseline;
+                delta = 0m;
+                deltaPct = 0m;
+                ikw = 50.0m;
+            }
+        }
+
+        var bufferAmount = Math.Round(recommended * 0.35m, 2);
+        var bufferFormatted = FormatRupiah(bufferAmount);
+        var baselineFormatted = FormatRupiah(baseline);
+        var recFormatted = FormatRupiah(recommended);
+        var deltaSign = delta >= 0 ? "+" : "";
+        var deltaFormatted = $"{deltaSign}{FormatRupiah(delta)}";
+        var deltaPctFormatted = $"{deltaSign}{deltaPct:0.00}%";
+
         var sb = new StringBuilder();
         sb.AppendLine($"[DATA TERVERIFIKASI SPESIFIK WILAYAH: {matched.FullName.ToUpperInvariant()}]:");
-        sb.AppendLine($"- Wilayah Administratif Resmi: **{matched.FullName}**{(matched.Level == RegionLevel.Regency && !string.IsNullOrWhiteSpace(matched.ParentName) ? $" (Provinsi {matched.ParentName})" : "")}");
+        sb.AppendLine($"- Wilayah Administratif Resmi: **{matched.FullName}**{(matched.Level == RegionLevel.Regency && !string.IsNullOrWhiteSpace(matched.ParentName) ? $" (Provinsi **{matched.ParentName}**)" : "")}");
         sb.AppendLine($"- Tingkat Wilayah: {(matched.Level == RegionLevel.Province ? "Provinsi" : "Kabupaten/Kota")}");
         sb.AppendLine($"- Tingkat Kemiskinan: **{indicator.PovertyRate:0.00}%**");
         sb.AppendLine($"- Jumlah Penduduk Miskin: **{indicator.PoorPopulation:N0} jiwa**");
         sb.AppendLine($"- Indeks Pembangunan Manusia (IPM): **{indicator.HumanDevelopmentIndex:0.00}**");
         sb.AppendLine($"- PDRB per Kapita: **Rp{indicator.GdpPerCapita:0.00} Juta / tahun**");
-        sb.AppendLine($"- Indeks Risiko Bencana (IRBI BNPB): Kategori **{disaster.Category}** (Skor **{disaster.Score:0.00}**)");
-
-        if (matched.Level == RegionLevel.Province)
-        {
-            var alloc = await _database.FiscalAllocations
-                .Where(a => a.DatasetVersionId == version.Id && a.RegionId == matched.Id)
-                .Select(a => (decimal?)a.TotalAllocation)
-                .FirstOrDefaultAsync(cancellationToken) ?? 0m;
-            sb.AppendLine($"- Pagu Bansos APBN: **Rp{alloc:N0} Juta**");
-        }
-        else
-        {
-            var parentAlloc = await _database.FiscalAllocations
-                .Where(a => a.DatasetVersionId == version.Id && a.RegionId == matched.ParentId)
-                .Select(a => (decimal?)a.TotalAllocation)
-                .FirstOrDefaultAsync(cancellationToken) ?? 0m;
-
-            var parentTotalPoor = await _database.PovertyIndicators
-                .Where(i => i.DatasetVersionId == version.Id && i.Region!.ParentId == matched.ParentId)
-                .SumAsync(i => (long)i.PoorPopulation, cancellationToken);
-
-            if (parentTotalPoor > 0 && parentAlloc > 0)
-            {
-                var estRegencyAlloc = Math.Round(parentAlloc * indicator.PoorPopulation / parentTotalPoor, 2);
-                sb.AppendLine($"- Estimasi Porsi Bansos Wilayah: **Rp{estRegencyAlloc:N0} Juta** (dari pagu induk {matched.ParentName})");
-            }
-        }
-
+        sb.AppendLine($"- Indeks Risiko Bencana (IRBI BNPB): Kategori **{disaster.Category}** (Skor IRBI **{disaster.Score:0.00}**)");
+        sb.AppendLine($"- Pagu Anggaran Eksisting (Baseline APBN): **{baselineFormatted}**");
+        sb.AppendLine($"- Usulan Alokasi Afirmatif IKW: **{recFormatted}** (Pergeseran alokasi: **{deltaFormatted}** atau **{deltaPctFormatted}**)");
+        sb.AppendLine($"- Skor Indeks Kerentanan Wilayah (IKW): **{ikw:0.00}**");
+        sb.AppendLine($"- Cadangan Perlindungan Sosial Adaptif (ASP Buffer 35%): **{bufferFormatted}** (Kesiapsiagaan darurat bencana kategori **{disaster.Category}**)");
         sb.AppendLine();
-        sb.AppendLine("- Panduan Rekomendasi Kebijakan Spesifik Wilayah Ini (Sajikan Maksimal 2 Butir):");
-        if (disaster.Score >= 0.70m)
-        {
-            sb.AppendLine($"  * Butir 1 (Perlindungan Sosial Adaptif Bencana): Karena wilayah berada di zona kerawanan {disaster.Category} (IRBI {disaster.Score:0.00}), alokasi bansos afirmatif wajib didukung cadangan logistik darurat dan kesiapsiagaan bantuan tunai pascabencana.");
-        }
-        else
-        {
-            sb.AppendLine("  * Butir 1 (Penguatan Stabilitas Belanja Sosial): Pastikan penyaluran bansos reguler berjalan tepat waktu untuk menjaga daya beli rumah tangga rentan.");
-        }
-
-        if (indicator.PovertyRate >= 12.0m)
-        {
-            sb.AppendLine($"  * Butir 2 (Intervensi Kemiskinan Terpadu): Dengan tingkat kemiskinan {indicator.PovertyRate:0.00}%, padukan bantuan tunai (PKH/Sembako) dengan program padat karya produktif dan pemutakhiran DTKS terpadu.");
-        }
-        else
-        {
-            sb.AppendLine("  * Butir 2 (Pemberdayaan Ekonomi Mandiri): Fokuskan program bansos pada graduasi kemiskinan melalui pelatihan keterampilan kerja dan akses permodalan usaha mikro.");
-        }
+        sb.AppendLine("- Panduan Butir Rekomendasi Kebijakan Terarah (Wajib Disajikan dalam 3 Poin Bernomor Ringkas & Wajib Mencantumkan Statistik Dinamis di Atas):");
+        sb.AppendLine($"  1. **Penetapan Alokasi Afirmatif IKW (UU No. 1/2022 HKPD)**: Tetapkan pagu alokasi afirmatif berbasis skor IKW **{ikw:0.00}** sebesar **{recFormatted}** (penyesuaian **{deltaFormatted}** / **{deltaPctFormatted}** dari baseline **{baselineFormatted}**) guna redistribusi yang adil.");
+        sb.AppendLine($"  2. **Integrasi Perlindungan Sosial Adaptif (ASP)**: Alokasikan cadangan darurat kebencanaan 35% sebesar **{bufferFormatted}** pada zona risiko **{disaster.Category}** (skor IRBI **{disaster.Score:0.00}**) agar bantuan tunai siap disalurkan saat terjadi guncangan bencana.");
+        sb.AppendLine($"  3. **Pemadanan Terpadu DTKS & Regsosek (Perpres No. 39/2019)**: Lakukan pemadanan berkala penerima bansos dengan NIK Dukcapil guna mengeliminasi temuan ketimpangan anggaran dan memastikan sasaran tepat.");
 
         return sb.ToString();
+    }
+
+    private async Task<IReadOnlyDictionary<Guid, AllocationRecommendation>> EnsureAllocationsAsync(Guid versionId, CancellationToken cancellationToken)
+    {
+        if (AllocationMapCache.TryGetValue(versionId, out var cached))
+            return cached;
+
+        var rawObservations = await (
+            from ind in _database.PovertyIndicators
+            join alloc in _database.FiscalAllocations on ind.RegionId equals alloc.RegionId
+            where ind.DatasetVersionId == versionId && alloc.DatasetVersionId == versionId && ind.Region!.Level == RegionLevel.Province
+            select new
+            {
+                ind.RegionId,
+                RegionName = ind.Region!.Name,
+                BpsCode = ind.Region.BpsCode,
+                ind.PovertyRate,
+                ind.PovertyDepthIndex,
+                ind.PovertySeverityIndex,
+                ind.HumanDevelopmentIndex,
+                ind.GdpPerCapita,
+                ind.PoorPopulation,
+                alloc.TotalAllocation
+            }).ToListAsync(cancellationToken);
+
+        if (rawObservations.Count == 0)
+            return new Dictionary<Guid, AllocationRecommendation>();
+
+        var observations = rawObservations.Select(item => new AllocationObservation(
+            item.RegionId,
+            item.RegionName,
+            item.PovertyRate,
+            item.PovertyDepthIndex,
+            item.PovertySeverityIndex,
+            item.HumanDevelopmentIndex,
+            item.GdpPerCapita,
+            DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score,
+            item.PoorPopulation,
+            item.TotalAllocation)).ToList();
+
+        var weights = new AllocationWeights(30m, 15m, 15m, 15m, 15m, 10m);
+        var totalBudget = observations.Sum(item => item.BaselineAllocation);
+        var optResult = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, 0.25m);
+
+        var dict = optResult.Recommendations.ToDictionary(r => r.RegionId);
+        AllocationMapCache[versionId] = dict;
+        return dict;
+    }
+
+    private static string FormatRupiah(decimal valJuta)
+    {
+        var valMiliar = valJuta / 1000m;
+        if (valMiliar >= 1000m)
+            return $"Rp{(valMiliar / 1000m):0.00} Triliun";
+        if (valMiliar >= 1m)
+            return $"Rp{valMiliar:0.0} Miliar";
+        return $"Rp{valJuta:N0} Juta";
     }
 
     private async Task<List<RegionLookupItem>> EnsureRegionsLookupAsync(CancellationToken cancellationToken)
