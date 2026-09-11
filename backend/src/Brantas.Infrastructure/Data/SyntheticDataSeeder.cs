@@ -72,6 +72,7 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
 
         if (existing is not null)
         {
+            await EnsureRegencyNamesAsync(cancellationToken);
             await EnsureFiscalAnomaliesAsync(existing, cancellationToken);
             await EnsureBeneficiaryDataAsync(existing, cancellationToken);
             await EnsurePolicyImpactPanelAsync(existing, cancellationToken);
@@ -155,7 +156,7 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
                     regency = new Region
                     {
                         BpsCode = regencyCode,
-                        Name = $"{province.Name} {regencyIndex + 1:00}",
+                        Name = RegencyCatalog.GetRegencyName(province.Name, regencyIndex),
                         Level = RegionLevel.Regency,
                         ParentId = region.Id,
                         Latitude = regencyLat,
@@ -383,6 +384,29 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
             TreatmentStartYear = 2024
         });
         await database.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task EnsureRegencyNamesAsync(CancellationToken cancellationToken)
+    {
+        var regencies = await database.Regions
+            .Where(item => item.Level == RegionLevel.Regency)
+            .ToListAsync(cancellationToken);
+
+        var changed = false;
+        foreach (var regency in regencies)
+        {
+            var resolved = RegencyCatalog.ResolveSyntheticName(regency.Name);
+            if (resolved != regency.Name)
+            {
+                regency.Name = resolved;
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            await database.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private static string HashIdentity(string value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{SyntheticIdentitySalt}:{value}")));

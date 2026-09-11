@@ -6,6 +6,7 @@ using Brantas.Analytics.Causal;
 using Brantas.Analytics.Anomalies;
 using Brantas.Infrastructure;
 using Brantas.Infrastructure.Persistence;
+using Brantas.Infrastructure.Data;
 using Brantas.Api.Reports;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -409,7 +410,7 @@ app.MapGet("/api/v1/anomalies", async (HttpContext context, BrantasDbContext dat
         .Select(item => new
         {
             id = item.Id,
-            region = item.Region!.Name,
+            region = RegencyCatalog.ResolveSyntheticName(item.Region!.Name),
             type = item.Type == Brantas.Domain.Entities.AnomalyType.FiscalUnderAllocation ? "Under-allocation" : "Over-allocation",
             severity = item.Severity.ToString(),
             confidenceScore = item.ConfidenceScore,
@@ -727,9 +728,9 @@ app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext dat
         .ToListAsync(cancellationToken);
     return Results.Ok(findings.SelectMany(item => new[]
     {
-        new { region = item.Region, type = "Penerima ASN/TNI/Polri aktif", count = item.activePublicServantCount, confidenceScore = 96m, severity = item.activePublicServantCount >= 80 ? "High" : "Medium", explanation = "Terdapat indikasi status aparatur aktif berdasarkan data sintetis; verifikasi administratif diperlukan." },
-        new { region = item.Region, type = "Penerima terindikasi meninggal", count = item.deceasedCount, confidenceScore = 94m, severity = item.deceasedCount >= 35 ? "High" : "Medium", explanation = "Terdapat indikasi ketidaksesuaian status kependudukan pada data sintetis; verifikasi administratif diperlukan." },
-        new { region = item.Region, type = "Indikator aset ekonomi", count = item.economicAssetCount, confidenceScore = 82m, severity = item.economicAssetCount >= 130 ? "High" : "Medium", explanation = "Terdapat indikator kemampuan ekonomi pada data sintetis; bukan penetapan ketidaklayakan otomatis." }
+        new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Penerima ASN/TNI/Polri aktif", count = item.activePublicServantCount, confidenceScore = 96m, severity = item.activePublicServantCount >= 80 ? "High" : "Medium", explanation = "Terdapat indikasi status aparatur aktif berdasarkan data sintetis; verifikasi administratif diperlukan." },
+        new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Penerima terindikasi meninggal", count = item.deceasedCount, confidenceScore = 94m, severity = item.deceasedCount >= 35 ? "High" : "Medium", explanation = "Terdapat indikasi ketidaksesuaian status kependudukan pada data sintetis; verifikasi administratif diperlukan." },
+        new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Indikator aset ekonomi", count = item.economicAssetCount, confidenceScore = 82m, severity = item.economicAssetCount >= 130 ? "High" : "Medium", explanation = "Terdapat indikator kemampuan ekonomi pada data sintetis; bukan penetapan ketidaklayakan otomatis." }
     }).Where(item => item.count > 0).OrderByDescending(item => item.count));
 })
     .WithName("GetBeneficiaryAnomalyFindings")
@@ -754,7 +755,7 @@ app.MapGet("/api/v1/beneficiaries/exclusion-errors", async (BrantasDbContext dat
         .Take(20)
         .Select(item => new
         {
-            region = item.Region!.Name,
+            region = RegencyCatalog.ResolveSyntheticName(item.Region!.Name),
             estimatedEligibleHouseholds = item.EstimatedEligibleHouseholds,
             registeredBeneficiaries = item.RegisteredBeneficiaries,
             gap = item.EstimatedEligibleHouseholds - item.RegisteredBeneficiaries,

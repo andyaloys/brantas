@@ -4,7 +4,7 @@ public sealed class Region
 {
     public Guid Id { get; init; } = Guid.NewGuid();
     public required string BpsCode { get; init; }
-    public required string Name { get; init; }
+    public required string Name { get; set; }
     public RegionLevel Level { get; init; }
     public Guid? ParentId { get; init; }
     public Region? Parent { get; init; }
