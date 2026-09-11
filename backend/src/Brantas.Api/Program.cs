@@ -870,25 +870,37 @@ app.MapGet("/api/v1/optimization/scenarios", async (BrantasDbContext database, C
     var results = list.Select(item =>
     {
         decimal povertyWeight = 30m;
+        decimal disasterWeight = 10m;
         decimal capPercent = 25m;
         try
         {
             if (!string.IsNullOrEmpty(item.WeightsJson))
             {
                 using var doc = JsonDocument.Parse(item.WeightsJson);
-                if (doc.RootElement.TryGetProperty("PovertyRate", out var pRate))
+                foreach (var prop in doc.RootElement.EnumerateObject())
                 {
-                    var val = pRate.GetDecimal();
-                    povertyWeight = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+                    if (prop.Name.Equals("PovertyRate", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var val = prop.Value.GetDecimal();
+                        povertyWeight = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
+                    }
+                    else if (prop.Name.Equals("DisasterRisk", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var val = prop.Value.GetDecimal();
+                        disasterWeight = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(item.ConstraintsJson))
             {
                 using var doc = JsonDocument.Parse(item.ConstraintsJson);
-                if (doc.RootElement.TryGetProperty("capPercent", out var cVal))
+                foreach (var prop in doc.RootElement.EnumerateObject())
                 {
-                    var val = cVal.GetDecimal();
-                    capPercent = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+                    if (prop.Name.Equals("capPercent", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var val = prop.Value.GetDecimal();
+                        capPercent = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
+                    }
                 }
             }
         }
@@ -903,6 +915,7 @@ app.MapGet("/api/v1/optimization/scenarios", async (BrantasDbContext database, C
             weightsJson = item.WeightsJson,
             constraintsJson = item.ConstraintsJson,
             povertyWeight,
+            disasterWeight,
             capPercent,
             createdAt = item.CreatedAt
         };
@@ -923,25 +936,37 @@ app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, BrantasDb
     if (scenario is null) return Results.NotFound(new { title = "Skenario tidak ditemukan." });
 
     decimal povertyWeight = 30m;
+    decimal disasterWeight = 10m;
     decimal capPercent = 25m;
     try
     {
         if (!string.IsNullOrEmpty(scenario.WeightsJson))
         {
             using var doc = JsonDocument.Parse(scenario.WeightsJson);
-            if (doc.RootElement.TryGetProperty("PovertyRate", out var pRate))
+            foreach (var prop in doc.RootElement.EnumerateObject())
             {
-                var val = pRate.GetDecimal();
-                povertyWeight = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+                if (prop.Name.Equals("PovertyRate", StringComparison.OrdinalIgnoreCase))
+                {
+                    var val = prop.Value.GetDecimal();
+                    povertyWeight = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
+                }
+                else if (prop.Name.Equals("DisasterRisk", StringComparison.OrdinalIgnoreCase))
+                {
+                    var val = prop.Value.GetDecimal();
+                    disasterWeight = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
+                }
             }
         }
         if (!string.IsNullOrEmpty(scenario.ConstraintsJson))
         {
             using var doc = JsonDocument.Parse(scenario.ConstraintsJson);
-            if (doc.RootElement.TryGetProperty("capPercent", out var cVal))
+            foreach (var prop in doc.RootElement.EnumerateObject())
             {
-                var val = cVal.GetDecimal();
-                capPercent = val <= 1m ? Math.Round(val * 100m) : Math.Round(val);
+                if (prop.Name.Equals("capPercent", StringComparison.OrdinalIgnoreCase))
+                {
+                    var val = prop.Value.GetDecimal();
+                    capPercent = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
+                }
             }
         }
     }
@@ -956,6 +981,7 @@ app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, BrantasDb
         weightsJson = scenario.WeightsJson,
         constraintsJson = scenario.ConstraintsJson,
         povertyWeight,
+        disasterWeight,
         capPercent,
         createdAt = scenario.CreatedAt,
         recommendations = scenario.Results.OrderByDescending(item => item.RecommendedAmount - item.BaselineAmount).Select(item => new
@@ -1099,22 +1125,197 @@ app.MapGet("/api/v1/causal/did", async (BrantasDbContext database, CancellationT
     .WithTags("Evaluasi Kausal")
     .AllowAnonymous();
 
-app.MapGet("/api/v1/reports/policy-brief.pdf", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+app.MapGet("/api/v1/reports/policy-brief.pdf", async (
+    BrantasDbContext database,
+    Guid? scenarioId,
+    string? scenarioName,
+    decimal? povertyWeight,
+    decimal? depthWeight,
+    decimal? severityWeight,
+    decimal? humanDevelopmentWeight,
+    decimal? gdpWeight,
+    decimal? disasterWeight,
+    decimal? capPercent,
+    CancellationToken cancellationToken) =>
 {
     var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
-    var indicators = database.PovertyIndicators.Where(item => item.DatasetVersionId == version.Id && item.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province);
-    var priorities = await indicators.OrderByDescending(item => item.PovertyRate).Take(5).Select(item => new PolicyBriefRegion(item.Region!.Name, item.PovertyRate, item.PoorPopulation)).ToListAsync(cancellationToken);
+
+    var rawObservations = await (
+        from indicator in database.PovertyIndicators
+        join allocation in database.FiscalAllocations on indicator.RegionId equals allocation.RegionId
+        where indicator.DatasetVersionId == version.Id && allocation.DatasetVersionId == version.Id && indicator.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province
+        select new
+        {
+            indicator.RegionId,
+            RegionName = indicator.Region!.Name,
+            BpsCode = indicator.Region.BpsCode,
+            indicator.PovertyRate,
+            indicator.PovertyDepthIndex,
+            indicator.PovertySeverityIndex,
+            indicator.HumanDevelopmentIndex,
+            indicator.GdpPerCapita,
+            indicator.PoorPopulation,
+            allocation.TotalAllocation
+        }).ToListAsync(cancellationToken);
+
+    var observations = rawObservations.Select(item => new AllocationObservation(
+        item.RegionId,
+        item.RegionName,
+        item.PovertyRate,
+        item.PovertyDepthIndex,
+        item.PovertySeverityIndex,
+        item.HumanDevelopmentIndex,
+        item.GdpPerCapita,
+        DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score,
+        item.PoorPopulation,
+        item.TotalAllocation)).ToList();
+
+    string finalScenarioName = !string.IsNullOrWhiteSpace(scenarioName) ? scenarioName.Trim() : "Skenario Standar BRANTAS (Basis IKW & ASP)";
+    decimal finalPovertyWeight = povertyWeight ?? 30m;
+    decimal finalDepthWeight = depthWeight ?? 15m;
+    decimal finalSeverityWeight = severityWeight ?? 15m;
+    decimal finalHdiWeight = humanDevelopmentWeight ?? 15m;
+    decimal finalGdpWeight = gdpWeight ?? 15m;
+    decimal finalDisasterWeight = disasterWeight ?? 10m;
+    decimal finalCap = capPercent ?? 0.25m;
+    if (finalCap > 1.0m) finalCap /= 100m;
+
+    if (scenarioId.HasValue && scenarioId.Value != Guid.Empty)
+    {
+        var dbScenario = await database.SimulationScenarios
+            .FirstOrDefaultAsync(s => s.Id == scenarioId.Value, cancellationToken);
+        if (dbScenario != null)
+        {
+            finalScenarioName = dbScenario.Name;
+            try
+            {
+                using var doc = JsonDocument.Parse(dbScenario.WeightsJson);
+                foreach (var prop in doc.RootElement.EnumerateObject())
+                {
+                    var val = prop.Value.GetDecimal();
+                    if (val <= 1m && val > 0m) val *= 100m;
+                    if (prop.Name.Equals("PovertyRate", StringComparison.OrdinalIgnoreCase)) finalPovertyWeight = val;
+                    else if (prop.Name.Equals("PovertyDepth", StringComparison.OrdinalIgnoreCase)) finalDepthWeight = val;
+                    else if (prop.Name.Equals("PovertySeverity", StringComparison.OrdinalIgnoreCase)) finalSeverityWeight = val;
+                    else if (prop.Name.Equals("HumanDevelopmentGap", StringComparison.OrdinalIgnoreCase)) finalHdiWeight = val;
+                    else if (prop.Name.Equals("InverseGdp", StringComparison.OrdinalIgnoreCase)) finalGdpWeight = val;
+                    else if (prop.Name.Equals("DisasterRisk", StringComparison.OrdinalIgnoreCase)) finalDisasterWeight = val;
+                }
+
+                if (!string.IsNullOrEmpty(dbScenario.ConstraintsJson))
+                {
+                    using var cDoc = JsonDocument.Parse(dbScenario.ConstraintsJson);
+                    foreach (var prop in cDoc.RootElement.EnumerateObject())
+                    {
+                        if (prop.Name.Equals("capPercent", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var cVal = prop.Value.GetDecimal();
+                            finalCap = cVal > 1m ? cVal / 100m : cVal;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback default weights if parsing fails
+            }
+        }
+    }
+
+    // Parameter query eksplisit jika disediakan dari frontend slider aktif
+    if (povertyWeight.HasValue) finalPovertyWeight = povertyWeight.Value;
+    if (depthWeight.HasValue) finalDepthWeight = depthWeight.Value;
+    if (severityWeight.HasValue) finalSeverityWeight = severityWeight.Value;
+    if (humanDevelopmentWeight.HasValue) finalHdiWeight = humanDevelopmentWeight.Value;
+    if (gdpWeight.HasValue) finalGdpWeight = gdpWeight.Value;
+    if (disasterWeight.HasValue) finalDisasterWeight = disasterWeight.Value;
+    if (capPercent.HasValue)
+    {
+        finalCap = capPercent.Value > 1m ? capPercent.Value / 100m : capPercent.Value;
+    }
+
+    var weights = new AllocationWeights(
+        finalPovertyWeight,
+        finalDepthWeight,
+        finalSeverityWeight,
+        finalHdiWeight,
+        finalGdpWeight,
+        finalDisasterWeight);
+
+    var totalBudget = observations.Sum(item => item.BaselineAllocation);
+    var optResult = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, finalCap);
+
+    var increasedCount = optResult.Recommendations.Count(r => r.Delta > 0);
+    var decreasedCount = optResult.Recommendations.Count(r => r.Delta < 0);
+    var reallocated = optResult.Recommendations.Where(r => r.Delta > 0).Sum(r => r.Delta);
+
+    var normalizedWeights = weights.Normalize();
+    var scenarioInfo = new PolicyBriefScenarioInfo(
+        finalScenarioName,
+        Math.Round(normalizedWeights.PovertyRate * 100m, 1),
+        Math.Round(normalizedWeights.PovertyDepth * 100m, 1),
+        Math.Round(normalizedWeights.PovertySeverity * 100m, 1),
+        Math.Round(normalizedWeights.HumanDevelopmentGap * 100m, 1),
+        Math.Round(normalizedWeights.InverseGdp * 100m, 1),
+        Math.Round(normalizedWeights.DisasterRisk * 100m, 1),
+        finalCap,
+        500m,
+        increasedCount,
+        decreasedCount,
+        reallocated);
+
+    var rawLookup = rawObservations.ToDictionary(r => r.RegionId);
+    var priorityRegions = optResult.Recommendations
+        .OrderByDescending(r => r.VulnerabilityIndex)
+        .Take(7)
+        .Select(rec =>
+        {
+            var raw = rawLookup[rec.RegionId];
+            var risk = DisasterRiskRepository.GetDisasterRisk(raw.BpsCode);
+            return new PolicyBriefRegion(
+                rec.RegionName,
+                raw.PovertyRate,
+                raw.PoorPopulation,
+                risk.Score,
+                risk.Category,
+                rec.BaselineAllocation,
+                rec.RecommendedAllocation,
+                rec.Delta,
+                rec.DeltaPercent,
+                rec.VulnerabilityIndex);
+        })
+        .ToList();
+
     var anomalyMetrics = await database.Anomalies.Where(item => item.DatasetVersionId == version.Id).GroupBy(_ => 1).Select(group => new { Count = group.Count(), ValueAtRisk = group.Sum(item => item.ValueAtRisk) }).FirstOrDefaultAsync(cancellationToken);
     var truth = await database.PolicyImpactGroundTruths.SingleOrDefaultAsync(item => item.DatasetVersionId == version.Id, cancellationToken);
     var panel = truth is null ? [] : await database.PolicyImpactPanels.Where(item => item.DatasetVersionId == version.Id).Select(item => new PolicyObservation(item.RegionId, item.Year, item.IsTreated, item.SocialProtectionAllocation, item.PovertyRate)).ToListAsync(cancellationToken);
     var did = truth is null ? null : new DifferenceInDifferencesEstimator().Estimate(panel, truth.TreatmentStartYear);
-    var report = new PolicyBriefModel(version.Id, version.Period, version.Checksum, version.Seed, DateTimeOffset.UtcNow, await indicators.CountAsync(cancellationToken), await indicators.AverageAsync(item => item.PovertyRate, cancellationToken), anomalyMetrics?.Count ?? 0, anomalyMetrics?.ValueAtRisk ?? 0m, did?.EffectPercentagePoints ?? 0m, did?.StandardError ?? 0m, did?.ConfidenceIntervalLower ?? 0m, did?.ConfidenceIntervalUpper ?? 0m, did?.PValue ?? 1m, priorities);
+
+    var report = new PolicyBriefModel(
+        version.Id,
+        version.Period,
+        version.Checksum,
+        version.Seed,
+        DateTimeOffset.UtcNow,
+        observations.Count,
+        Math.Round(observations.Average(item => item.PovertyRate), 2),
+        anomalyMetrics?.Count ?? 0,
+        anomalyMetrics?.ValueAtRisk ?? 0m,
+        did?.EffectPercentagePoints ?? 0m,
+        did?.StandardError ?? 0m,
+        did?.ConfidenceIntervalLower ?? 0m,
+        did?.ConfidenceIntervalUpper ?? 0m,
+        did?.PValue ?? 1m,
+        priorityRegions,
+        scenarioInfo);
+
     var annualPeriod = version.Period.Contains('-') ? version.Period.Split('-')[0] : version.Period;
-    return Results.File(new PolicyBriefDocument(report).GeneratePdf(), "application/pdf", $"rekomendasi-kebijakan-brantas-{annualPeriod}.pdf");
+    var sanitizedSlug = System.Text.RegularExpressions.Regex.Replace(finalScenarioName.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
+    return Results.File(new PolicyBriefDocument(report).GeneratePdf(), "application/pdf", $"rekomendasi-kebijakan-{sanitizedSlug}-{annualPeriod}.pdf");
 })
     .WithName("DownloadPolicyBrief")
-    .WithSummary("Menghasilkan rekomendasi kebijakan PDF berbasis data analitik BRANTAS.")
+    .WithSummary("Menghasilkan rekomendasi kebijakan PDF berbasis skenario simulasi analitik BRANTAS.")
     .WithTags("Rekomendasi Kebijakan")
     .AllowAnonymous();
 
