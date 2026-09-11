@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, of, firstValueFrom } from 'rxjs';
+import { debounceTime, switchMap, catchError, finalize } from 'rxjs/operators';
 import { AllocationRecommendation, OptimizationDataService, SimulationScenario } from '../data/optimization-data.service';
 import { ReportingDataService } from '../../reporting/data/reporting-data.service';
 import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
@@ -10,6 +12,8 @@ export class OptimizationPageComponent {
   protected readonly formatCurrency = formatCompactCurrency;
   private readonly optimizationData = inject(OptimizationDataService);
   private readonly reportingData = inject(ReportingDataService);
+  private readonly autoCalculate$ = new Subject<void>();
+
   protected readonly povertyWeight = signal(30);
   protected readonly disasterWeight = signal(10);
   protected readonly capPercent = signal(25);
@@ -24,6 +28,34 @@ export class OptimizationPageComponent {
   protected readonly activeScenarioId = signal<string | null>(null);
   protected readonly activeScenarioName = signal<string | null>(null);
   protected readonly isLoadingScenario = signal<boolean>(false);
+
+  constructor() {
+    // Reaktif otomatis: menghitung ulang simulasi begitu parameter slider digeser
+    this.autoCalculate$
+      .pipe(
+        debounceTime(180),
+        switchMap(() => {
+          this.isRunning.set(true);
+          this.error.set(null);
+          return this.optimizationData
+            .getRecommendations(this.povertyWeight(), this.capPercent(), this.disasterWeight())
+            .pipe(
+              catchError(() => {
+                this.error.set('Simulasi belum dapat dihitung. Pastikan layanan BRANTAS aktif.');
+                return of(null);
+              }),
+              finalize(() => this.isRunning.set(false))
+            );
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe((result) => {
+        if (result) {
+          this.totalBudget.set(result.totalBudget);
+          this.recommendations.set(result.recommendations);
+        }
+      });
+  }
 
   // Status apakah parameter saat ini sesuai rekomendasi ideal sistem BRANTAS
   protected readonly isIdealActive = computed(() => this.povertyWeight() === 45 && this.capPercent() === 20 && this.disasterWeight() === 15);
@@ -79,18 +111,21 @@ export class OptimizationPageComponent {
     this.povertyWeight.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
+    this.autoCalculate$.next();
   }
 
   protected updateDisasterWeight(event: Event): void {
     this.disasterWeight.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
+    this.autoCalculate$.next();
   }
 
   protected updateCap(event: Event): void {
     this.capPercent.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
+    this.autoCalculate$.next();
   }
 
   protected updateScenarioName(event: Event): void { this.scenarioName.set((event.target as HTMLInputElement).value); }

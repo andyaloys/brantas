@@ -32,7 +32,13 @@
     <div class="aside-card">
       <header class="panel-head ribbon-teal">
         <div class="panel-titles">
-          <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> PARAMETER MODEL</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px;">
+            <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> PARAMETER MODEL</span>
+            <span class="badge-live-calc" [class.calculating]="isRunning()" title="Perhitungan optimasi berjalan otomatis secara langsung saat slider digeser">
+              <span class="live-dot" [class.pulse]="isRunning()"></span>
+              {{ isRunning() ? 'Mengoptimasi...' : 'Live Auto' }}
+            </span>
+          </div>
           <h2>Bobot & Batas Toleransi Alokasi</h2>
         </div>
         @if (activeScenarioName() || povertyWeight() !== 30 || capPercent() !== 25) {
@@ -128,10 +134,10 @@
           </div>
         </div>
 
-        <!-- Tombol Aksi Utama: Diletakkan Tepat di Area Parameter Model -->
-        <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan kalkulasi simulasi alokasi">
+        <!-- Tombol Aksi: Berjalan otomatis saat slider digeser, namun dapat diklik untuk kalkulasi ulang manual -->
+        <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Simulasi berjalan otomatis setiap slider digeser. Klik untuk kalkulasi ulang seketika.">
           <i class="pi" [ngClass]="isRunning() ? 'pi-spin pi-spinner' : 'pi-bolt'" aria-hidden="true"></i>
-          <span>{{ isRunning() ? 'Menghitung Simulasi...' : 'Jalankan Simulasi Alokasi' }}</span>
+          <span>{{ isRunning() ? 'Menghitung Optimasi...' : 'Kalkulasi Ulang (Auto Aktif)' }}</span>
         </button>
 
         <div class="save-scenario">
