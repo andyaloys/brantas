@@ -386,38 +386,173 @@
             </div>
 
             <dl class="stat-list">
+              <!-- 1. Tingkat Kemiskinan -->
               <div class="stat-item highlight">
-                <dt>Tingkat Kemiskinan</dt>
+                <dt class="dt-stat">
+                  <span>Tingkat Kemiskinan</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-percentage"></i> Tingkat Kemiskinan
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Persentase warga yang pengeluarannya berada di bawah Garis Kemiskinan resmi BPS.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Dasar Perhitungan:</span>
+                        <small>Data resmi Susenas BPS berdasarkan batas pemenuhan kebutuhan dasar makanan dan non-makanan.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
                 <dd><strong class="val-highlight">{{ region.povertyRate.toFixed(2) }}%</strong></dd>
               </div>
+
+              <!-- 2. Jumlah Penduduk Miskin -->
               <div class="stat-item">
-                <dt>Jumlah Penduduk Miskin</dt>
+                <dt class="dt-stat">
+                  <span>Jumlah Penduduk Miskin</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-users"></i> Jumlah Penduduk Miskin
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Estimasi total jiwa warga miskin yang menjadi target prioritas intervensi bantuan sosial.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Dasar Perhitungan:</span>
+                        <small>Perkalian persentase kemiskinan dengan total populasi penduduk wilayah riil BPS.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono font-bold">{{ region.poorPopulation.toLocaleString('id-ID') }} jiwa</dd>
               </div>
+
+              <!-- 3. Indeks Kedalaman (P1) -->
               <div class="stat-item">
-                <dt>Indeks Kedalaman (P1)</dt>
+                <dt class="dt-stat">
+                  <span>Indeks Kedalaman (P1)</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-arrow-down-right"></i> Indeks Kedalaman (P1)
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Rata-rata jarak kesenjangan pengeluaran warga miskin terhadap batas garis kemiskinan.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Dasar Perhitungan:</span>
+                        <small>Makin tinggi angka P1, makin besar kebutuhan transfer bansos per kepala agar mereka terangkat keluar dari kemiskinan.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono">{{ region.povertyDepthIndex.toFixed(3) }}</dd>
               </div>
+
+              <!-- 4. Indeks Keparahan (P2) -->
               <div class="stat-item">
-                <dt>Indeks Keparahan (P2)</dt>
+                <dt class="dt-stat">
+                  <span>Indeks Keparahan (P2)</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-exclamation-triangle"></i> Indeks Keparahan (P2)
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Tingkat ketimpangan pengeluaran di antara sesama warga miskin itu sendiri.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Dasar Perhitungan:</span>
+                        <small>Skor P2 tinggi mencerminkan adanya warga miskin ekstrem yang sangat tertinggal dibanding kelompok miskin lainnya.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono">{{ region.povertySeverityIndex.toFixed(3) }}</dd>
               </div>
+
+              <!-- 5. Indeks Pembangunan Manusia (IPM) -->
               <div class="stat-item">
-                <dt>Indeks Pembangunan Manusia (IPM)</dt>
+                <dt class="dt-stat">
+                  <span>Indeks Pembangunan Manusia (IPM)</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-star"></i> Indeks Pembangunan Manusia
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Kualitas taraf hidup masyarakat daerah di bidang kesehatan, pendidikan, dan standar hidup layak.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Dasar Perhitungan:</span>
+                        <small>Rata-rata geometrik angka harapan hidup, harapan lama sekolah, rata-rata lama sekolah, dan daya beli per kapita BPS.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono font-bold">{{ region.humanDevelopmentIndex.toFixed(2) }}</dd>
               </div>
-              <div class="stat-item" [title]="'Nominal Lengkap: Rp' + (region.gdpPerCapita * 1000000).toLocaleString('id-ID')">
-                <dt>Pendapatan Regional (PDRB) / Kapita</dt>
-                <dd class="mono">Rp{{ region.gdpPerCapita.toFixed(1) }} Juta</dd>
+
+              <!-- 6. Pendapatan Regional (PDRB) / Kapita -->
+              <div class="stat-item" [title]="'Nominal Lengkap: ' + formatGdp(region.gdpPerCapita, region.humanDevelopmentIndex).full">
+                <dt class="dt-stat">
+                  <span>Pendapatan Regional (PDRB) / Kapita</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-wallet"></i> Pendapatan Regional (PDRB) / Kapita
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Nilai rata-rata barang dan jasa yang dihasilkan per penduduk daerah dalam satu tahun.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Dasar Perhitungan:</span>
+                        <small>Produk Domestik Regional Bruto (PDRB) riil dibagi jumlah penduduk daerah. Menunjukkan kapasitas ekonomi fiskal daerah.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
+                <dd class="mono font-bold">{{ formatGdp(region.gdpPerCapita, region.humanDevelopmentIndex).compact }}</dd>
               </div>
+
+              <!-- 7. Risiko Bencana (IRBI) -->
               <div class="stat-item" [title]="'Indeks Risiko Bencana Indonesia (IRBI) BNPB'">
-                <dt>Risiko Bencana (IRBI)</dt>
-                <dd class="mono font-bold" [style.color]="(region.disasterRisk ?? 0.5) >= 0.7 ? '#dc2626' : ((region.disasterRisk ?? 0.5) >= 0.45 ? '#ea580c' : '#16a34a')">
-                  {{ region.disasterRisk ? ((region.disasterRisk * 100).toFixed(0) + '% · ' + (region.disasterCategory ?? 'Sedang')) : '-' }}
+                <dt class="dt-stat">
+                  <span>Risiko Bencana (IRBI)</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-shield"></i> Risiko Bencana (IRBI BNPB)
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Tingkat kerentanan daerah terhadap potensi dampak bencana alam dari data resmi BNPB.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Dasar Perhitungan:</span>
+                        <small>Skor terstandarisasi (0–100%). Wilayah &ge; 70% memerlukan perlindungan sosial adaptif untuk mengantisipasi guncangan bencana.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
+                <dd class="mono font-bold" [style.color]="(region.disasterRisk ?? getDisasterRisk(region.parent).score) >= 0.7 ? '#dc2626' : ((region.disasterRisk ?? getDisasterRisk(region.parent).score) >= 0.45 ? '#ea580c' : '#16a34a')">
+                  {{ region.disasterRisk ? ((region.disasterRisk * 100).toFixed(0) + '% · ' + (region.disasterCategory ?? 'Sedang')) : (getDisasterRisk(region.parent).percent + ' · ' + getDisasterRisk(region.parent).category) }}
                 </dd>
               </div>
+
+              <!-- 8. Klasifikasi Klaster Spasial -->
               <div class="stat-item cluster-item">
-                <dt>Klasifikasi Klaster Spasial</dt>
+                <dt class="dt-stat">
+                  <span>Klasifikasi Klaster Spasial</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head">
+                      <i class="pi pi-map"></i> Klasifikasi Klaster Spasial (LISA)
+                    </div>
+                    <div class="stat-tooltip-body">
+                      <p>Pengelompokan kantong kemiskinan antarwilayah bertetangga melalui analisis spasial Moran's I.</p>
+                      <div class="stat-tooltip-calc">
+                        <span class="calc-label">Kategori:</span>
+                        <small><b>Hotspot:</b> Klaster miskin tinggi.<br><b>Outlier Tinggi:</b> Kantong miskin terisolasi.<br><b>Coldspot:</b> Klaster sejahtera stabil.</small>
+                      </div>
+                    </div>
+                  </div>
+                </dt>
                 <dd>
                   <span class="cluster-capsule" [ngClass]="getClusterClass(region.cluster)">
                     {{ translateCluster(region.cluster) }}
@@ -442,34 +577,110 @@
 
           <div class="inspector-body">
             <dl class="stat-list">
+              <!-- Rerata Kemiskinan Provinsi -->
               <div class="stat-item highlight">
-                <dt>Rerata Kemiskinan Provinsi</dt>
+                <dt class="dt-stat">
+                  <span>Rerata Kemiskinan Provinsi</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head"><i class="pi pi-percentage"></i> Rerata Kemiskinan Provinsi</div>
+                    <div class="stat-tooltip-body">
+                      <p>Rata-rata persentase kemiskinan seluruh kabupaten/kota di provinsi ini.</p>
+                    </div>
+                  </div>
+                </dt>
                 <dd><strong class="val-highlight">{{ prov.avgPoverty.toFixed(2) }}%</strong></dd>
               </div>
+
+              <!-- Total Penduduk Miskin -->
               <div class="stat-item">
-                <dt>Total Penduduk Miskin</dt>
+                <dt class="dt-stat">
+                  <span>Total Penduduk Miskin</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head"><i class="pi pi-users"></i> Total Penduduk Miskin</div>
+                    <div class="stat-tooltip-body">
+                      <p>Akumulasi total jiwa penduduk miskin di seluruh kabupaten/kota se-provinsi.</p>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono font-bold text-rose">{{ prov.totalPoor.toLocaleString('id-ID') }} jiwa</dd>
               </div>
+
+              <!-- Rerata Kedalaman (P1) -->
               <div class="stat-item">
-                <dt>Rerata Kedalaman (P1)</dt>
+                <dt class="dt-stat">
+                  <span>Rerata Kedalaman (P1)</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head"><i class="pi pi-arrow-down-right"></i> Rerata Kedalaman (P1)</div>
+                    <div class="stat-tooltip-body">
+                      <p>Rata-rata indeks kesenjangan pengeluaran warga miskin provinsi terhadap garis kemiskinan.</p>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono">{{ prov.avgDepth.toFixed(3) }}</dd>
               </div>
+
+              <!-- Rerata Keparahan (P2) -->
               <div class="stat-item">
-                <dt>Rerata Keparahan (P2)</dt>
+                <dt class="dt-stat">
+                  <span>Rerata Keparahan (P2)</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head"><i class="pi pi-exclamation-triangle"></i> Rerata Keparahan (P2)</div>
+                    <div class="stat-tooltip-body">
+                      <p>Rata-rata ketimpangan di antara sesama penduduk miskin di tingkat provinsi.</p>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono">{{ prov.avgSeverity.toFixed(3) }}</dd>
               </div>
+
+              <!-- Rerata Indeks IPM -->
               <div class="stat-item">
-                <dt>Rerata Indeks IPM</dt>
+                <dt class="dt-stat">
+                  <span>Rerata Indeks IPM</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head"><i class="pi pi-star"></i> Rerata Indeks IPM</div>
+                    <div class="stat-tooltip-body">
+                      <p>Rata-rata capaian indeks pembangunan manusia antardaerah di provinsi ini.</p>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono font-bold text-teal">{{ prov.avgHdi.toFixed(2) }}</dd>
               </div>
+
+              <!-- Rerata Risiko Bencana (IRBI) -->
               <div class="stat-item" [title]="'Rerata Indeks Risiko Bencana BNPB Provinsi'">
-                <dt>Rerata Risiko Bencana (IRBI)</dt>
+                <dt class="dt-stat">
+                  <span>Rerata Risiko Bencana (IRBI)</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head"><i class="pi pi-shield"></i> Rerata Risiko Bencana (IRBI)</div>
+                    <div class="stat-tooltip-body">
+                      <p>Tingkat kerentanan rata-rata kabupaten/kota di provinsi ini terhadap ancaman bencana alam BNPB.</p>
+                    </div>
+                  </div>
+                </dt>
                 <dd class="mono font-bold" [style.color]="prov.avgDisaster >= 0.7 ? '#dc2626' : (prov.avgDisaster >= 0.45 ? '#ea580c' : '#16a34a')">
                   {{ (prov.avgDisaster * 100).toFixed(0) }}% · {{ prov.avgDisaster >= 0.7 ? 'Tinggi' : (prov.avgDisaster >= 0.45 ? 'Sedang' : 'Rendah') }}
                 </dd>
               </div>
+
+              <!-- Klaster Spasial Dominan -->
               <div class="stat-item cluster-item">
-                <dt>Klaster Spasial Dominan</dt>
+                <dt class="dt-stat">
+                  <span>Klaster Spasial Dominan</span>
+                  <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
+                  <div class="stat-tooltip align-left">
+                    <div class="stat-tooltip-head"><i class="pi pi-map"></i> Klaster Spasial Dominan</div>
+                    <div class="stat-tooltip-body">
+                      <p>Pola spasial kemiskinan terbanyak yang terbentuk di antara kabupaten/kota dalam provinsi ini.</p>
+                    </div>
+                  </div>
+                </dt>
                 <dd>
                   <span class="cluster-capsule" [ngClass]="getClusterClass(prov.cluster)">
                     {{ translateCluster(prov.cluster) }}

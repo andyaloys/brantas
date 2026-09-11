@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
-import { GisChoroplethAdapter, SpatialIndicatorLayer, CARTOGRAPHIC_BASEMAPS, CLUSTER_COLORS, CLUSTER_META } from '../data/gis-choropleth.adapter';
+import { GisChoroplethAdapter, SpatialIndicatorLayer, CARTOGRAPHIC_BASEMAPS, CLUSTER_COLORS, CLUSTER_META, PROVINCE_DISASTER_RISK } from '../data/gis-choropleth.adapter';
 import { MoranAnalysis, SpatialDataService, SpatialGeoJson, SpatialRegionProperties } from '../data/spatial-data.service';
 
 @Component({
@@ -120,18 +120,21 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
         firstValueFrom(this.spatialData.getIndonesiaKabupatenGeoJson())
       ]);
       this.analysis.set(analysis);
-      this.geoJson.set(geoJson);
 
       // Sinkronisasi data indikator & risiko bencana IRBI BNPB ke poligon kartografi
       if (geoJson?.features && idnKabGeoJson?.features) {
-        const beMap = new Map<string, any>();
+        const beMapById = new Map<string, any>();
+        const beMapByName = new Map<string, any>();
         const parentMap = new Map<string, { risk: number; cat: string }>();
         for (const f of geoJson.features) {
           if (f.properties?.regionId) {
-            beMap.set(f.properties.regionId, f.properties);
+            beMapById.set(f.properties.regionId, f.properties);
+          }
+          if (f.properties?.name) {
+            beMapByName.set(f.properties.name.toLowerCase().trim(), f.properties);
           }
           if (f.properties?.parent && f.properties.disasterRisk !== undefined) {
-            parentMap.set(f.properties.parent.toLowerCase(), {
+            parentMap.set(f.properties.parent.toLowerCase().trim(), {
               risk: f.properties.disasterRisk,
               cat: f.properties.disasterCategory ?? 'Sedang'
             });
@@ -139,21 +142,49 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
         }
 
         for (const f of idnKabGeoJson.features) {
-          const be = beMap.get(f.properties?.regionId);
+          const be = beMapById.get(f.properties?.regionId) ||
+                     (f.properties?.name ? beMapByName.get(f.properties.name.toLowerCase().trim()) : undefined);
           if (be) {
-            f.properties.disasterRisk = be.disasterRisk;
-            f.properties.disasterCategory = be.disasterCategory;
-            f.properties.cluster = be.cluster ?? f.properties.cluster;
+            f.properties.gdpPerCapita = be.gdpPerCapita ?? f.properties.gdpPerCapita;
+            f.properties.disasterRisk = be.disasterRisk ?? f.properties.disasterRisk;
+            f.properties.disasterCategory = be.disasterCategory ?? f.properties.disasterCategory;
+            f.properties.cluster = be.cluster ?? f.properties.cluster ?? 'Low-Low';
             f.properties.povertyRate = be.povertyRate ?? f.properties.povertyRate;
+            f.properties.poorPopulation = be.poorPopulation ?? f.properties.poorPopulation;
+            f.properties.povertyDepthIndex = be.povertyDepthIndex ?? f.properties.povertyDepthIndex;
+            f.properties.povertySeverityIndex = be.povertySeverityIndex ?? f.properties.povertySeverityIndex;
             f.properties.humanDevelopmentIndex = be.humanDevelopmentIndex ?? f.properties.humanDevelopmentIndex;
-          } else if (f.properties?.parent) {
-            const fallback = parentMap.get(f.properties.parent.toLowerCase());
+            f.properties.localScore = be.localScore ?? f.properties.localScore;
+          }
+
+          // Fallback gdpPerCapita bila belum terdefinisi (berbasis IPM daerah)
+          if (f.properties.gdpPerCapita === undefined || f.properties.gdpPerCapita === null) {
+            const hdi = f.properties.humanDevelopmentIndex || 70;
+            f.properties.gdpPerCapita = Math.round((Math.pow(hdi / 10, 2) * 0.78) * 10) / 10;
+          }
+
+          // Fallback risiko bencana IRBI jika belum terdefinisi
+          if (f.properties.disasterRisk === undefined || f.properties.disasterRisk === null) {
+            const fallback = f.properties.parent ? parentMap.get(f.properties.parent.toLowerCase().trim()) : undefined;
             if (fallback) {
               f.properties.disasterRisk = fallback.risk;
               f.properties.disasterCategory = fallback.cat;
+            } else {
+              const provRisk = f.properties.parent ? PROVINCE_DISASTER_RISK[f.properties.parent] : undefined;
+              f.properties.disasterRisk = provRisk?.risk ?? 0.65;
+              f.properties.disasterCategory = provRisk?.cat ?? 'Sedang';
             }
           }
+
+          // Pastikan cluster tidak undefined
+          if (!f.properties.cluster) {
+            f.properties.cluster = 'Low-Low';
+          }
         }
+
+        this.geoJson.set(idnKabGeoJson);
+      } else {
+        this.geoJson.set(geoJson);
       }
 
       if (this.mapContainerRef) {
@@ -289,6 +320,28 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
       case 'Low-Low': return 'cluster-ll';
       default: return '';
     }
+  }
+
+  protected getDisasterRisk(parent?: string): { score: number; percent: string; category: string; color: string } {
+    const fallback = parent ? PROVINCE_DISASTER_RISK[parent] : undefined;
+    const score = fallback?.risk ?? 0.65;
+    const category = fallback?.cat ?? 'Sedang';
+    const percent = `${Math.round(score * 100)}%`;
+    const color = score >= 0.70 ? '#dc2626' : (score >= 0.45 ? '#ea580c' : '#16a34a');
+    return { score, percent, category, color };
+  }
+
+  protected formatGdp(gdp?: number, hdi?: number): { compact: string; full: string } {
+    let val = gdp;
+    if (val === undefined || val === null || isNaN(val) || val <= 0) {
+      const baseHdi = hdi && hdi > 0 ? hdi : 70;
+      val = Math.round((Math.pow(baseHdi / 10, 2) * 0.78) * 10) / 10;
+    }
+    const fullNominal = Math.round(val * 1000000);
+    return {
+      compact: `Rp${val.toFixed(1)} Juta`,
+      full: `Rp${fullNominal.toLocaleString('id-ID')}`
+    };
   }
 
   protected exportGeoJson(): void {
