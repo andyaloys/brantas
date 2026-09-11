@@ -1,7 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
-export interface EventStudyPoint { year: number; effectPercentagePoints: number; }
+export interface EventStudyPoint {
+  year: number;
+  effectPercentagePoints: number;
+  treatedPovertyRate?: number;
+  controlPovertyRate?: number;
+  baselineTreatedPovertyRate?: number;
+  baselineControlPovertyRate?: number;
+  priorYearTreatedPovertyRate?: number;
+}
 export interface CausalResult {
   treatedRegionCount: number;
   controlRegionCount: number;
