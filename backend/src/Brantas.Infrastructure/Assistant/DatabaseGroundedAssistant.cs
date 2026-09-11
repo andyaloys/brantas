@@ -76,9 +76,12 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
     private async Task<RegionLookup?> TryMatchRegionAsync(string normalizedQuestion, CancellationToken cancellationToken)
     {
         var regions = await EnsureRegionsCacheAsync(cancellationToken);
-        return regions
-            .OrderByDescending(r => r.SearchKey.Length)
-            .FirstOrDefault(r => normalizedQuestion.Contains(r.SearchKey));
+        return RegionAliasCatalog.FindBestMatch(
+            normalizedQuestion,
+            regions,
+            r => r.FullName,
+            r => r.SearchKey,
+            r => r.Level);
     }
 
     private async Task<string> RegionSpecificAnswerAsync(RegionLookup region, Guid versionId, CancellationToken cancellationToken)
@@ -102,66 +105,33 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
                 .Select(a => (decimal?)a.TotalAllocation)
                 .FirstOrDefaultAsync(cancellationToken) ?? 0m;
 
-            var anomaly = await database.Anomalies
-                .Where(a => a.DatasetVersionId == versionId && a.RegionId == region.Id)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            sb.AppendLine($"Berdasarkan dataset terverifikasi BRANTAS (Maret 2026), berikut profil lengkap untuk **{region.FullName}**:");
-            sb.AppendLine($"- **Tingkat Kemiskinan**: **{indicator.PovertyRate:0.00}%** dengan jumlah penduduk miskin **{indicator.PoorPopulation:N0} jiwa**.");
-            sb.AppendLine($"- **Indeks Pembangunan Manusia (IPM)**: **{indicator.HumanDevelopmentIndex:0.00}** | PDRB per Kapita: **Rp{indicator.GdpPerCapita:0.00} Juta**.");
-            sb.AppendLine($"- **Indeks Kedalaman (P1)**: **{indicator.PovertyDepthIndex:0.000}** | Keparahan (P2): **{indicator.PovertySeverityIndex:0.000}**.");
-            sb.AppendLine($"- **Pagu Alokasi APBN Belanja Bansos**: **Rp{alloc:N0} Juta**.");
-            sb.AppendLine($"- **Risiko Bencana (IRBI BNPB)**: Kategori **{disaster.Category}** (Skor Indeks: **{disaster.Score:0.00}**).");
-
-            if (anomaly != null)
-            {
-                sb.AppendLine($"- **Temuan Anomali Fiskal**: Terdeteksi **{anomaly.Type}** dengan potensi nilai berisiko **Rp{anomaly.ValueAtRisk:N0} Juta**.");
-            }
-
+            sb.AppendLine($"Tingkat kemiskinan di **{region.FullName}** tercatat sebesar **{indicator.PovertyRate:0.00}%** dengan jumlah penduduk miskin sebanyak **{indicator.PoorPopulation:N0} jiwa**, IPM **{indicator.HumanDevelopmentIndex:0.00}**, dan pagu alokasi bansos APBN sebesar **Rp{alloc:N0} Juta**. Wilayah ini tergolong zona risiko bencana **{disaster.Category}** (skor IRBI BNPB **{disaster.Score:0.00}**).");
             sb.AppendLine();
             sb.AppendLine("**Rekomendasi Kebijakan BRANTAS**:");
             if (disaster.Score >= 0.70m)
             {
-                sb.AppendLine("1. **Perlindungan Sosial Adaptif Bencana**: Wilayah tergolong rawan bencana tinggi, alokasi bansos perlu disertai cadangan respon tanggap darurat dan skema bantuan tunai pascabencana terintegrasi.");
-            }
-            if (indicator.PovertyRate >= 12.0m)
-            {
-                sb.AppendLine("2. **Intervensi Kemiskinan Terpadu**: Prioritaskan penanganan kantong kemiskinan struktural dengan memadukan bantuan sosial reguler (PKH/Sembako) bersama program padat karya infrastruktur dasar.");
+                sb.AppendLine("1. **Perlindungan Sosial Adaptif Bencana**: Alokasikan cadangan bantuan tanggap darurat dan skema bantuan tunai cepat guna mengamankan daya beli masyarakat miskin saat terjadi guncangan bencana alam.");
             }
             else
             {
-                sb.AppendLine("2. **Penguatan Ketahanan Ekonomi**: Fokus pada program pemberdayaan dan graduasi kemiskinan melalui fasilitasi akses permodalan dan pelatihan usaha produktif.");
+                sb.AppendLine("1. **Penguatan Jaring Pengaman Sosial**: Optimalkan ketepatan sasaran penyaluran bansos reguler (PKH/Sembako) untuk mempercepat graduasi kemiskinan.");
             }
+            sb.AppendLine("2. **Pengentasan Kemiskinan Terpadu**: Padukan bantuan pemenuhan kebutuhan dasar dengan program padat karya produktif serta pemutakhiran data DTKS secara berkala agar belanja sosial tepat sasaran.");
         }
         else
         {
-            var parentAlloc = await database.FiscalAllocations
-                .Where(a => a.DatasetVersionId == versionId && a.RegionId == region.ParentId)
-                .Select(a => (decimal?)a.TotalAllocation)
-                .FirstOrDefaultAsync(cancellationToken) ?? 0m;
-
-            var parentTotalPoor = await database.PovertyIndicators
-                .Where(i => i.DatasetVersionId == versionId && i.Region!.ParentId == region.ParentId)
-                .SumAsync(i => (long)i.PoorPopulation, cancellationToken);
-
-            var estAlloc = (parentTotalPoor > 0 && parentAlloc > 0)
-                ? Math.Round(parentAlloc * indicator.PoorPopulation / parentTotalPoor, 2)
-                : 0m;
-
-            sb.AppendLine($"Berdasarkan dataset terverifikasi BRANTAS (Maret 2026), profil data untuk **{region.FullName}** ({region.ParentName}):");
-            sb.AppendLine($"- **Tingkat Kemiskinan**: **{indicator.PovertyRate:0.00}%**.");
-            sb.AppendLine($"- **Jumlah Penduduk Miskin**: **{indicator.PoorPopulation:N0} jiwa**.");
-            sb.AppendLine($"- **Indeks Pembangunan Manusia (IPM)**: **{indicator.HumanDevelopmentIndex:0.00}**.");
-            sb.AppendLine($"- **PDRB per Kapita**: **Rp{indicator.GdpPerCapita:0.00} Juta**.");
-            sb.AppendLine($"- **Risiko Bencana (IRBI BNPB)**: Kategori **{disaster.Category}** (Skor: **{disaster.Score:0.00}**).");
-            if (estAlloc > 0)
-            {
-                sb.AppendLine($"- **Estimasi Porsi Alokasi Wilayah**: Sekitar **Rp{estAlloc:N0} Juta** (dari pagu induk {region.ParentName} Rp{parentAlloc:N0} Juta).");
-            }
-
+            sb.AppendLine($"Tingkat kemiskinan di **{region.FullName}**{(string.IsNullOrWhiteSpace(region.ParentName) ? "" : $" (Provinsi {region.ParentName})")} tercatat sebesar **{indicator.PovertyRate:0.00}%** dengan jumlah penduduk miskin sebanyak **{indicator.PoorPopulation:N0} jiwa** dan IPM **{indicator.HumanDevelopmentIndex:0.00}**. Wilayah ini memiliki tingkat kerentanan bencana kategori **{disaster.Category}** (skor IRBI BNPB **{disaster.Score:0.00}**).");
             sb.AppendLine();
             sb.AppendLine("**Rekomendasi Kebijakan BRANTAS**:");
-            sb.AppendLine($"- Lakukan pemutakhiran berkala DTKS untuk memastikan ketepatan sasaran, prioritaskan perlindungan kelompok lansia/disabilitas, dan sinergikan bansos daerah dengan program pengentasan kemiskinan nasional.");
+            if (disaster.Score >= 0.70m)
+            {
+                sb.AppendLine("1. **Perlindungan Sosial Adaptif Bencana**: Wilayah memiliki kerawanan bencana tinggi, prioritaskan penyaluran bansos afirmatif yang dilengkapi cadangan logistik darurat dan mekanisme bantuan tunai pascabencana.");
+            }
+            else
+            {
+                sb.AppendLine("1. **Ketepatan Sasaran Belanja Sosial**: Lakukan pemutakhiran berkala DTKS untuk memastikan bantuan sosial menjangkau kelompok paling rentan seperti lansia dan penyandang disabilitas.");
+            }
+            sb.AppendLine("2. **Pemberdayaan Ekonomi Produktif**: Sinergikan bansos kebutuhan dasar dengan program padat karya daerah dan pembinaan UMKM agar keluarga miskin dapat mandiri secara ekonomi.");
         }
 
         return sb.ToString().Trim();

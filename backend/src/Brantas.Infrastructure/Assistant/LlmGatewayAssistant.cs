@@ -18,15 +18,16 @@ public sealed class LlmGatewayOptions
     public string BaseUrl { get; set; } = "https://ai.sumopod.com/v1";
     public string StreamingBaseUrl { get; set; } = "https://ai.sumopod.com/v1";
     public string ApiKey { get; set; } = string.Empty;
-    public string Model { get; set; } = "qwen3.8-flash";
-    public double Temperature { get; set; } = 0.7;
-    public int MaxOutputTokens { get; set; } = 8000;
-    public int RequestTimeoutSeconds { get; set; } = 120;
+    public string Model { get; set; } = "gpt-4.1-mini";
+    public double Temperature { get; set; } = 0.3;
+    public int MaxOutputTokens { get; set; } = 500;
+    public int RequestTimeoutSeconds { get; set; } = 60;
 }
 
 public sealed partial class LlmGatewayAssistant : IBrantasAssistant
 {
     private static readonly ConcurrentDictionary<Guid, string> MacroContextCache = new();
+    private static readonly ConcurrentDictionary<Guid, string> MacroSummaryCache = new();
     private static List<RegionLookupItem>? CachedRegions;
     private static readonly SemaphoreSlim RegionCacheLock = new(1, 1);
 
@@ -102,12 +103,17 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
 
         try
         {
-            var macroContext = await GetOrBuildMacroContextAsync(version, cancellationToken);
             var specificRegionContext = await TryBuildSpecificRegionContextAsync(question, version, cancellationToken);
-
-            var combinedContext = string.IsNullOrWhiteSpace(specificRegionContext)
-                ? macroContext
-                : $"{specificRegionContext}\n\n{macroContext}";
+            string combinedContext;
+            if (!string.IsNullOrWhiteSpace(specificRegionContext))
+            {
+                var macroSummary = await GetOrBuildMacroSummaryOnlyAsync(version, cancellationToken);
+                combinedContext = $"{specificRegionContext}\n\n{macroSummary}";
+            }
+            else
+            {
+                combinedContext = await GetOrBuildMacroContextAsync(version, cancellationToken);
+            }
 
             var answer = await CallLlmGatewayAsync(question, combinedContext, cancellationToken);
             
@@ -137,22 +143,22 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
         var systemPrompt = $@"Anda adalah JUSI (Juru Bantuan Sosial Interaktif), asisten analitik cerdas Kementerian Keuangan RI untuk sistem BRANTAS (Bantuan Rasional, Adaptif, Nirkorupsi, Terarah, dan Akuntabel untuk Kesejahteraan Sosial).
 Waktu sistem hari ini: {todayStr}.
 
-PANDUAN UTAMA MENJAWAB:
-1. DATA VALID & TERVERIFIKASI (ZERO HALLUCINATION):
-   - Gunakan data dan fakta dari DATA TERVERIFIKASI BRANTAS di bawah ini. Jangan pernah mengarang angka kemiskinan, alokasi anggaran, atau indikator wilayah.
-   - Jika ditanya tentang provinsi atau kabupaten/kota tertentu, sebutkan angka-angka kuncinya (tingkat kemiskinan, penduduk miskin, IPM, alokasi APBN, risiko bencana IRBI BNPB, dan rekomendasi kebijakan).
-2. FORMAT PENEKANAN DATA KUNCI:
-   - Beri tanda tebal menggunakan Markdown **kata kunci** untuk angka, nama daerah, persentase, skor bencana, status klaster, dan rekomendasi penting (contoh: **Provinsi Banten**, **6,10%**, **Rp1.450 Miliar**, **Risiko Tinggi**).
-3. FORMULA & METODOLOGI:
-   - Jika ditanya dasar perhitungan atau klasifikasi formula, jelaskan 6 variabel IKW (Kemiskinan 30%, Kedalaman 15%, Keparahan 15%, Kesenjangan IPM 15%, Inverse PDRB 15%, Risiko Bencana 10%), solver optimasi Linear Programming GLOP Google OR-Tools, serta batasan stabilitas fiskal (floor Rp500M & cap pergerakan ±25%).
-4. REKOMENDASI KEBIJAKAN:
-   - Jika ditanya rekomendasi kebijakan untuk suatu wilayah, berikan justifikasi kebijakan berbasis bukti (evidence-based) yang mencakup:
-     a) Penyesuaian porsi pagu anggaran bansos berbasis IKW dan kemiskinan riil.
-     b) Kebijakan perlindungan sosial adaptif kebencanaan (IRBI BNPB).
-     c) Intervensi spasial (program padat karya jika hotspot High-High, atau proteksi perlinsos adaptif jika coldspot Low-Low).
-     d) Pengawasan dan audit data penerima (mitigasi anomali ASN, penerima fiktif/meninggal, dan aset ekonomi).
-5. GAYA KOMUNIKASI:
-   - Lugas, profesional, analitis, berbasis data, dan terstruktur rapi (gunakan bullet point atau paragraf teratur).
+PANDUAN UTAMA MENJAWAB (WAJIB DIIKUTI):
+1. NARASI DESKRIPTIF RINGKAS & FOKUS (TO-THE-POINT):
+   - Jawab langsung inti pertanyaan pengguna di kalimat pertama dengan bahasa Indonesia yang mengalir, lugas, ramah, dan mudah dipahami oleh pengambil kebijakan maupun masyarakat umum.
+   - Hindari pembukaan bertele-tele, jangan mengulang disclaimer/pendahuluan, dan hindari statistik teknis yang rumit kecuali diminta secara eksplisit.
+   - Panjang jawaban maksimal 150-200 kata agar respon cepat dan langsung dapat dibaca sekilas.
+2. DILARANG KERAS MENGGUNAKAN TABEL (SIMBOL PIPA |---|---|):
+   - JANGAN PERNAH membuat tabel markdown dengan simbol pipa (|---|---|). Sampaikan seluruh data angka dan indikator dalam bentuk 1 paragraf narasi deskriptif yang rapi dan nyaman dibaca di layar chat.
+3. DATA SPESIFIK 38 PROVINSI & 514 KABUPATEN/KOTA TERSEDIA LENGKAP:
+   - Sistem BRANTAS memiliki data lengkap seluruh 38 provinsi dan 514 kabupaten/kota se-Indonesia. Jangan pernah menyatakan bahwa data kab/kota tidak tersedia atau belum ada angka resminya.
+   - Jika ditanya tentang daerah tertentu (misal Timika / Mimika), sebutkan angka kuncinya secara deskriptif: nama daerah, provinsi induk, tingkat kemiskinan (%), jumlah penduduk miskin (jiwa), IPM, dan risiko bencana (IRBI BNPB).
+4. REKOMENDASI KEBIJAKAN FOKUS & KONKRET (MAKSIMAL 2 BUTIR):
+   - Berikan maksimal 2 butir rekomendasi kebijakan yang paling tajam, relevan dengan profil wilayah, dan dapat ditindaklanjuti secara nyata:
+     * Butir 1 (Perlindungan Sosial Adaptif Bencana): Sinergikan bansos dengan kesiapsiagaan cadangan logistik dan bantuan tunai darurat jika wilayah rawan bencana.
+     * Butir 2 (Pengentasan Kemiskinan Terpadu): Padukan bansos reguler (PKH/Sembako) dengan program padat karya produktif dan pemutakhiran DTKS daerah agar tepat sasaran.
+5. PENEKANAN KATA KUNCI:
+   - Gunakan format **tebal** untuk angka, persentase, nominal anggaran, nama daerah, dan status risiko agar informasi pokok langsung terbaca sekilas.
 
 DATA TERVERIFIKASI BRANTAS (Maret 2026):
 {verifiedContext}";
@@ -166,7 +172,7 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
                 new { role = "user", content = userQuestion }
             },
             temperature = _options.Temperature,
-            max_tokens = Math.Clamp(_options.MaxOutputTokens, 800, 2000)
+            max_tokens = Math.Clamp(_options.MaxOutputTokens, 200, 600)
         };
 
         _logger.LogInformation("Mengirim request ke LLM Gateway: {Endpoint}, Model: {Model}", endpoint, _options.Model);
@@ -288,15 +294,45 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
         return result;
     }
 
+    private async Task<string> GetOrBuildMacroSummaryOnlyAsync(DatasetVersion version, CancellationToken cancellationToken)
+    {
+        if (MacroSummaryCache.TryGetValue(version.Id, out var cached))
+        {
+            return cached;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("[KONTEKS MAKRO & FORMULA ALOKASI NASIONAL BRANTAS]:");
+        sb.AppendLine("- Formula IKW: IKW = 30%*Kemiskinan + 15%*P1 + 15%*P2 + 15%*(100-IPM) + 15%*(-PDRB/Kapita) + 10%*IRBI.");
+        sb.AppendLine("- Batasan Stabilitas Fiskal: Total pagu bansos APBN terjaga, Floor Rp500,0 Miliar per daerah, Cap deviasi alokasi maksimal ±25%.");
+
+        var provIndicators = await _database.PovertyIndicators
+            .Where(i => i.DatasetVersionId == version.Id && i.Region!.Level == RegionLevel.Province)
+            .Select(i => new { i.PovertyRate, i.PoorPopulation, i.HumanDevelopmentIndex })
+            .ToListAsync(cancellationToken);
+
+        if (provIndicators.Count > 0)
+        {
+            var avgPoverty = provIndicators.Average(i => i.PovertyRate);
+            var totalPoor = provIndicators.Sum(i => i.PoorPopulation);
+            var avgHdi = provIndicators.Average(i => i.HumanDevelopmentIndex);
+            sb.AppendLine($"- Rata-rata Kemiskinan Nasional: {avgPoverty:0.00}% | Total Penduduk Miskin Nasional: {totalPoor:N0} jiwa | Rata-rata IPM Nasional: {avgHdi:0.00}.");
+        }
+
+        var result = sb.ToString();
+        MacroSummaryCache[version.Id] = result;
+        return result;
+    }
+
     private async Task<string?> TryBuildSpecificRegionContextAsync(string userQuestion, DatasetVersion version, CancellationToken cancellationToken)
     {
         var regions = await EnsureRegionsLookupAsync(cancellationToken);
-        var normalized = userQuestion.ToLowerInvariant();
-
-        // Cari pencocokan wilayah dengan nama terpanjang terlebih dahulu
-        var matched = regions
-            .OrderByDescending(r => r.SearchKey.Length)
-            .FirstOrDefault(r => normalized.Contains(r.SearchKey));
+        var matched = RegionAliasCatalog.FindBestMatch(
+            userQuestion,
+            regions,
+            r => r.FullName,
+            r => r.SearchKey,
+            r => r.Level);
 
         if (matched is null)
         {
@@ -315,19 +351,13 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
         var disaster = DisasterRiskRepository.GetDisasterRisk(matched.BpsCode);
         var sb = new StringBuilder();
         sb.AppendLine($"[DATA TERVERIFIKASI SPESIFIK WILAYAH: {matched.FullName.ToUpperInvariant()}]:");
+        sb.AppendLine($"- Wilayah Administratif Resmi: **{matched.FullName}**{(matched.Level == RegionLevel.Regency && !string.IsNullOrWhiteSpace(matched.ParentName) ? $" (Provinsi {matched.ParentName})" : "")}");
         sb.AppendLine($"- Tingkat Wilayah: {(matched.Level == RegionLevel.Province ? "Provinsi" : "Kabupaten/Kota")}");
-        if (matched.Level == RegionLevel.Regency && !string.IsNullOrWhiteSpace(matched.ParentName))
-        {
-            sb.AppendLine($"- Provinsi Induk: {matched.ParentName}");
-        }
-        sb.AppendLine($"- Kode Wilayah BPS: {matched.BpsCode}");
-        sb.AppendLine($"- Tingkat Kemiskinan: {indicator.PovertyRate:0.00}%");
-        sb.AppendLine($"- Jumlah Penduduk Miskin: {indicator.PoorPopulation:N0} jiwa");
-        sb.AppendLine($"- Indeks Kedalaman Kemiskinan (P1): {indicator.PovertyDepthIndex:0.0000}");
-        sb.AppendLine($"- Indeks Keparahan Kemiskinan (P2): {indicator.PovertySeverityIndex:0.0000}");
-        sb.AppendLine($"- Indeks Pembangunan Manusia (IPM): {indicator.HumanDevelopmentIndex:0.00}");
-        sb.AppendLine($"- Pendapatan Regional (PDRB) / Kapita: Rp{indicator.GdpPerCapita:0.00} Juta / tahun");
-        sb.AppendLine($"- Indeks Risiko Bencana (IRBI BNPB): Skor {disaster.Score:0.00} (Kategori: {disaster.Category})");
+        sb.AppendLine($"- Tingkat Kemiskinan: **{indicator.PovertyRate:0.00}%**");
+        sb.AppendLine($"- Jumlah Penduduk Miskin: **{indicator.PoorPopulation:N0} jiwa**");
+        sb.AppendLine($"- Indeks Pembangunan Manusia (IPM): **{indicator.HumanDevelopmentIndex:0.00}**");
+        sb.AppendLine($"- PDRB per Kapita: **Rp{indicator.GdpPerCapita:0.00} Juta / tahun**");
+        sb.AppendLine($"- Indeks Risiko Bencana (IRBI BNPB): Kategori **{disaster.Category}** (Skor **{disaster.Score:0.00}**)");
 
         if (matched.Level == RegionLevel.Province)
         {
@@ -335,23 +365,10 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
                 .Where(a => a.DatasetVersionId == version.Id && a.RegionId == matched.Id)
                 .Select(a => (decimal?)a.TotalAllocation)
                 .FirstOrDefaultAsync(cancellationToken) ?? 0m;
-            sb.AppendLine($"- Alokasi Pagu Bansos APBN: Rp{alloc:N0} Juta");
-
-            var anomaly = await _database.Anomalies
-                .Where(a => a.DatasetVersionId == version.Id && a.RegionId == matched.Id)
-                .FirstOrDefaultAsync(cancellationToken);
-            if (anomaly != null)
-            {
-                sb.AppendLine($"- Status Anomali Fiskal: Terdeteksi {anomaly.Type} dengan Nilai Berisiko Rp{anomaly.ValueAtRisk:N0} Juta (z-score: {anomaly.ZScore:0.00})");
-            }
-            else
-            {
-                sb.AppendLine("- Status Anomali Fiskal: Tidak ditemukan anomali signifikan (Alokasi proporsional terhadap tingkat kemiskinan)");
-            }
+            sb.AppendLine($"- Pagu Bansos APBN: **Rp{alloc:N0} Juta**");
         }
         else
         {
-            // Untuk Kabupaten/Kota, hitung estimasi alokasi proporsional daerah dari pagu provinsi induknya
             var parentAlloc = await _database.FiscalAllocations
                 .Where(a => a.DatasetVersionId == version.Id && a.RegionId == matched.ParentId)
                 .Select(a => (decimal?)a.TotalAllocation)
@@ -364,27 +381,28 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
             if (parentTotalPoor > 0 && parentAlloc > 0)
             {
                 var estRegencyAlloc = Math.Round(parentAlloc * indicator.PoorPopulation / parentTotalPoor, 2);
-                sb.AppendLine($"- Estimasi Alokasi Proporsional Bansos Wilayah: Rp{estRegencyAlloc:N0} Juta (dari pagu induk {matched.ParentName} Rp{parentAlloc:N0} Juta)");
+                sb.AppendLine($"- Estimasi Porsi Bansos Wilayah: **Rp{estRegencyAlloc:N0} Juta** (dari pagu induk {matched.ParentName})");
             }
         }
 
-        // Susun Rekomendasi Kebijakan Terinci Berdasarkan Profil Daerah
-        sb.AppendLine("- Rekomendasi Kebijakan Terpadu BRANTAS:");
+        sb.AppendLine();
+        sb.AppendLine("- Panduan Rekomendasi Kebijakan Spesifik Wilayah Ini (Sajikan Maksimal 2 Butir):");
         if (disaster.Score >= 0.70m)
         {
-            sb.AppendLine($"  * Perlindungan Sosial Adaptif Bencana: Wilayah memiliki risiko bencana tinggi/sangat tinggi ({disaster.Category}, skor {disaster.Score:0.00}), disarankan mengintegrasikan cadangan darurat (buffer stock bantuan logistik) dan skema cash-transfer pascabencana.");
-        }
-        if (indicator.PovertyRate >= 12.0m)
-        {
-            sb.AppendLine($"  * Intervensi Kemiskinan Struktural: Tingkat kemiskinan tinggi ({indicator.PovertyRate:0.00}%), rekomendasikan kombinasi bantuan pemenuhan kebutuhan dasar reguler (PKH/Sembako) dengan program padat karya produktif.");
+            sb.AppendLine($"  * Butir 1 (Perlindungan Sosial Adaptif Bencana): Karena wilayah berada di zona kerawanan {disaster.Category} (IRBI {disaster.Score:0.00}), alokasi bansos afirmatif wajib didukung cadangan logistik darurat dan kesiapsiagaan bantuan tunai pascabencana.");
         }
         else
         {
-            sb.AppendLine($"  * Pemberdayaan & Ketahanan Ekonomi: Tingkat kemiskinan relatif terkendali ({indicator.PovertyRate:0.00}%), fokus pada perlindungan kelompok rentan dan program graduasi kemiskinan melalui akses permodalan UMKM.");
+            sb.AppendLine("  * Butir 1 (Penguatan Stabilitas Belanja Sosial): Pastikan penyaluran bansos reguler berjalan tepat waktu untuk menjaga daya beli rumah tangga rentan.");
         }
-        if (indicator.HumanDevelopmentIndex < 70.0m)
+
+        if (indicator.PovertyRate >= 12.0m)
         {
-            sb.AppendLine($"  * Penguatan Indeks Pembangunan Manusia: IPM daerah ({indicator.HumanDevelopmentIndex:0.00}) di bawah rata-rata nasional, prioritaskan bantuan bersyarat sektor pendidikan vokasi dan intervensi kesehatan/stunting.");
+            sb.AppendLine($"  * Butir 2 (Intervensi Kemiskinan Terpadu): Dengan tingkat kemiskinan {indicator.PovertyRate:0.00}%, padukan bantuan tunai (PKH/Sembako) dengan program padat karya produktif dan pemutakhiran DTKS terpadu.");
+        }
+        else
+        {
+            sb.AppendLine("  * Butir 2 (Pemberdayaan Ekonomi Mandiri): Fokuskan program bansos pada graduasi kemiskinan melalui pelatihan keterampilan kerja dan akses permodalan usaha mikro.");
         }
 
         return sb.ToString();
