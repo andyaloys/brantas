@@ -1187,6 +1187,35 @@ app.MapPost("/api/v1/jusi/chat", async (JusiChatRequest request, IBrantasAssista
     .WithTags("JUSI")
     .AllowAnonymous();
 
+// Otomatis jalankan migrasi database EF Core dan inisialisasi pipeline data sintetis jika database kosong
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BrantasDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        if (db.Database.IsRelational())
+        {
+            logger.LogInformation("Memeriksa dan menjalankan migrasi EF Core...");
+            await db.Database.MigrateAsync();
+            logger.LogInformation("Migrasi EF Core berhasil diaplikasikan.");
+
+            var hasData = await db.DatasetVersions.AnyAsync(d => d.Status == Brantas.Domain.Entities.DatasetStatus.Completed);
+            if (!hasData)
+            {
+                logger.LogInformation("Database kosong terdeteksi. Memulai inisialisasi data sintetis BRANTAS...");
+                var seeder = scope.ServiceProvider.GetRequiredService<ISyntheticDataSeeder>();
+                var seedResult = await seeder.SeedAsync(CancellationToken.None);
+                logger.LogInformation("Inisialisasi dataset selesai: {IndicatorCount} indikator dimuat.", seedResult.IndicatorCount);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Migrasi otomatis atau seeding dilewati: {Message}", ex.Message);
+    }
+}
+
 app.Run();
 
 static string Csv(string value) => $"\"{value.Replace("\"", "\"\"")}\"";

@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { API_BASE_URL } from '../../../core/config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class ReportingDataService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:5025/api/v1';
+  private readonly apiUrl = API_BASE_URL;
 
   downloadPolicyBrief() {
     return this.http.get(`${this.apiUrl}/reports/policy-brief.pdf`, { responseType: 'blob' });

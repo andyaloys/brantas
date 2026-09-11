@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    container_name: brantas-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: brantas
+      POSTGRES_USER: brantas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-brantas_production_secret_2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brantas -d brantas"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: brantas-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: brantas-backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5025
+      - ConnectionStrings__BrantasDatabase=Host=postgres;Port=5432;Database=brantas;Username=brantas;Password=${POSTGRES_PASSWORD:-brantas_production_secret_2026}
+      - Redis__ConnectionString=redis:6379
+    expose:
+      - "5025"
+
+  frontend:
+    build:
+      context: ./frontend/brantas-web
+      dockerfile: Dockerfile
+    container_name: brantas-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
+  redis_data:

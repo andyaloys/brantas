@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { API_BASE_URL } from '../../../core/config/api.config';
 
 export interface AnomalySummary {
   datasetVersionId: string;
@@ -68,7 +69,7 @@ export interface OnnxAnomalyReport {
 @Injectable({ providedIn: 'root' })
 export class AnomalyDataService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:5025/api/v1';
+  private readonly apiUrl = API_BASE_URL;
 
   getSummary() {
     return this.http.get<AnomalySummary>(`${this.apiUrl}/anomalies/summary`);

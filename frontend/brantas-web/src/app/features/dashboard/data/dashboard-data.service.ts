@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { API_BASE_URL } from '../../../core/config/api.config';
 
 export interface DashboardSummary {
   datasetVersionId: string;
@@ -74,7 +75,7 @@ interface PipelineResult {
 @Injectable({ providedIn: 'root' })
 export class DashboardDataService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:5025/api/v1';
+  private readonly apiUrl = API_BASE_URL;
 
   getSummary() {
     return this.http.get<DashboardSummary>(`${this.apiUrl}/dashboard/summary`);

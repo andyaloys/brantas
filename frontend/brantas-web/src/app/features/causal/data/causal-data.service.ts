@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { API_BASE_URL } from '../../../core/config/api.config';
 
 export interface EventStudyPoint {
   year: number;
@@ -26,5 +27,5 @@ export interface CausalResult {
 @Injectable({ providedIn: 'root' })
 export class CausalDataService {
   private readonly http = inject(HttpClient);
-  getDid() { return this.http.get<CausalResult>('http://localhost:5025/api/v1/causal/did'); }
+  getDid() { return this.http.get<CausalResult>(`${API_BASE_URL}/causal/did`); }
 }

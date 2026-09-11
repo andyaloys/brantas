@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { API_BASE_URL } from '../../../core/config/api.config';
 
 export interface SpatialRegion {
   name: string;
@@ -46,7 +47,7 @@ export interface SpatialGeoJson {
 @Injectable({ providedIn: 'root' })
 export class SpatialDataService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:5025/api/v1';
+  private readonly apiUrl = API_BASE_URL;
 
   getMoranAnalysis() {
     return this.http.get<MoranAnalysis>(`${this.apiUrl}/spatial/morans-i`);
