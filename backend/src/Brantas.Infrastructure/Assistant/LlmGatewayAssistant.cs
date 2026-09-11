@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,13 +15,13 @@ namespace Brantas.Infrastructure.Assistant;
 
 public sealed class LlmGatewayOptions
 {
-    public string BaseUrl { get; set; } = "http://10.216.221.100/llm/v1";
-    public string StreamingBaseUrl { get; set; } = "http://10.216.221.100/llm/v1";
+    public string BaseUrl { get; set; } = "https://ai.sumopod.com/v1";
+    public string StreamingBaseUrl { get; set; } = "https://ai.sumopod.com/v1";
     public string ApiKey { get; set; } = string.Empty;
-    public string Model { get; set; } = "qwen3.8-fast";
-    public double Temperature { get; set; } = 0.2;
-    public int MaxOutputTokens { get; set; } = 500;
-    public int RequestTimeoutSeconds { get; set; } = 60;
+    public string Model { get; set; } = "qwen3.8-flash";
+    public double Temperature { get; set; } = 0.7;
+    public int MaxOutputTokens { get; set; } = 8000;
+    public int RequestTimeoutSeconds { get; set; } = 120;
 }
 
 public sealed partial class LlmGatewayAssistant : IBrantasAssistant
@@ -149,14 +149,20 @@ DATA TERVERIFIKASI BRANTAS (Maret 2026):
             max_tokens = Math.Min(_options.MaxOutputTokens, 500)
         };
 
+        _logger.LogInformation("Mengirim request ke LLM Gateway: {Endpoint}, Model: {Model}, KeyPrefix: {Prefix}", 
+            endpoint, _options.Model, string.IsNullOrWhiteSpace(_options.ApiKey) ? "(empty)" : _options.ApiKey.Length > 7 ? _options.ApiKey[..7] : _options.ApiKey);
+
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey.Trim());
         request.Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("LLM Gateway HTTP {StatusCode}: {ErrorBody}", response.StatusCode, json);
+            response.EnsureSuccessStatusCode();
+        }
         using var doc = JsonDocument.Parse(json);
         var content = doc.RootElement
             .GetProperty("choices")[0]
