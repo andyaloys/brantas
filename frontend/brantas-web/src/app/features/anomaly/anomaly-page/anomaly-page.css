@@ -488,14 +488,13 @@ table {
 .table-residual {
   width: 100%;
 }
-th.col-res-region, td.col-res-region { width: 15%; }
-th.col-res-irbi, td.col-res-irbi { width: 11%; text-align: left !important; }
+th.col-res-region, td.col-res-region { width: 16%; }
+th.col-res-irbi, td.col-res-irbi { width: 12%; text-align: left !important; }
 th.col-res-type, td.col-res-type { width: 10%; }
 th.col-res-severity, td.col-res-severity { width: 9%; text-align: center !important; }
 th.col-res-zscore, td.col-res-zscore { width: 9%; text-align: center !important; }
-th.col-res-var, td.col-res-var { width: 11%; text-align: right !important; }
-th.col-res-desc, td.col-res-desc { width: 24%; }
-th.col-res-action, td.col-res-action { width: 11%; }
+th.col-res-var, td.col-res-var { width: 12%; text-align: right !important; }
+th.col-res-desc, td.col-res-desc { width: 32%; }
 
 /* Tabel 2: Deteksi Anomali Anggaran Terpadu (AI) */
 .table-ai {

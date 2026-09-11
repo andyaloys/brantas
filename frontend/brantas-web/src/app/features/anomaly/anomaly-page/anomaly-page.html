@@ -217,7 +217,6 @@
                 </div>
               </th>
               <th class="col-res-desc">Uraian Masalah & Implikasi Anggaran</th>
-              <th class="col-res-action">Tinjauan Otoritas</th>
             </tr>
           </thead>
           <tbody>
@@ -245,13 +244,6 @@
                 <td class="col-res-zscore mono"><strong>{{ item.zScore.toFixed(2) }}σ</strong></td>
                 <td class="col-res-var mono font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.valueAtRisk).full">{{ formatCurrency(item.valueAtRisk).compact }}</td>
                 <td class="col-res-desc explanation">{{ formatFiscalExplanation(item) }}</td>
-                <td class="col-res-action">
-                  <select [value]="item.reviewStatus" [disabled]="updatingReviewId() === item.id" (change)="updateReview(item, $event)" [attr.aria-label]="'Status tinjauan ' + resolveRegion(item.region)">
-                    <option value="InVerification">Dalam Verifikasi</option>
-                    <option value="Valid">Valid (Tindak Lanjut)</option>
-                    <option value="FalsePositive">Bukan Pelanggaran (Wajar)</option>
-                  </select>
-                </td>
               </tr>
             }
           </tbody>

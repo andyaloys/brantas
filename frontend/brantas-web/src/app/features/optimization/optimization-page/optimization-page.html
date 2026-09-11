@@ -118,18 +118,6 @@
           </div>
         </div>
 
-        <!-- Batasan Fiskal APBN: 2-Kolom Simetris & Proporsional -->
-        <div class="fiscal-limits-grid" aria-label="Batasan Pagu Fiskal">
-          <div class="fiscal-limit-item" [title]="'Nominal Lengkap: ' + (totalBudget() === null ? '—' : formatCurrency(totalBudget()!).full)">
-            <span class="limit-label">Pagu Total APBN</span>
-            <strong class="limit-value">{{ totalBudget() === null ? '—' : formatCurrency(totalBudget()!).compact }}</strong>
-          </div>
-          <div class="fiscal-limit-item" [title]="'Nominal Lengkap: ' + formatCurrency(500).full">
-            <span class="limit-label">Pagu Minimum Wilayah</span>
-            <strong class="limit-value">{{ formatCurrency(500).compact }} / Prov</strong>
-          </div>
-        </div>
-
         <!-- Tombol Aksi: Menjalankan simulasi kalkulasi alokasi secara manual -->
         <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan simulasi alokasi APBN dengan parameter yang telah ditentukan">
           <i class="pi" [ngClass]="isRunning() ? 'pi-spin pi-spinner' : 'pi-bolt'" aria-hidden="true"></i>
