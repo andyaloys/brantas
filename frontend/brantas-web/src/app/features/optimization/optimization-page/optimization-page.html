@@ -62,12 +62,12 @@
                   [class.active]="isIdealActive()"
                   (click)="applyIdealParameters()" 
                   [disabled]="isRunning()"
-                  title="Rekomendasi Sistem BRANTAS: Bobot Prioritas Kemiskinan 45%, Batas Toleransi Penyesuaian (Cap) ±20%">
+                  title="Rekomendasi Sistem BRANTAS: Bobot Kemiskinan 45%, Risiko Bencana 15% (Shock-Responsive), Batas Cap ±20%">
             <div class="ideal-btn-main">
               <div class="ideal-icon-circle">
                 <i class="pi pi-sparkles"></i>
               </div>
-              <span class="ideal-title">Bobot Ideal</span>
+              <span class="ideal-title">Bobot Ideal (SRSP)</span>
             </div>
             <span class="ideal-status-pill">
               @if (isIdealActive()) {
@@ -88,6 +88,19 @@
           <div class="slider-range-labels">
             <small>10% (Berimbang)</small>
             <small>60% (Afirmasi Prioritas)</small>
+          </div>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span>Bobot Risiko Bencana (IRBI BNPB)</span>
+            <strong class="slider-val" style="color: #ea580c;">{{ disasterWeight() }}%</strong>
+          </div>
+          <input type="range" min="0" max="30" step="5" [value]="disasterWeight()" (input)="updateDisasterWeight($event)" class="modern-slider">
+          <div class="slider-range-labels">
+            <small>0% (Netral)</small>
+            <small>15% (Shock Buffer)</small>
+            <small>30% (Mitigasi Darurat)</small>
           </div>
         </div>
 

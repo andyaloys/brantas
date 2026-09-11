@@ -76,6 +76,7 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
     const avgHdi = matching.reduce((sum, r) => sum + r.humanDevelopmentIndex, 0) / count;
     const avgDepth = matching.reduce((sum, r) => sum + r.povertyDepthIndex, 0) / count;
     const avgSeverity = matching.reduce((sum, r) => sum + r.povertySeverityIndex, 0) / count;
+    const avgDisaster = matching.reduce((sum, r) => sum + (r.disasterRisk ?? 0.5), 0) / count;
 
     // Determine dominant cluster
     const clusterTally: Record<string, number> = {
@@ -106,6 +107,7 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
       avgHdi,
       avgDepth,
       avgSeverity,
+      avgDisaster,
       cluster: dominantCluster
     };
   });
@@ -119,6 +121,40 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
       ]);
       this.analysis.set(analysis);
       this.geoJson.set(geoJson);
+
+      // Sinkronisasi data indikator & risiko bencana IRBI BNPB ke poligon kartografi
+      if (geoJson?.features && idnKabGeoJson?.features) {
+        const beMap = new Map<string, any>();
+        const parentMap = new Map<string, { risk: number; cat: string }>();
+        for (const f of geoJson.features) {
+          if (f.properties?.regionId) {
+            beMap.set(f.properties.regionId, f.properties);
+          }
+          if (f.properties?.parent && f.properties.disasterRisk !== undefined) {
+            parentMap.set(f.properties.parent.toLowerCase(), {
+              risk: f.properties.disasterRisk,
+              cat: f.properties.disasterCategory ?? 'Sedang'
+            });
+          }
+        }
+
+        for (const f of idnKabGeoJson.features) {
+          const be = beMap.get(f.properties?.regionId);
+          if (be) {
+            f.properties.disasterRisk = be.disasterRisk;
+            f.properties.disasterCategory = be.disasterCategory;
+            f.properties.cluster = be.cluster ?? f.properties.cluster;
+            f.properties.povertyRate = be.povertyRate ?? f.properties.povertyRate;
+            f.properties.humanDevelopmentIndex = be.humanDevelopmentIndex ?? f.properties.humanDevelopmentIndex;
+          } else if (f.properties?.parent) {
+            const fallback = parentMap.get(f.properties.parent.toLowerCase());
+            if (fallback) {
+              f.properties.disasterRisk = fallback.risk;
+              f.properties.disasterCategory = fallback.cat;
+            }
+          }
+        }
+      }
 
       if (this.mapContainerRef) {
         this.mapAdapter.render(

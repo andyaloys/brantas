@@ -31,6 +31,8 @@ export interface SpatialRegionProperties {
   poorPopulation: number;
   cluster: 'High-High' | 'Low-Low' | 'High-Low' | 'Low-High';
   localScore: number;
+  disasterRisk?: number;
+  disasterCategory?: string;
 }
 
 export interface SpatialGeoJson {

@@ -11,6 +11,7 @@ export class OptimizationPageComponent {
   private readonly optimizationData = inject(OptimizationDataService);
   private readonly reportingData = inject(ReportingDataService);
   protected readonly povertyWeight = signal(30);
+  protected readonly disasterWeight = signal(10);
   protected readonly capPercent = signal(25);
   protected readonly recommendations = signal<AllocationRecommendation[]>([]);
   protected readonly totalBudget = signal<number | null>(null);
@@ -25,7 +26,7 @@ export class OptimizationPageComponent {
   protected readonly isLoadingScenario = signal<boolean>(false);
 
   // Status apakah parameter saat ini sesuai rekomendasi ideal sistem BRANTAS
-  protected readonly isIdealActive = computed(() => this.povertyWeight() === 45 && this.capPercent() === 20);
+  protected readonly isIdealActive = computed(() => this.povertyWeight() === 45 && this.capPercent() === 20 && this.disasterWeight() === 15);
 
   // Ringkasan dampak fiskal eksekutif
   protected readonly summaryImpact = computed(() => {
@@ -64,7 +65,7 @@ export class OptimizationPageComponent {
     this.error.set(null);
     this.isRunning.set(true);
     try {
-      const result = await firstValueFrom(this.optimizationData.getRecommendations(this.povertyWeight(), this.capPercent()));
+      const result = await firstValueFrom(this.optimizationData.getRecommendations(this.povertyWeight(), this.capPercent(), this.disasterWeight()));
       this.totalBudget.set(result.totalBudget);
       this.recommendations.set(result.recommendations);
     } catch { 
@@ -80,6 +81,12 @@ export class OptimizationPageComponent {
     this.activeScenarioName.set(null);
   }
 
+  protected updateDisasterWeight(event: Event): void {
+    this.disasterWeight.set(Number((event.target as HTMLInputElement).value));
+    this.activeScenarioId.set(null);
+    this.activeScenarioName.set(null);
+  }
+
   protected updateCap(event: Event): void {
     this.capPercent.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
@@ -91,7 +98,7 @@ export class OptimizationPageComponent {
   protected async saveScenario(): Promise<void> {
     this.saveMessage.set(null);
     try {
-      const scenario = await firstValueFrom(this.optimizationData.saveScenario(this.scenarioName(), this.povertyWeight(), this.capPercent()));
+      const scenario = await firstValueFrom(this.optimizationData.saveScenario(this.scenarioName(), this.povertyWeight(), this.capPercent(), this.disasterWeight()));
       this.saveMessage.set(`Skenario "${scenario.name}" berhasil disimpan.`);
       this.activeScenarioId.set(scenario.id);
       this.activeScenarioName.set(scenario.name);
@@ -107,6 +114,9 @@ export class OptimizationPageComponent {
       const detail = await firstValueFrom(this.optimizationData.getScenarioById(scenario.id));
       if (detail.povertyWeight !== undefined) {
         this.povertyWeight.set(detail.povertyWeight);
+      }
+      if (detail.disasterWeight !== undefined) {
+        this.disasterWeight.set(detail.disasterWeight);
       }
       if (detail.capPercent !== undefined) {
         this.capPercent.set(detail.capPercent);
@@ -124,6 +134,7 @@ export class OptimizationPageComponent {
     } catch {
       // Fallback if detail fetch fails
       if (scenario.povertyWeight !== undefined) this.povertyWeight.set(scenario.povertyWeight);
+      if (scenario.disasterWeight !== undefined) this.disasterWeight.set(scenario.disasterWeight);
       if (scenario.capPercent !== undefined) this.capPercent.set(scenario.capPercent);
       this.scenarioName.set(scenario.name);
       this.activeScenarioId.set(scenario.id);
@@ -152,6 +163,7 @@ export class OptimizationPageComponent {
 
   protected async applyIdealParameters(): Promise<void> {
     this.povertyWeight.set(45);
+    this.disasterWeight.set(15);
     this.capPercent.set(20);
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
@@ -161,11 +173,12 @@ export class OptimizationPageComponent {
 
   protected async resetParameters(): Promise<void> {
     this.povertyWeight.set(30);
+    this.disasterWeight.set(10);
     this.capPercent.set(25);
     this.scenarioName.set('Skenario baru');
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
-    this.saveMessage.set('Parameter dikembalikan ke standar APBN (30% bobot, 25% cap).');
+    this.saveMessage.set('Parameter dikembalikan ke standar APBN (30% kemiskinan, 10% bencana, 25% cap).');
     await this.runSimulation();
   }
 

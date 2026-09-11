@@ -574,6 +574,7 @@ app.MapGet("/api/v1/spatial/regions.geojson", async (BrantasDbContext database, 
             item.RegionId,
             item.Region!.Name,
             item.Region.ParentId,
+            ParentBpsCode = item.Region.Parent!.BpsCode,
             item.Region.Latitude,
             item.Region.Longitude,
             item.PovertyRate,
@@ -600,28 +601,34 @@ app.MapGet("/api/v1/spatial/regions.geojson", async (BrantasDbContext database, 
         datasetVersionId = version.Id,
         period = version.Period,
         globalMoranI = analysis.GlobalI,
-        features = regions.Select(region => new
+        features = regions.Select(region =>
         {
-            type = "Feature",
-            properties = new
+            var risk = DisasterRiskRepository.GetDisasterRisk(region.ParentBpsCode);
+            return new
             {
-                regionId = region.RegionId,
-                name = region.Name,
-                parent = parents[region.ParentId!.Value],
-                povertyRate = region.PovertyRate,
-                povertyDepthIndex = region.PovertyDepthIndex,
-                povertySeverityIndex = region.PovertySeverityIndex,
-                humanDevelopmentIndex = region.HumanDevelopmentIndex,
-                gdpPerCapita = region.GdpPerCapita,
-                poorPopulation = region.PoorPopulation,
-                cluster = clusters[region.RegionId].Cluster,
-                localScore = clusters[region.RegionId].LocalScore
-            },
-            geometry = new
-            {
-                type = "Point",
-                coordinates = new[] { region.Longitude!.Value, region.Latitude!.Value }
-            }
+                type = "Feature",
+                properties = new
+                {
+                    regionId = region.RegionId,
+                    name = region.Name,
+                    parent = parents[region.ParentId!.Value],
+                    povertyRate = region.PovertyRate,
+                    povertyDepthIndex = region.PovertyDepthIndex,
+                    povertySeverityIndex = region.PovertySeverityIndex,
+                    humanDevelopmentIndex = region.HumanDevelopmentIndex,
+                    gdpPerCapita = region.GdpPerCapita,
+                    poorPopulation = region.PoorPopulation,
+                    cluster = clusters[region.RegionId].Cluster,
+                    localScore = clusters[region.RegionId].LocalScore,
+                    disasterRisk = risk.Score,
+                    disasterCategory = risk.Category
+                },
+                geometry = new
+                {
+                    type = "Point",
+                    coordinates = new[] { region.Longitude!.Value, region.Latitude!.Value }
+                }
+            };
         })
     });
 })
@@ -765,11 +772,24 @@ app.MapGet("/api/v1/optimization/recommendations", async (BrantasDbContext datab
 {
     var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
-    var observations = await (
+    var rawObservations = await (
         from indicator in database.PovertyIndicators
         join allocation in database.FiscalAllocations on indicator.RegionId equals allocation.RegionId
         where indicator.DatasetVersionId == version.Id && allocation.DatasetVersionId == version.Id && indicator.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province
-        select new AllocationObservation(indicator.RegionId, indicator.Region!.Name, indicator.PovertyRate, indicator.PovertyDepthIndex, indicator.PovertySeverityIndex, indicator.HumanDevelopmentIndex, indicator.GdpPerCapita, Math.Abs(indicator.Region.BpsCode.GetHashCode() % 100) / 100m, indicator.PoorPopulation, allocation.TotalAllocation)).ToListAsync(cancellationToken);
+        select new
+        {
+            indicator.RegionId,
+            RegionName = indicator.Region!.Name,
+            BpsCode = indicator.Region.BpsCode,
+            indicator.PovertyRate,
+            indicator.PovertyDepthIndex,
+            indicator.PovertySeverityIndex,
+            indicator.HumanDevelopmentIndex,
+            indicator.GdpPerCapita,
+            indicator.PoorPopulation,
+            allocation.TotalAllocation
+        }).ToListAsync(cancellationToken);
+    var observations = rawObservations.Select(item => new AllocationObservation(item.RegionId, item.RegionName, item.PovertyRate, item.PovertyDepthIndex, item.PovertySeverityIndex, item.HumanDevelopmentIndex, item.GdpPerCapita, DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score, item.PoorPopulation, item.TotalAllocation)).ToList();
     var weights = new AllocationWeights(povertyWeight ?? 30m, depthWeight ?? 15m, severityWeight ?? 15m, humanDevelopmentWeight ?? 15m, gdpWeight ?? 15m, disasterWeight ?? 10m);
     var totalBudget = observations.Sum(item => item.BaselineAllocation);
     var result = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, capPercent ?? .25m);
@@ -786,11 +806,24 @@ app.MapPost("/api/v1/optimization/scenarios", async (CreateSimulationScenarioReq
     var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
     if (string.IsNullOrWhiteSpace(request.Name)) return Results.BadRequest(new { title = "Nama skenario wajib diisi." });
-    var observations = await (
+    var rawObservations = await (
         from indicator in database.PovertyIndicators
         join allocation in database.FiscalAllocations on indicator.RegionId equals allocation.RegionId
         where indicator.DatasetVersionId == version.Id && allocation.DatasetVersionId == version.Id && indicator.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province
-        select new AllocationObservation(indicator.RegionId, indicator.Region!.Name, indicator.PovertyRate, indicator.PovertyDepthIndex, indicator.PovertySeverityIndex, indicator.HumanDevelopmentIndex, indicator.GdpPerCapita, Math.Abs(indicator.Region.BpsCode.GetHashCode() % 100) / 100m, indicator.PoorPopulation, allocation.TotalAllocation)).ToListAsync(cancellationToken);
+        select new
+        {
+            indicator.RegionId,
+            RegionName = indicator.Region!.Name,
+            BpsCode = indicator.Region.BpsCode,
+            indicator.PovertyRate,
+            indicator.PovertyDepthIndex,
+            indicator.PovertySeverityIndex,
+            indicator.HumanDevelopmentIndex,
+            indicator.GdpPerCapita,
+            indicator.PoorPopulation,
+            allocation.TotalAllocation
+        }).ToListAsync(cancellationToken);
+    var observations = rawObservations.Select(item => new AllocationObservation(item.RegionId, item.RegionName, item.PovertyRate, item.PovertyDepthIndex, item.PovertySeverityIndex, item.HumanDevelopmentIndex, item.GdpPerCapita, DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score, item.PoorPopulation, item.TotalAllocation)).ToList();
     var weights = new AllocationWeights(request.PovertyWeight, request.DepthWeight, request.SeverityWeight, request.HumanDevelopmentWeight, request.GdpWeight, request.DisasterWeight);
     var totalBudget = observations.Sum(item => item.BaselineAllocation);
     var result = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, request.CapPercent);
@@ -1053,11 +1086,24 @@ app.MapGet("/api/v1/exports/allocations.csv", async (BrantasDbContext database, 
 {
     var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
-    var observations = await (
+    var rawObservations = await (
         from indicator in database.PovertyIndicators
         join allocation in database.FiscalAllocations on indicator.RegionId equals allocation.RegionId
         where indicator.DatasetVersionId == version.Id && allocation.DatasetVersionId == version.Id && indicator.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province
-        select new AllocationObservation(indicator.RegionId, indicator.Region!.Name, indicator.PovertyRate, indicator.PovertyDepthIndex, indicator.PovertySeverityIndex, indicator.HumanDevelopmentIndex, indicator.GdpPerCapita, Math.Abs(indicator.Region.BpsCode.GetHashCode() % 100) / 100m, indicator.PoorPopulation, allocation.TotalAllocation)).ToListAsync(cancellationToken);
+        select new
+        {
+            indicator.RegionId,
+            RegionName = indicator.Region!.Name,
+            BpsCode = indicator.Region.BpsCode,
+            indicator.PovertyRate,
+            indicator.PovertyDepthIndex,
+            indicator.PovertySeverityIndex,
+            indicator.HumanDevelopmentIndex,
+            indicator.GdpPerCapita,
+            indicator.PoorPopulation,
+            allocation.TotalAllocation
+        }).ToListAsync(cancellationToken);
+    var observations = rawObservations.Select(item => new AllocationObservation(item.RegionId, item.RegionName, item.PovertyRate, item.PovertyDepthIndex, item.PovertySeverityIndex, item.HumanDevelopmentIndex, item.GdpPerCapita, DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score, item.PoorPopulation, item.TotalAllocation)).ToList();
     var weights = new AllocationWeights(30m, 15m, 15m, 15m, 15m, 10m);
     var totalBudget = observations.Sum(item => item.BaselineAllocation);
     var result = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, .25m);
@@ -1078,11 +1124,24 @@ app.MapGet("/api/v1/exports/allocations.xlsx", async (BrantasDbContext database,
 {
     var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
-    var observations = await (
+    var rawObservations = await (
         from indicator in database.PovertyIndicators
         join allocation in database.FiscalAllocations on indicator.RegionId equals allocation.RegionId
         where indicator.DatasetVersionId == version.Id && allocation.DatasetVersionId == version.Id && indicator.Region!.Level == Brantas.Domain.Entities.RegionLevel.Province
-        select new AllocationObservation(indicator.RegionId, indicator.Region!.Name, indicator.PovertyRate, indicator.PovertyDepthIndex, indicator.PovertySeverityIndex, indicator.HumanDevelopmentIndex, indicator.GdpPerCapita, Math.Abs(indicator.Region.BpsCode.GetHashCode() % 100) / 100m, indicator.PoorPopulation, allocation.TotalAllocation)).ToListAsync(cancellationToken);
+        select new
+        {
+            indicator.RegionId,
+            RegionName = indicator.Region!.Name,
+            BpsCode = indicator.Region.BpsCode,
+            indicator.PovertyRate,
+            indicator.PovertyDepthIndex,
+            indicator.PovertySeverityIndex,
+            indicator.HumanDevelopmentIndex,
+            indicator.GdpPerCapita,
+            indicator.PoorPopulation,
+            allocation.TotalAllocation
+        }).ToListAsync(cancellationToken);
+    var observations = rawObservations.Select(item => new AllocationObservation(item.RegionId, item.RegionName, item.PovertyRate, item.PovertyDepthIndex, item.PovertySeverityIndex, item.HumanDevelopmentIndex, item.GdpPerCapita, DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score, item.PoorPopulation, item.TotalAllocation)).ToList();
     var weights = new AllocationWeights(30m, 15m, 15m, 15m, 15m, 10m);
     var totalBudget = observations.Sum(item => item.BaselineAllocation);
     var result = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, .25m);
@@ -1141,3 +1200,55 @@ static (string Role, string? Region) GetClientContext(HttpContext context)
 public sealed record CreateSimulationScenarioRequest(string Name, decimal PovertyWeight = 30m, decimal DepthWeight = 15m, decimal SeverityWeight = 15m, decimal HumanDevelopmentWeight = 15m, decimal GdpWeight = 15m, decimal DisasterWeight = 10m, decimal CapPercent = .25m);
 public sealed record JusiChatRequest(string Question);
 public sealed record UpdateAnomalyReviewRequest(string Status);
+
+// Indeks Risiko Bencana Indonesia (IRBI BNPB) terstandardisasi per kode provinsi BPS (0.0 - 1.0)
+public static class DisasterRiskRepository
+{
+    public static (decimal Score, string Category) GetDisasterRisk(string? bpsCode)
+    {
+        var code = (bpsCode ?? "").Length >= 2 ? (bpsCode ?? "")[..2] : "";
+        return ProvinceIndex.TryGetValue(code, out var value) ? value : (0.50m, "Sedang");
+    }
+
+    public static readonly Dictionary<string, (decimal Score, string Category)> ProvinceIndex = new()
+    {
+        ["11"] = (0.78m, "Tinggi"),        // Aceh (Tsunami, Gempa, Banjir Bandang)
+        ["12"] = (0.58m, "Sedang"),        // Sumatera Utara
+        ["13"] = (0.82m, "Sangat Tinggi"), // Sumatera Barat (Megathrust, Gempa, Galodo)
+        ["14"] = (0.46m, "Sedang"),        // Riau (Karhutla)
+        ["15"] = (0.44m, "Sedang"),        // Jambi (Karhutla, Banjir)
+        ["16"] = (0.48m, "Sedang"),        // Sumatera Selatan
+        ["17"] = (0.74m, "Tinggi"),        // Bengkulu (Gempa Sesar Pesisir)
+        ["18"] = (0.64m, "Tinggi"),        // Lampung (Krakatau, Tsunami)
+        ["19"] = (0.24m, "Rendah"),        // Kep. Bangka Belitung
+        ["21"] = (0.32m, "Rendah"),        // Kepulauan Riau
+        ["31"] = (0.36m, "Sedang"),        // DKI Jakarta (Banjir Rob)
+        ["32"] = (0.71m, "Tinggi"),        // Jawa Barat (Longsor, Gempa Sesar Darat)
+        ["33"] = (0.68m, "Tinggi"),        // Jawa Tengah (Merapi, Longsor, Rob)
+        ["34"] = (0.73m, "Tinggi"),        // DI Yogyakarta (Merapi, Megathrust Selatan)
+        ["35"] = (0.72m, "Tinggi"),        // Jawa Timur (Semeru, Kelud, Gempa Selatan)
+        ["36"] = (0.65m, "Tinggi"),        // Banten (Selat Sunda, Tsunami)
+        ["51"] = (0.58m, "Sedang"),        // Bali (Gunung Agung, Gempa)
+        ["52"] = (0.79m, "Tinggi"),        // NTB (Gempa Lombok, Tambora, Kekeringan)
+        ["53"] = (0.86m, "Sangat Tinggi"), // NTT (Siklon Seroja, Kekeringan Ekstrem, Flores Fault)
+        ["61"] = (0.28m, "Rendah"),        // Kalimantan Barat
+        ["62"] = (0.35m, "Sedang"),        // Kalimantan Tengah (Karhutla, Banjir)
+        ["63"] = (0.42m, "Sedang"),        // Kalimantan Selatan (Banjir)
+        ["64"] = (0.30m, "Rendah"),        // Kalimantan Timur
+        ["65"] = (0.34m, "Rendah"),        // Kalimantan Utara
+        ["71"] = (0.66m, "Tinggi"),        // Sulawesi Utara (Gunung Ruang, Lokon)
+        ["72"] = (0.85m, "Sangat Tinggi"), // Sulawesi Tengah (Sesar Palu-Koro, Likuefaksi, Tsunami)
+        ["73"] = (0.59m, "Sedang"),        // Sulawesi Selatan
+        ["74"] = (0.54m, "Sedang"),        // Sulawesi Tenggara
+        ["75"] = (0.62m, "Tinggi"),        // Gorontalo (Gempa, Banjir)
+        ["76"] = (0.75m, "Tinggi"),        // Sulawesi Barat (Gempa Mamuju)
+        ["81"] = (0.80m, "Sangat Tinggi"), // Maluku (Palung Banda, Megathrust Laut, Gempa)
+        ["82"] = (0.70m, "Tinggi"),        // Maluku Utara (Dukono, Gamalama, Tsunami)
+        ["91"] = (0.69m, "Tinggi"),        // Papua Barat
+        ["92"] = (0.72m, "Tinggi"),        // Papua
+        ["93"] = (0.52m, "Sedang"),        // Papua Selatan
+        ["94"] = (0.78m, "Tinggi"),        // Papua Tengah
+        ["95"] = (0.79m, "Tinggi"),        // Papua Pegunungan (Longsor, Cuaca Ekstrem)
+        ["96"] = (0.64m, "Tinggi")         // Papua Barat Daya
+    };
+}

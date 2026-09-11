@@ -21,6 +21,7 @@ export interface SimulationScenario {
   name: string;
   totalBudget: number;
   povertyWeight?: number;
+  disasterWeight?: number;
   capPercent?: number;
   weightsJson?: string;
   constraintsJson?: string;
@@ -32,13 +33,21 @@ export interface SimulationScenario {
 export class OptimizationDataService {
   private readonly http = inject(HttpClient);
 
-  getRecommendations(povertyWeight: number, capPercent: number) {
-    const params = new HttpParams().set('povertyWeight', povertyWeight).set('capPercent', capPercent / 100);
+  getRecommendations(povertyWeight: number, capPercent: number, disasterWeight?: number) {
+    let params = new HttpParams().set('povertyWeight', povertyWeight).set('capPercent', capPercent / 100);
+    if (disasterWeight !== undefined) {
+      params = params.set('disasterWeight', disasterWeight);
+    }
     return this.http.get<OptimizationResult>('http://localhost:5025/api/v1/optimization/recommendations', { params });
   }
 
-  saveScenario(name: string, povertyWeight: number, capPercent: number) {
-    return this.http.post<SimulationScenario>('http://localhost:5025/api/v1/optimization/scenarios', { name, povertyWeight, capPercent: capPercent / 100 });
+  saveScenario(name: string, povertyWeight: number, capPercent: number, disasterWeight?: number) {
+    return this.http.post<SimulationScenario>('http://localhost:5025/api/v1/optimization/scenarios', {
+      name,
+      povertyWeight,
+      capPercent: capPercent / 100,
+      disasterWeight: disasterWeight ?? 10
+    });
   }
 
   getScenarios() {

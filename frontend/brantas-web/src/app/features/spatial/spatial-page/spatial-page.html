@@ -108,6 +108,9 @@
       <button type="button" class="layer-btn" [class.active]="activeLayer() === 'hdi'" (click)="switchLayer('hdi')">
         <i class="pi pi-star"></i> Indeks IPM
       </button>
+      <button type="button" class="layer-btn" [class.active]="activeLayer() === 'disasterRisk'" (click)="switchLayer('disasterRisk')">
+        <i class="pi pi-shield"></i> Risiko Bencana (IRBI)
+      </button>
     </div>
   </section>
 
@@ -232,6 +235,7 @@
                   <th class="text-right">Indeks IPM</th>
                   <th class="text-right">Kedalaman (P1)</th>
                   <th class="text-right">Keparahan (P2)</th>
+                  <th class="text-right">Risiko Bencana</th>
                   <th>Klaster Spasial</th>
                   <th>Aksi</th>
                 </tr>
@@ -247,6 +251,11 @@
                     <td class="text-right font-bold">{{ r.humanDevelopmentIndex.toFixed(2) }}</td>
                     <td class="text-right mono">{{ r.povertyDepthIndex.toFixed(3) }}</td>
                     <td class="text-right mono">{{ r.povertySeverityIndex.toFixed(3) }}</td>
+                    <td class="text-right">
+                      <span class="mono font-bold" [style.color]="(r.disasterRisk ?? 0.5) >= 0.7 ? '#dc2626' : ((r.disasterRisk ?? 0.5) >= 0.45 ? '#ea580c' : '#16a34a')">
+                        {{ r.disasterRisk ? (r.disasterRisk * 100).toFixed(0) + '%' : '-' }}
+                      </span>
+                    </td>
                     <td>
                       <span class="cluster-capsule" [ngClass]="getClusterClass(r.cluster)">
                         {{ translateClusterShort(r.cluster) }}
@@ -316,6 +325,12 @@
                 <dt>Pendapatan Regional (PDRB) / Kapita</dt>
                 <dd class="mono">Rp{{ region.gdpPerCapita.toFixed(1) }} Juta</dd>
               </div>
+              <div class="stat-item" [title]="'Indeks Risiko Bencana Indonesia (IRBI) BNPB'">
+                <dt>Risiko Bencana (IRBI)</dt>
+                <dd class="mono font-bold" [style.color]="(region.disasterRisk ?? 0.5) >= 0.7 ? '#dc2626' : ((region.disasterRisk ?? 0.5) >= 0.45 ? '#ea580c' : '#16a34a')">
+                  {{ region.disasterRisk ? ((region.disasterRisk * 100).toFixed(0) + '% · ' + (region.disasterCategory ?? 'Sedang')) : '-' }}
+                </dd>
+              </div>
               <div class="stat-item cluster-item">
                 <dt>Klasifikasi Klaster Spasial</dt>
                 <dd>
@@ -362,6 +377,12 @@
                 <dt>Rerata Indeks IPM</dt>
                 <dd class="mono font-bold text-teal">{{ prov.avgHdi.toFixed(2) }}</dd>
               </div>
+              <div class="stat-item" [title]="'Rerata Indeks Risiko Bencana BNPB Provinsi'">
+                <dt>Rerata Risiko Bencana (IRBI)</dt>
+                <dd class="mono font-bold" [style.color]="prov.avgDisaster >= 0.7 ? '#dc2626' : (prov.avgDisaster >= 0.45 ? '#ea580c' : '#16a34a')">
+                  {{ (prov.avgDisaster * 100).toFixed(0) }}% · {{ prov.avgDisaster >= 0.7 ? 'Tinggi' : (prov.avgDisaster >= 0.45 ? 'Sedang' : 'Rendah') }}
+                </dd>
+              </div>
               <div class="stat-item cluster-item">
                 <dt>Klaster Spasial Dominan</dt>
                 <dd>
@@ -390,39 +411,75 @@
           <div class="inspector-body">
             <p class="guide-text">Pilih provinsi pada dropdown di atas atau klik langsung pada poligon peta untuk menginspeksi indikator & klasifikasi klaster.</p>
             
-            <div class="legend-card">
-              <span class="legend-title">Klasifikasi Klaster Spasial Kemiskinan</span>
-              <div class="legend">
-                <div class="legend-row">
-                  <span class="cluster-dot hh"></span>
-                  <div>
-                    <strong>Klaster Kemiskinan Tinggi (Hotspot)</strong>
-                    <small>Merah Pekat · Kantong kemiskinan tinggi yang saling bersebelahan</small>
+            @if (activeLayer() === 'disasterRisk') {
+              <div class="legend-card">
+                <span class="legend-title">Klasifikasi Indeks Risiko Bencana (IRBI BNPB)</span>
+                <div class="legend">
+                  <div class="legend-row">
+                    <span class="cluster-dot hh" style="background: #7f1d1d;"></span>
+                    <div>
+                      <strong>Risiko Sangat Tinggi (≥ 80%)</strong>
+                      <small>Marun · Sesar aktif/megathrust, tsunami, siklon ekstrem (NTT, Sulteng, Sumbar, Maluku)</small>
+                    </div>
                   </div>
-                </div>
-                <div class="legend-row">
-                  <span class="cluster-dot hl"></span>
-                  <div>
-                    <strong>Kantong Miskin Terisolasi (Outlier Tinggi)</strong>
-                    <small>Merah Biasa · Daerah miskin di sekitar kawasan maju</small>
+                  <div class="legend-row">
+                    <span class="cluster-dot hl" style="background: #dc2626;"></span>
+                    <div>
+                      <strong>Risiko Tinggi (65% - 79%)</strong>
+                      <small>Merah · Vulkanik aktif, longsor terjal, & banjir bandang (Jabar, Aceh, NTB, DIY, Jatim)</small>
+                    </div>
                   </div>
-                </div>
-                <div class="legend-row">
-                  <span class="cluster-dot lh"></span>
-                  <div>
-                    <strong>Wilayah Maju Terjepit (Outlier Rendah)</strong>
-                    <small>Kuning/Oranye · Daerah relatif sejahtera di sekitar kawasan tertinggal</small>
+                  <div class="legend-row">
+                    <span class="cluster-dot lh" style="background: #f97316;"></span>
+                    <div>
+                      <strong>Risiko Sedang (45% - 64%)</strong>
+                      <small>Oranye · Hidrometeorologi & karhutla musiman (Sulsel, Sumut, Bali, Jambi)</small>
+                    </div>
                   </div>
-                </div>
-                <div class="legend-row">
-                  <span class="cluster-dot ll"></span>
-                  <div>
-                    <strong>Klaster Sejahtera (Coldspot)</strong>
-                    <small>Teal/Hijau · Daerah dengan tingkat kemiskinan rendah & ekonomi kuat</small>
+                  <div class="legend-row">
+                    <span class="cluster-dot ll" style="background: #eab308;"></span>
+                    <div>
+                      <strong>Risiko Rendah (&lt; 45%)</strong>
+                      <small>Kuning · Kawasan geologis stabil dengan ancaman minimum (Babel, Kepri, Kalbar, Kaltim)</small>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            } @else {
+              <div class="legend-card">
+                <span class="legend-title">Klasifikasi Klaster Spasial Kemiskinan</span>
+                <div class="legend">
+                  <div class="legend-row">
+                    <span class="cluster-dot hh"></span>
+                    <div>
+                      <strong>Klaster Kemiskinan Tinggi (Hotspot)</strong>
+                      <small>Merah Pekat · Kantong kemiskinan tinggi yang saling bersebelahan</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot hl"></span>
+                    <div>
+                      <strong>Kantong Miskin Terisolasi (Outlier Tinggi)</strong>
+                      <small>Merah Biasa · Daerah miskin di sekitar kawasan maju</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot lh"></span>
+                    <div>
+                      <strong>Wilayah Maju Terjepit (Outlier Rendah)</strong>
+                      <small>Kuning/Oranye · Daerah relatif sejahtera di sekitar kawasan tertinggal</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot ll"></span>
+                    <div>
+                      <strong>Klaster Sejahtera (Coldspot)</strong>
+                      <small>Teal/Hijau · Daerah dengan tingkat kemiskinan rendah & ekonomi kuat</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
       }

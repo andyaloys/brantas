@@ -2,7 +2,7 @@ import { Injectable, NgZone, inject } from '@angular/core';
 import * as L from 'leaflet';
 import { SpatialRegionProperties } from './spatial-data.service';
 
-export type SpatialIndicatorLayer = 'cluster' | 'povertyRate' | 'povertyDepth' | 'povertySeverity' | 'hdi';
+export type SpatialIndicatorLayer = 'cluster' | 'povertyRate' | 'povertyDepth' | 'povertySeverity' | 'hdi' | 'disasterRisk';
 
 export interface BasemapDef {
   id: string;
@@ -25,6 +25,47 @@ export const CLUSTER_META = {
   'High-Low': { label: 'High-Low (Outlier Tinggi)', bg: '#ef4444', text: '#ffffff' },
   'Low-High': { label: 'Low-High (Outlier Rendah)', bg: '#f97316', text: '#ffffff' },
   'Low-Low': { label: 'Low-Low (Coldspot)', bg: '#eab308', text: '#0f172a' }
+};
+
+export const PROVINCE_DISASTER_RISK: Record<string, { risk: number; cat: string }> = {
+  'Aceh': { risk: 0.78, cat: 'Tinggi' },
+  'Sumatera Utara': { risk: 0.58, cat: 'Sedang' },
+  'Sumatera Barat': { risk: 0.82, cat: 'Sangat Tinggi' },
+  'Riau': { risk: 0.46, cat: 'Sedang' },
+  'Jambi': { risk: 0.44, cat: 'Sedang' },
+  'Sumatera Selatan': { risk: 0.48, cat: 'Sedang' },
+  'Bengkulu': { risk: 0.74, cat: 'Tinggi' },
+  'Lampung': { risk: 0.64, cat: 'Tinggi' },
+  'Kepulauan Bangka Belitung': { risk: 0.24, cat: 'Rendah' },
+  'Kepulauan Riau': { risk: 0.32, cat: 'Rendah' },
+  'DKI Jakarta': { risk: 0.36, cat: 'Sedang' },
+  'Jawa Barat': { risk: 0.71, cat: 'Tinggi' },
+  'Jawa Tengah': { risk: 0.68, cat: 'Tinggi' },
+  'DI Yogyakarta': { risk: 0.73, cat: 'Tinggi' },
+  'Jawa Timur': { risk: 0.72, cat: 'Tinggi' },
+  'Banten': { risk: 0.65, cat: 'Tinggi' },
+  'Bali': { risk: 0.58, cat: 'Sedang' },
+  'Nusa Tenggara Barat': { risk: 0.79, cat: 'Tinggi' },
+  'Nusa Tenggara Timur': { risk: 0.86, cat: 'Sangat Tinggi' },
+  'Kalimantan Barat': { risk: 0.28, cat: 'Rendah' },
+  'Kalimantan Tengah': { risk: 0.35, cat: 'Sedang' },
+  'Kalimantan Selatan': { risk: 0.42, cat: 'Sedang' },
+  'Kalimantan Timur': { risk: 0.30, cat: 'Rendah' },
+  'Kalimantan Utara': { risk: 0.34, cat: 'Rendah' },
+  'Sulawesi Utara': { risk: 0.66, cat: 'Tinggi' },
+  'Sulawesi Tengah': { risk: 0.85, cat: 'Sangat Tinggi' },
+  'Sulawesi Selatan': { risk: 0.59, cat: 'Sedang' },
+  'Sulawesi Tenggara': { risk: 0.54, cat: 'Sedang' },
+  'Gorontalo': { risk: 0.62, cat: 'Tinggi' },
+  'Sulawesi Barat': { risk: 0.75, cat: 'Tinggi' },
+  'Maluku': { risk: 0.80, cat: 'Sangat Tinggi' },
+  'Maluku Utara': { risk: 0.70, cat: 'Tinggi' },
+  'Papua Barat': { risk: 0.69, cat: 'Tinggi' },
+  'Papua': { risk: 0.72, cat: 'Tinggi' },
+  'Papua Selatan': { risk: 0.52, cat: 'Sedang' },
+  'Papua Tengah': { risk: 0.78, cat: 'Tinggi' },
+  'Papua Pegunungan': { risk: 0.79, cat: 'Tinggi' },
+  'Papua Barat Daya': { risk: 0.64, cat: 'Tinggi' }
 };
 
 export const CARTOGRAPHIC_BASEMAPS: BasemapDef[] = [
@@ -408,6 +449,14 @@ export class GisChoroplethAdapter {
         if (p.humanDevelopmentIndex >= 70) return '#0d9488'; // Teal
         if (p.humanDevelopmentIndex >= 66) return '#0284c7'; // Sky blue
         return '#d97706';                                   // Amber
+
+      case 'disasterRisk':
+        const fallback = p.parent ? PROVINCE_DISASTER_RISK[p.parent] : undefined;
+        const risk = p.disasterRisk ?? fallback?.risk ?? 0.5;
+        if (risk >= 0.80) return '#7f1d1d'; // Sangat Tinggi (Marun Pekat)
+        if (risk >= 0.65) return '#dc2626'; // Tinggi (Merah)
+        if (risk >= 0.45) return '#f97316'; // Sedang (Oranye)
+        return '#eab308';                   // Rendah (Kuning)
     }
   }
 
@@ -590,6 +639,10 @@ export class GisChoroplethAdapter {
   }
 
   private createRegencyTooltipHtml(p: SpatialRegionProperties): string {
+    const fallback = p.parent ? PROVINCE_DISASTER_RISK[p.parent] : undefined;
+    const effectiveRisk = p.disasterRisk ?? fallback?.risk ?? 0.5;
+    const effectiveCat = p.disasterCategory ?? fallback?.cat ?? 'Sedang';
+
     const meta = CLUSTER_META[p.cluster] ?? {
       label: p.cluster,
       bg: '#64748b',
@@ -625,6 +678,14 @@ export class GisChoroplethAdapter {
               <span class="tooltip-cluster-badge" style="background: ${meta.bg}; color: ${meta.text};">
                 ${meta.label}
               </span>
+            </td>
+          </tr>
+          <tr>
+            <td class="lbl">Risiko Bencana (IRBI)</td>
+            <td class="val">
+              <strong style="color: ${effectiveRisk >= 0.7 ? '#dc2626' : (effectiveRisk >= 0.45 ? '#ea580c' : '#16a34a')}">
+                ${(effectiveRisk * 100).toFixed(0)}% · ${effectiveCat}
+              </strong>
             </td>
           </tr>
         </table>
