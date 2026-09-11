@@ -39,8 +39,11 @@ export class JusiPageComponent {
       .filter(line => line.length > 0)
       .join('\n');
 
+    // Berikan jeda baris pemisah otomatis pada butir rekomendasi bernomor
+    const separated = cleaned.replace(/([^\n])\n(\d+\.\s+)/g, '$1\n\n$2');
+
     // 2. Escape basic HTML entities untuk keamanan
-    let escaped = cleaned
+    let escaped = separated
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');

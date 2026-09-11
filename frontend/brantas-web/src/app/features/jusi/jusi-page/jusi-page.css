@@ -410,10 +410,26 @@ h1 {
 .bubble-content .answer-text strong {
   font-weight: 700;
   color: #0f766e;
-  background: rgba(15, 118, 110, 0.08);
-  padding: 1px 5px;
+  background: rgba(15, 118, 110, 0.10);
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  padding: 1px 6px;
   border-radius: 4px;
   display: inline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+:host-context([data-theme="dark"]) .answer-bubble .chat-bubble p strong.key-data,
+:host-context([data-theme="dark"]) .answer-bubble .chat-bubble p strong,
+:host-context([data-theme="dark"]) .bubble-content .answer-text strong.key-data,
+:host-context([data-theme="dark"]) .bubble-content .answer-text strong,
+[data-theme="dark"] .answer-bubble .chat-bubble p strong.key-data,
+[data-theme="dark"] .answer-bubble .chat-bubble p strong,
+[data-theme="dark"] .bubble-content .answer-text strong.key-data,
+[data-theme="dark"] .bubble-content .answer-text strong {
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.16);
+  border-color: rgba(45, 212, 191, 0.28);
 }
 
 .user-bubble .user-text strong.key-data,
