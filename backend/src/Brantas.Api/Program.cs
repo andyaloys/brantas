@@ -1035,7 +1035,8 @@ app.MapGet("/api/v1/reports/policy-brief.pdf", async (BrantasDbContext database,
     var panel = truth is null ? [] : await database.PolicyImpactPanels.Where(item => item.DatasetVersionId == version.Id).Select(item => new PolicyObservation(item.RegionId, item.Year, item.IsTreated, item.SocialProtectionAllocation, item.PovertyRate)).ToListAsync(cancellationToken);
     var did = truth is null ? null : new DifferenceInDifferencesEstimator().Estimate(panel, truth.TreatmentStartYear);
     var report = new PolicyBriefModel(version.Id, version.Period, version.Checksum, version.Seed, DateTimeOffset.UtcNow, await indicators.CountAsync(cancellationToken), await indicators.AverageAsync(item => item.PovertyRate, cancellationToken), anomalyMetrics?.Count ?? 0, anomalyMetrics?.ValueAtRisk ?? 0m, did?.EffectPercentagePoints ?? 0m, did?.StandardError ?? 0m, did?.ConfidenceIntervalLower ?? 0m, did?.ConfidenceIntervalUpper ?? 0m, did?.PValue ?? 1m, priorities);
-    return Results.File(new PolicyBriefDocument(report).GeneratePdf(), "application/pdf", $"rekomendasi-kebijakan-brantas-{version.Period}.pdf");
+    var annualPeriod = version.Period.Contains('-') ? version.Period.Split('-')[0] : version.Period;
+    return Results.File(new PolicyBriefDocument(report).GeneratePdf(), "application/pdf", $"rekomendasi-kebijakan-brantas-{annualPeriod}.pdf");
 })
     .WithName("DownloadPolicyBrief")
     .WithSummary("Menghasilkan rekomendasi kebijakan PDF berbasis data analitik BRANTAS.")
