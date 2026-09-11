@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, effect, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { JusiChatService, ChatMessage, ChatSession } from '../services/jusi-chat.service';
@@ -19,13 +19,39 @@ export class JusiPageComponent {
 
   protected formatChatMessage(rawText: string | null | undefined): SafeHtml {
     if (!rawText) return '';
-    let escaped = rawText
+
+    // 1. Bersihkan baris tabel markdown (|---|---|) dan rapikan baris data jika ada
+    const cleaned = rawText
+      .split('\n')
+      .filter(line => !/^\s*\|?[\s\-:|]+\|?\s*$/.test(line))
+      .map(line => {
+        const tableMatch = line.match(/^\s*\|([^|]+)\|([^|]+)\|\s*$/);
+        if (tableMatch) {
+          const c1 = tableMatch[1].trim();
+          const c2 = tableMatch[2].trim();
+          if (c1 && c2 && c1.toLowerCase() !== 'indikator') {
+            return `• ${c1}: ${c2}`;
+          }
+          return '';
+        }
+        return line;
+      })
+      .filter(line => line.length > 0)
+      .join('\n');
+
+    // 2. Escape basic HTML entities untuk keamanan
+    let escaped = cleaned
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
+    // 3. Ubah pola **data kunci** menjadi <strong class="key-data">$1</strong>
     escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="key-data">$1</strong>');
+
+    // 4. Ubah *teks* menjadi <em>$1</em>
     escaped = escaped.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+    // 5. Ubah baris baru menjadi <br>
     escaped = escaped.replace(/\n/g, '<br>');
 
     return this.sanitizer.bypassSecurityTrustHtml(escaped);
@@ -48,6 +74,13 @@ export class JusiPageComponent {
       this.profileFormName.set(lastProfile.name);
       this.profileFormUnit.set(lastProfile.unit);
     }
+
+    // Auto scroll when messages update or loading state flips
+    effect(() => {
+      const _ = this.activeMessages().length;
+      const __ = this.isLoading();
+      this.scrollToBottom();
+    });
   }
 
   protected updateQuestion(event: Event): void {
@@ -106,10 +139,18 @@ export class JusiPageComponent {
   }
 
   private scrollToBottom(): void {
+    requestAnimationFrame(() => {
+      if (this.scrollContainer?.nativeElement) {
+        this.scrollContainer.nativeElement.scrollTo({
+          top: this.scrollContainer.nativeElement.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    });
     setTimeout(() => {
       if (this.scrollContainer?.nativeElement) {
         this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
       }
-    }, 60);
+    }, 80);
   }
 }

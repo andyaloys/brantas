@@ -32,19 +32,39 @@ export class JusiChatWidgetComponent {
 
   protected formatChatMessage(rawText: string | null | undefined): SafeHtml {
     if (!rawText) return '';
-    // 1. Escape basic HTML entities untuk keamanan
-    let escaped = rawText
+
+    // 1. Bersihkan baris tabel markdown (|---|---|) dan rapikan baris data jika ada
+    const cleaned = rawText
+      .split('\n')
+      .filter(line => !/^\s*\|?[\s\-:|]+\|?\s*$/.test(line))
+      .map(line => {
+        const tableMatch = line.match(/^\s*\|([^|]+)\|([^|]+)\|\s*$/);
+        if (tableMatch) {
+          const c1 = tableMatch[1].trim();
+          const c2 = tableMatch[2].trim();
+          if (c1 && c2 && c1.toLowerCase() !== 'indikator') {
+            return `• ${c1}: ${c2}`;
+          }
+          return '';
+        }
+        return line;
+      })
+      .filter(line => line.length > 0)
+      .join('\n');
+
+    // 2. Escape basic HTML entities untuk keamanan
+    let escaped = cleaned
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
-    // 2. Ubah pola **data kunci** menjadi <strong class="key-data">data kunci</strong> (menghilangkan tanda **)
+    // 3. Ubah pola **data kunci** menjadi <strong class="key-data">data kunci</strong>
     escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="key-data">$1</strong>');
 
-    // 3. Ubah *teks* menjadi <em>teks</em>
+    // 4. Ubah *teks* menjadi <em>teks</em>
     escaped = escaped.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
 
-    // 4. Ubah baris baru menjadi <br>
+    // 5. Ubah baris baru menjadi <br>
     escaped = escaped.replace(/\n/g, '<br>');
 
     return this.sanitizer.bypassSecurityTrustHtml(escaped);
@@ -71,14 +91,18 @@ export class JusiChatWidgetComponent {
       this.profileFormUnit.set(lastProfile.unit);
     }
 
-    // Auto scroll and focus when widget opens or messages update
+    // Auto scroll and focus when widget opens, messages update, or loading status changes
     effect(() => {
       const isOpen = this.widget.isOpen();
+      const messagesCount = this.chat.activeMessages().length;
+      const loading = this.chat.isLoading();
       if (isOpen) {
         this.scrollToBottom();
-        setTimeout(() => {
-          this.composerTextarea?.nativeElement?.focus();
-        }, 150);
+        if (messagesCount > 0 || !loading) {
+          setTimeout(() => {
+            this.composerTextarea?.nativeElement?.focus();
+          }, 150);
+        }
       }
     });
   }
@@ -154,19 +178,28 @@ export class JusiChatWidgetComponent {
   }
 
   protected async ask(): Promise<void> {
-    const q = this.question();
-    if (!q.trim()) return;
+    const q = this.question().trim();
+    if (!q || this.chat.isLoading()) return;
     this.question.set('');
+    this.scrollToBottom();
     await this.chat.ask(q);
     this.scrollToBottom();
   }
 
   private scrollToBottom(): void {
+    requestAnimationFrame(() => {
+      if (this.scrollContainer?.nativeElement) {
+        this.scrollContainer.nativeElement.scrollTo({
+          top: this.scrollContainer.nativeElement.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    });
     setTimeout(() => {
       if (this.scrollContainer?.nativeElement) {
         this.scrollContainer.nativeElement.scrollTop =
           this.scrollContainer.nativeElement.scrollHeight;
       }
-    }, 50);
+    }, 80);
   }
 }
