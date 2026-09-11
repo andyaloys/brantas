@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { CausalDataService, CausalResult } from '../data/causal-data.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
 import * as echarts from 'echarts';
 
 @Component({
@@ -17,6 +18,8 @@ export class CausalPageComponent implements OnInit, OnDestroy {
   private readonly causalData = inject(CausalDataService);
   protected readonly themeService = inject(ThemeService);
   private readonly zone = inject(NgZone);
+
+  protected readonly formatCurrency = formatCompactCurrency;
 
   private _eventStudyChartRef?: ElementRef<HTMLDivElement>;
   @ViewChild('eventStudyChartRef')

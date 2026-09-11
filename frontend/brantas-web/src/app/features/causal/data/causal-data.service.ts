@@ -11,6 +11,28 @@ export interface EventStudyPoint {
   baselineControlPovertyRate?: number;
   priorYearTreatedPovertyRate?: number;
 }
+export interface AdaptiveTreatedRegion {
+  regionId: string;
+  name: string;
+  bpsCode: string;
+  irbiScore: number;
+  irbiCategory: string;
+  threat: string;
+  povertyRate: number;
+  poorPopulation: number;
+  affirmativeAllocation: number;
+  povertyReduction: number;
+  resilienceStatus: string;
+}
+
+export interface AdaptiveSocialProtectionData {
+  highRiskTreatedCount: number;
+  averageIrbiScore: number;
+  contingencyBufferRatio: number;
+  shockAbsorptionEfficiency: number;
+  treatedRegions: AdaptiveTreatedRegion[];
+}
+
 export interface CausalResult {
   treatedRegionCount: number;
   controlRegionCount: number;
@@ -22,6 +44,7 @@ export interface CausalResult {
   effectivenessPerTrillion: number;
   parallelTrendPassed: boolean;
   eventStudy: EventStudyPoint[];
+  adaptiveSocialProtection?: AdaptiveSocialProtectionData;
 }
 
 @Injectable({ providedIn: 'root' })
