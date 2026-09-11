@@ -63,14 +63,31 @@ public sealed class DifferenceInDifferencesEstimator
         var postTreated = treated.Where(item => item.Year >= treatmentStartYear + 1).Average(item => item.PovertyRate);
         var postControl = control.Where(item => item.Year >= treatmentStartYear + 1).Average(item => item.PovertyRate);
         var effect = Math.Round((decimal)estimatedEffect, 4);
-        var annualEffects = observations.GroupBy(item => item.Year).OrderBy(group => group.Key).Select(group =>
+        var baselineGroup = observations.Where(item => item.Year == 2023).ToArray();
+        var baselineTreated = Math.Round(baselineGroup.Where(item => item.IsTreated).Average(item => item.PovertyRate), 2);
+        var baselineControl = Math.Round(baselineGroup.Where(item => !item.IsTreated).Average(item => item.PovertyRate), 2);
+        var baselineDifference = baselineGroup.Where(item => item.IsTreated).Average(item => item.PovertyRate) - baselineGroup.Where(item => !item.IsTreated).Average(item => item.PovertyRate);
+
+        var groups = observations.GroupBy(item => item.Year).OrderBy(group => group.Key).ToList();
+        var annualEffects = new List<EventStudyPoint>();
+        for (var i = 0; i < groups.Count; i++)
         {
+            var group = groups[i];
             var treatedMean = group.Where(item => item.IsTreated).Average(item => item.PovertyRate);
             var controlMean = group.Where(item => !item.IsTreated).Average(item => item.PovertyRate);
-            var baselineGroup = observations.Where(item => item.Year == 2023);
-            var baselineDifference = baselineGroup.Where(item => item.IsTreated).Average(item => item.PovertyRate) - baselineGroup.Where(item => !item.IsTreated).Average(item => item.PovertyRate);
-            return new EventStudyPoint(group.Key, Math.Round((treatedMean - controlMean) - baselineDifference, 4));
-        }).ToArray();
+            var priorYearTreated = i > 0
+                ? Math.Round(groups[i - 1].Where(item => item.IsTreated).Average(item => item.PovertyRate), 2)
+                : Math.Round(treatedMean, 2);
+
+            annualEffects.Add(new EventStudyPoint(
+                group.Key,
+                Math.Round((treatedMean - controlMean) - baselineDifference, 4),
+                Math.Round(treatedMean, 2),
+                Math.Round(controlMean, 2),
+                baselineTreated,
+                baselineControl,
+                priorYearTreated));
+        }
         var costIncrease = treated.Where(item => item.Year >= treatmentStartYear).Sum(item => item.SocialProtectionAllocation) - treated.Where(item => item.Year < treatmentStartYear).Sum(item => item.SocialProtectionAllocation) * 3m / 4m;
         return new DifferenceInDifferencesResult(
             effect,
@@ -84,5 +101,12 @@ public sealed class DifferenceInDifferencesEstimator
 }
 
 public sealed record PolicyObservation(Guid RegionId, int Year, bool IsTreated, decimal SocialProtectionAllocation, decimal PovertyRate);
-public sealed record EventStudyPoint(int Year, decimal EffectPercentagePoints);
+public sealed record EventStudyPoint(
+    int Year,
+    decimal EffectPercentagePoints,
+    decimal TreatedPovertyRate,
+    decimal ControlPovertyRate,
+    decimal BaselineTreatedPovertyRate,
+    decimal BaselineControlPovertyRate,
+    decimal PriorYearTreatedPovertyRate);
 public sealed record DifferenceInDifferencesResult(decimal EffectPercentagePoints, decimal StandardError, decimal ConfidenceIntervalLower, decimal ConfidenceIntervalUpper, decimal PValue, decimal EffectivenessPerTrillion, IReadOnlyCollection<EventStudyPoint> EventStudy);
