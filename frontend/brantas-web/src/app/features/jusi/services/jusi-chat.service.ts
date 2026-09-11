@@ -241,13 +241,17 @@ export class JusiChatService {
             : s
         )
       );
-    } catch {
+    } catch (err: any) {
+      const refusalMsg = 'Mohon maaf, saya tidak bisa membantu untuk hal itu. Saya ditugaskan khusus sebagai Juru Bantuan Sosial Interaktif dengan ruang lingkup analisis data kemiskinan, alokasi anggaran APBN/TKDD, dan rekomendasi kebijakan pada sistem BRANTAS. Terima kasih.';
+      const detail = err?.error?.detail || err?.message || '';
+      const isRefusal = typeof detail === 'string' && (detail.includes('Mohon maaf') || detail.includes('Juru Bantuan') || detail.includes('cakupan') || detail.includes('identitas'));
+
       const errorMsg: ChatMessage = {
         id: 'err-' + Date.now(),
         sender: 'assistant',
-        text: 'Pertanyaan belum dapat diproses. Pastikan pertanyaan berada dalam konteks data fiskal dan kemiskinan BRANTAS.',
+        text: isRefusal ? refusalMsg : (detail || refusalMsg),
         timestamp: new Date().toISOString(),
-        isError: true
+        isError: !isRefusal
       };
 
       this.sessions.update((list) =>
