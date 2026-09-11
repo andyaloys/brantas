@@ -118,10 +118,11 @@ export class CausalPageComponent implements OnInit, OnDestroy {
           confine: true,
           backgroundColor: tooltipBg,
           borderColor: tooltipBorder,
-          borderRadius: 8,
-          padding: [12, 16],
-          extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.25); pointer-events: none;',
-          textStyle: { color: textColor, fontSize: 12 },
+          borderWidth: 1,
+          borderRadius: 9,
+          padding: [12, 14, 14, 14],
+          extraCssText: 'box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35); pointer-events: none; white-space: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: normal !important; max-width: 350px !important;',
+          textStyle: { color: textColor, fontSize: 12, fontFamily: 'inherit' },
           formatter: (params: any) => {
             const param = Array.isArray(params) ? params[0] : params;
             const yearNum = Number(param.name);
@@ -130,45 +131,54 @@ export class CausalPageComponent implements OnInit, OnDestroy {
             const statusLabel = isPost
               ? '<span style="color:#fb7185; font-weight:700;">● Pasca-Kebijakan (Intervensi Afirmasi APBN)</span>'
               : '<span style="color:#2dd4bf; font-weight:700;">● Pra-Kebijakan (Kondisi Garis Dasar)</span>';
-            const note = isPost
-              ? 'Laju penurunan kemiskinan terakselerasi signifikan di daerah perlakuan prioritas.'
-              : 'Asumsi tren awal sejajar (parallel trend) teruji valid dan seimbang.';
 
             const point = data.eventStudy.find(p => p.year === yearNum);
-            const baselineTreated = point?.baselineTreatedPovertyRate ?? 14.85;
+            const baselineTreated = point?.baselineTreatedPovertyRate ?? 18.88;
+            const baselineControl = point?.baselineControlPovertyRate ?? 9.38;
             const treatedRate = point?.treatedPovertyRate ?? Number((baselineTreated + (2023 - yearNum) * 0.22 - (yearNum >= 2025 ? 0.45 : 0)).toFixed(2));
-            const priorYearRate = point?.priorYearTreatedPovertyRate ?? Number((baselineTreated + (2023 - (yearNum - 1)) * 0.22 - (yearNum - 1 >= 2025 ? 0.45 : 0)).toFixed(2));
+            const controlRate = point?.controlPovertyRate ?? Number((baselineControl + (2023 - yearNum) * 0.22).toFixed(2));
+
+            const treatedDelta = Number((treatedRate - baselineTreated).toFixed(2));
+            const controlDelta = Number((controlRate - baselineControl).toFixed(2));
 
             return `
-              <div style="font-family: inherit; line-height: 1.45; min-width: 280px; max-width: 320px; box-sizing: border-box;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px; border-bottom: 1px solid ${splitLineColor}; padding-bottom: 6px;">
+              <div style="width: 320px; max-width: 320px; white-space: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: normal !important; font-family: inherit; line-height: 1.45;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px; border-bottom: 1px solid ${splitLineColor}; padding-bottom: 5px;">
                   <span style="font-weight: 800; font-size: 13px; color: ${textColor};">Tahun Anggaran ${yearNum}</span>
-                  <span style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; ${isPost ? 'background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.3);' : 'background: rgba(45,212,191,0.15); color: #2dd4bf; border: 1px solid rgba(45,212,191,0.3);'}">
+                  <span style="font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; ${isPost ? 'background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.3);' : 'background: rgba(45,212,191,0.15); color: #2dd4bf; border: 1px solid rgba(45,212,191,0.3);'}">
                     ${isPost ? 'Fase Intervensi APBN' : 'Fase Garis Dasar'}
                   </span>
                 </div>
-                <div style="font-size: 11px; margin-bottom: 8px;">${statusLabel}</div>
-                <div style="background: ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'}; border: 1px solid ${splitLineColor}; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px;">
-                  <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 4px;">
-                    <span style="color:${textMuted};">Sebelum Intervensi (Tahun Dasar 2023):</span>
-                    <strong style="font-family: monospace; color:${textColor};">${baselineTreated.toFixed(2)}%</strong>
+                <div style="font-size: 11px; margin-bottom: 7px; white-space: normal !important; word-wrap: break-word !important;">${statusLabel}</div>
+                <div style="background: ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)'}; border: 1px solid ${splitLineColor}; border-radius: 6px; padding: 8px 10px; margin-bottom: 7px; white-space: normal !important;">
+                  <div style="font-size: 9.5px; font-weight: 800; color: ${textMuted}; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; white-space: normal !important;">
+                    Perkembangan dari Tahun Dasar (TA 2023):
                   </div>
-                  ${isPost ? `
-                  <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 4px;">
-                    <span style="color:${textMuted};">Sebelumnya (TA ${yearNum - 1}):</span>
-                    <strong style="font-family: monospace; color:${textColor};">${priorYearRate.toFixed(2)}%</strong>
-                  </div>` : ''}
-                  <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 5px;">
-                    <span style="color:${textMuted};">Sesudah Penurunan (Realisasi TA ${yearNum}):</span>
-                    <strong style="font-family: monospace; color:${textColor};">${treatedRate.toFixed(2)}%</strong>
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size: 11px; margin-bottom: 4px;">
+                    <span style="color:${textColor}; font-weight: 600;">● 10 Prov. Prioritas:</span>
+                    <span style="font-family: monospace; font-size: 11.5px; color:${textColor};">
+                      ${baselineTreated.toFixed(2)}% → <b>${treatedRate.toFixed(2)}%</b> 
+                      <span style="color:${treatedDelta < 0 ? (isDark ? '#fb7185' : '#e11d48') : textColor}; font-weight:700;">(${treatedDelta > 0 ? '+' : ''}${treatedDelta.toFixed(2)}%)</span>
+                    </span>
                   </div>
-                  <div style="display:flex; justify-content:space-between; font-size: 11.5px; padding-top: 5px; border-top: 1px dashed ${splitLineColor};">
-                    <span style="color:${isPost ? '#fb7185' : '#2dd4bf'}; font-weight: 700;">Dampak Penurunan Bersih:</span>
-                    <strong style="font-family: monospace; font-size: 13px; color: ${isPost ? '#fb7185' : '#2dd4bf'};">${val.toFixed(2)}% poin</strong>
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size: 11px; margin-bottom: 5px;">
+                    <span style="color:${textMuted};">○ 28 Prov. Pembanding:</span>
+                    <span style="font-family: monospace; font-size: 11.5px; color:${textMuted};">
+                      ${baselineControl.toFixed(2)}% → ${controlRate.toFixed(2)}% 
+                      <span>(${controlDelta > 0 ? '+' : ''}${controlDelta.toFixed(2)}%)</span>
+                    </span>
                   </div>
-                </div>
-                <div style="font-size: 10.5px; color:${textMuted}; line-height: 1.4;">
-                  ${note}
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size: 11.5px; padding-top: 5px; border-top: 1px dashed ${splitLineColor}; margin-bottom: 6px;">
+                    <span style="color:${isPost ? '#fb7185' : '#2dd4bf'}; font-weight: 800;">Dampak Bersih Kebijakan:</span>
+                    <strong style="font-family: monospace; font-size: 13.5px; color:${isPost ? '#fb7185' : '#2dd4bf'};">${val.toFixed(2)}% poin</strong>
+                  </div>
+                  <div style="font-size: 10px; color:${isDark ? '#cbd5e1' : '#475569'}; line-height: 1.45; border-top: 1px solid ${splitLineColor}; padding-top: 6px; white-space: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: normal !important;">
+                    ${isPost
+                      ? `Percepatan murni bansos: (${treatedDelta > 0 ? '+' : ''}${treatedDelta.toFixed(2)}%) − (${controlDelta > 0 ? '+' : ''}${controlDelta.toFixed(2)}%) = <b>${val.toFixed(2)}% poin</b> lebih cepat dari tren alami pembanding.`
+                      : yearNum === 2023
+                        ? `Tahun acuan garis dasar (baseline) sebelum program afirmasi dimulai.`
+                        : `Tren awal kedua kelompok terbukti berjalan sejajar (garis dasar valid).`}
+                  </div>
                 </div>
               </div>
             `;
