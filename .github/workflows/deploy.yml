@@ -1,0 +1,48 @@
+name: Deploy to Production VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to VPS (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remote SSH Deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          script_stop: true
+          command_timeout: 15m
+          script: |
+            echo "========================================"
+            echo "🚀 Starting Deployment on Production VPS"
+            echo "========================================"
+            cd /home/ubuntu/brantas
+
+            echo "📦 1. Fetching latest commit..."
+            git fetch origin main
+            git reset --hard origin/main
+            git log -1 --oneline
+
+            echo "🔨 2. Building and Updating Docker Containers..."
+            docker compose -f docker-compose.prod.yaml build
+            docker compose -f docker-compose.prod.yaml up -d
+
+            echo "🧹 3. Pruning dangling Docker images to preserve disk space..."
+            docker image prune -f
+
+            echo "🔍 4. Verifying container health..."
+            sleep 5
+            docker compose -f docker-compose.prod.yaml ps
+
+            echo "========================================"
+            echo "✅ Deployment Finished Successfully!"
+            echo "🌐 Live URL: https://brantas-batii.online"
+            echo "========================================"
