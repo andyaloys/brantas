@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { JusiChatService, ChatMessage, ChatSession } from '../services/jusi-chat.service';
 
 export type { ChatMessage, ChatSession };
@@ -13,7 +14,22 @@ export type { ChatMessage, ChatSession };
 })
 export class JusiPageComponent {
   protected readonly chat = inject(JusiChatService);
+  private readonly sanitizer = inject(DomSanitizer);
   @ViewChild('scrollContainer') private scrollContainer?: ElementRef<HTMLElement>;
+
+  protected formatChatMessage(rawText: string | null | undefined): SafeHtml {
+    if (!rawText) return '';
+    let escaped = rawText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="key-data">$1</strong>');
+    escaped = escaped.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+    escaped = escaped.replace(/\n/g, '<br>');
+
+    return this.sanitizer.bypassSecurityTrustHtml(escaped);
+  }
 
   protected readonly question = signal('');
   protected readonly profileFormName = signal('');

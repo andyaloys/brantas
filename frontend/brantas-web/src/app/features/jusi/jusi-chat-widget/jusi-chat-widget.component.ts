@@ -10,6 +10,7 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { JusiChatService, EXECUTIVE_QUICK_PROMPTS } from '../services/jusi-chat.service';
 import { JusiWidgetService } from '../services/jusi-widget.service';
 
@@ -24,9 +25,30 @@ import { JusiWidgetService } from '../services/jusi-widget.service';
 export class JusiChatWidgetComponent {
   protected readonly chat = inject(JusiChatService);
   protected readonly widget = inject(JusiWidgetService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   @ViewChild('scrollContainer') private scrollContainer?: ElementRef<HTMLElement>;
   @ViewChild('composerTextarea') private composerTextarea?: ElementRef<HTMLTextAreaElement>;
+
+  protected formatChatMessage(rawText: string | null | undefined): SafeHtml {
+    if (!rawText) return '';
+    // 1. Escape basic HTML entities untuk keamanan
+    let escaped = rawText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 2. Ubah pola **data kunci** menjadi <strong class="key-data">data kunci</strong> (menghilangkan tanda **)
+    escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="key-data">$1</strong>');
+
+    // 3. Ubah *teks* menjadi <em>teks</em>
+    escaped = escaped.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+    // 4. Ubah baris baru menjadi <br>
+    escaped = escaped.replace(/\n/g, '<br>');
+
+    return this.sanitizer.bypassSecurityTrustHtml(escaped);
+  }
 
   protected readonly question = signal('');
   protected readonly isPromptsDismissed = signal(false);

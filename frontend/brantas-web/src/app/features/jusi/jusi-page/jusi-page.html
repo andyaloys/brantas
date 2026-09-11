@@ -152,7 +152,7 @@
             <div class="chat-bubble user-bubble">
               <div class="bubble-content user-content">
                 <div class="bubble-title user-title">{{ msg.senderName || activeSession()!.userName }}</div>
-                <p class="user-text">{{ msg.text }}</p>
+                <p class="user-text" [innerHTML]="formatChatMessage(msg.text)"></p>
                 <span class="bubble-time user-time">{{ msg.timestamp | date:'HH:mm' }}</span>
               </div>
               <div class="avatar user-avatar"><i class="pi pi-user"></i></div>
@@ -166,7 +166,7 @@
                 <div class="bubble-title">
                   {{ msg.isError ? 'Peringatan Sistem' : 'JUSI' }}
                 </div>
-                <p class="answer-text">{{ msg.text }}</p>
+                <p class="answer-text" [innerHTML]="formatChatMessage(msg.text)"></p>
                 <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
               </div>
             </div>

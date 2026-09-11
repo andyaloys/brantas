@@ -201,7 +201,7 @@
                   <span class="user-sender-name">{{ msg.senderName || chat.activeSession()!.userName }}</span>
                   <span class="msg-time">{{ msg.timestamp | date:'HH:mm' }}</span>
                 </div>
-                <p class="bubble-text">{{ msg.text }}</p>
+                <p class="bubble-text" [innerHTML]="formatChatMessage(msg.text)"></p>
               </div>
             </div>
           } @else {
@@ -214,7 +214,7 @@
                   <span class="ai-sender-name">{{ msg.isError ? 'Peringatan Sistem' : 'JUSI' }}</span>
                   <span class="msg-time">{{ msg.timestamp | date:'HH:mm' }}</span>
                 </div>
-                <p class="bubble-text">{{ msg.text }}</p>
+                <p class="bubble-text" [innerHTML]="formatChatMessage(msg.text)"></p>
               </div>
             </div>
           }

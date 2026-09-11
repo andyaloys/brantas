@@ -552,6 +552,28 @@
   line-height: 1.6;
 }
 
+.bubble-text strong.key-data,
+.bubble-text strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ai-bubble .bubble-text strong.key-data,
+.ai-bubble .bubble-text strong {
+  font-weight: 700;
+  color: #0f766e;
+  background: rgba(15, 118, 110, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  display: inline;
+}
+
+.user-bubble .bubble-text strong.key-data,
+.user-bubble .bubble-text strong {
+  font-weight: 700;
+  color: #0d9488;
+}
+
 .citation-strip {
   display: flex;
   align-items: center;

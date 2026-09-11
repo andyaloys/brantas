@@ -398,6 +398,30 @@ h1 {
   white-space: pre-wrap;
 }
 
+.chat-bubble p strong.key-data,
+.chat-bubble p strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.answer-bubble .chat-bubble p strong.key-data,
+.answer-bubble .chat-bubble p strong,
+.bubble-content .answer-text strong.key-data,
+.bubble-content .answer-text strong {
+  font-weight: 700;
+  color: #0f766e;
+  background: rgba(15, 118, 110, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  display: inline;
+}
+
+.user-bubble .user-text strong.key-data,
+.user-bubble .user-text strong {
+  font-weight: 700;
+  color: #0d9488;
+}
+
 .bubble-time {
   display: block;
   font-size: 10.5px;
