@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
 import { KioskModeService } from '../../core/services/kiosk-mode.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ExecutiveTickerComponent } from '../executive-ticker/executive-ticker.component';
 import { JusiChatWidgetComponent } from '../../features/jusi/jusi-chat-widget/jusi-chat-widget.component';
 
@@ -27,6 +28,7 @@ export class AppShellComponent {
   private readonly router = inject(Router);
   protected readonly kiosk = inject(KioskModeService);
   protected readonly themeService = inject(ThemeService);
+  protected readonly auth = inject(AuthService);
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(

@@ -74,15 +74,15 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="role-card" [title]="'Sistem Intelijen Nasional · BRANTAS Core v2026.1'">
+        <div class="role-card" [title]="'Pengguna Terotentikasi: ' + (auth.currentUser()?.name || 'Administrator')">
           <div class="role-icon"><i class="pi pi-verified"></i></div>
           @if (isSidebarExpanded()) {
             <div class="role-info">
               <div class="role-top">
-                <strong>Sistem Nasional</strong>
+                <strong>{{ auth.currentUser()?.name || 'Administrator' }}</strong>
                 <span class="status-indicator"></span>
               </div>
-              <small>BRANTAS Engine v2026.1</small>
+              <small>Akun Penjurian Terverifikasi</small>
             </div>
           }
         </div>
@@ -127,6 +127,26 @@
           <button type="button" class="btn-kiosk-trigger" (click)="kiosk.startKiosk()" title="Aktifkan Mode Layar Penuh War Room">
             <i class="pi pi-desktop"></i>
             <span>Mode Tayang Eksekutif</span>
+          </button>
+
+          <!-- Executive User Chip & Logout Button -->
+          <div class="user-chip" [title]="'Sesi Aktif: ' + (auth.currentUser()?.name || 'Administrator')">
+            <div class="user-avatar-mini">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="user-meta">
+              <span class="user-name-text">{{ auth.currentUser()?.name || 'Administrator' }}</span>
+              <span class="user-role-badge">JURI / ADMIN</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn-logout"
+            (click)="auth.logout()"
+            title="Keluar dari Portal Eksekutif (Logout)">
+            <i class="pi pi-sign-out"></i>
+            <span>Keluar</span>
           </button>
         </div>
       </header>

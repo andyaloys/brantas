@@ -1,8 +1,15 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
 	{
+		path: 'login',
+		title: 'BRANTAS | Portal Masuk Eksekutif',
+		loadComponent: () => import('./features/auth/login-page/login-page').then((module) => module.LoginPageComponent)
+	},
+	{
 		path: '',
+		canActivate: [authGuard],
 		loadComponent: () => import('./layout/app-shell/app-shell').then((module) => module.AppShellComponent),
 		children: [
 			{
@@ -45,3 +52,4 @@ export const routes: Routes = [
 	},
 	{ path: '**', redirectTo: 'beranda' }
 ];
+
