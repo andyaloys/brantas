@@ -36,7 +36,7 @@ export class AuthService {
     if (trimmedUser === AuthService.ADMIN_USER && trimmedPass === AuthService.ADMIN_PASS) {
       const profile: UserProfile = {
         username: AuthService.ADMIN_USER,
-        name: 'Administrator Penjurian',
+        name: 'Administrator',
         role: 'DEWAN JURI / EKSEKUTIF PUSAT',
         department: 'Evaluasi & Verifikasi LAN Datathon 2026',
         avatarIcon: 'pi pi-shield'
@@ -83,7 +83,12 @@ export class AuthService {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       if (data) {
-        return JSON.parse(data) as UserProfile;
+        const parsed = JSON.parse(data) as UserProfile;
+        if (parsed.name === 'Administrator Penjurian') {
+          parsed.name = 'Administrator';
+          this.saveSessionToStorage(parsed);
+        }
+        return parsed;
       }
     } catch (e) {
       console.warn('Gagal membaca sesi auth dari storage:', e);

@@ -5,18 +5,6 @@
   <div class="login-grid-pattern"></div>
 
   <main class="login-card-wrapper" role="main">
-    <!-- Security Banner -->
-    <div class="security-banner">
-      <div class="security-badge">
-        <i class="pi pi-shield"></i>
-        <span>SISTEM INTELIJEN FISKAL NASIONAL · AKSES TERBATAS</span>
-      </div>
-      <div class="tls-status">
-        <span class="tls-dot"></span>
-        <span>TLS 1.3 SECURE</span>
-      </div>
-    </div>
-
     <!-- Main Clean Light Glass Card -->
     <div class="login-card">
       <div class="login-header">
@@ -39,7 +27,7 @@
       <form (ngSubmit)="onSubmit()" class="login-form" novalidate>
         <div class="form-group">
           <label for="input-username" class="form-label">
-            <span>Username Akses</span>
+            <span>Username</span>
           </label>
           <div class="input-wrap">
             <i class="pi pi-user input-icon"></i>
@@ -88,7 +76,7 @@
             <i class="pi pi-spin pi-spinner"></i>
             <span>Memverifikasi Otorisasi...</span>
           } @else {
-            <span>Masuk Sistem</span>
+            <span>Login</span>
             <i class="pi pi-arrow-right"></i>
           }
         </button>
@@ -97,18 +85,14 @@
       <!-- Security Notice -->
       <div class="security-footer-notice">
         <i class="pi pi-info-circle"></i>
-        <span>Sistem ini dilindungi enkripsi sesi. Silakan masukkan kredensial resmi untuk mengakses data fiskal terpadu.</span>
+        <span>Sistem ini dilindungi enkripsi sesi. Silakan masukkan kredensial resmi.</span>
       </div>
     </div>
 
     <!-- Official Partner / System Badges -->
     <footer class="login-footer">
       <div class="footer-instansi">
-        <span>LEMBAGA ADMINISTRASI NEGARA RI</span>
-        <span class="dot-separator">•</span>
-        <span>KEMENTERIAN KEUANGAN RI</span>
-        <span class="dot-separator">•</span>
-        <span>BRANTAS CORE v2026.1</span>
+        <span>LAN DATATHON 2026</span>
       </div>
     </footer>
   </main>

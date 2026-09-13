@@ -13,15 +13,6 @@
       <span class="moran-caption">Klaster Spasial:</span>
       <strong class="moran-num">{{ geoJson()?.globalMoranI?.toFixed(3) ?? analysis()?.globalMoranI?.toFixed(3) ?? '0.919' }}</strong>
     </div>
-
-    <div class="export-group">
-      <button type="button" class="btn-export secondary" (click)="exportGeoJson()" [disabled]="!geoJson()" title="Unduh data spasial GeoJSON">
-        <i class="pi pi-download" aria-hidden="true"></i> GeoJSON
-      </button>
-      <button type="button" class="btn-export primary" (click)="exportCsv()" [disabled]="isExporting() || !geoJson()" title="Unduh tabulasi CSV">
-        <i class="pi pi-file-excel" aria-hidden="true"></i> CSV
-      </button>
-    </div>
   </div>
 </section>
 
