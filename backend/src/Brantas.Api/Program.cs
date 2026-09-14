@@ -78,6 +78,128 @@ app.MapGet("/api/v1/system/audit-logs", async (BrantasDbContext database, Cancel
     .WithTags("Sistem")
     .AllowAnonymous();
 
+app.MapPost("/api/v1/auth/login", async (HttpContext context, AuthLoginRequest request, BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var clientIp = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                   ?? context.Request.Headers["X-Real-IP"].FirstOrDefault()
+                   ?? context.Connection.RemoteIpAddress?.ToString()
+                   ?? "127.0.0.1";
+    var userAgent = context.Request.Headers.UserAgent.ToString();
+
+    var username = request.Username?.Trim().ToLowerInvariant() ?? "";
+    var password = request.Password?.Trim() ?? "";
+
+    bool isValid = false;
+    string role = "GUEST";
+    string name = "";
+    string department = "";
+    string avatarIcon = "pi pi-user";
+
+    if (username == "admin" && password == "Admin123!")
+    {
+        isValid = true;
+        role = "DEWAN JURI / EKSEKUTIF PUSAT";
+        name = "Administrator";
+        department = "Evaluasi & Verifikasi LAN Datathon 2026";
+        avatarIcon = "pi pi-shield";
+    }
+    else if (username == "dev" && password == "Dev123!")
+    {
+        isValid = true;
+        role = "DEVELOPER / PENGEMBANG SISTEM";
+        name = "Pengembang Sistem";
+        department = "Tim Teknis & Pengembangan BRANTAS";
+        avatarIcon = "pi pi-code";
+    }
+
+    if (isValid)
+    {
+        database.AuditLogs.Add(new Brantas.Domain.Entities.AuditLog
+        {
+            Action = "UserLogin",
+            ActorRole = role,
+            ActorRegion = $"IP: {clientIp}",
+            DetailsJson = JsonSerializer.Serialize(new
+            {
+                username,
+                clientIp,
+                userAgent,
+                status = "Success"
+            }),
+            IsSuccess = true,
+            OccurredAt = DateTimeOffset.UtcNow
+        });
+        await database.SaveChangesAsync(cancellationToken);
+
+        return Results.Ok(new
+        {
+            success = true,
+            user = new
+            {
+                username,
+                name,
+                role,
+                department,
+                avatarIcon
+            }
+        });
+    }
+
+    database.AuditLogs.Add(new Brantas.Domain.Entities.AuditLog
+    {
+        Action = "UserLoginFailed",
+        ActorRole = "GUEST",
+        ActorRegion = $"IP: {clientIp}",
+        DetailsJson = JsonSerializer.Serialize(new
+        {
+            attemptedUsername = username,
+            clientIp,
+            userAgent,
+            reason = "Invalid credentials"
+        }),
+        IsSuccess = false,
+        OccurredAt = DateTimeOffset.UtcNow
+    });
+    await database.SaveChangesAsync(cancellationToken);
+
+    return Results.Unauthorized();
+})
+    .WithName("AuthLogin")
+    .WithSummary("Autentikasi login pengguna dan pencatatan audit log akses ke database.")
+    .WithTags("Autentikasi")
+    .AllowAnonymous();
+
+app.MapPost("/api/v1/auth/logout", async (HttpContext context, AuthLogoutRequest request, BrantasDbContext database, CancellationToken cancellationToken) =>
+{
+    var clientIp = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                   ?? context.Request.Headers["X-Real-IP"].FirstOrDefault()
+                   ?? context.Connection.RemoteIpAddress?.ToString()
+                   ?? "127.0.0.1";
+    var userAgent = context.Request.Headers.UserAgent.ToString();
+
+    database.AuditLogs.Add(new Brantas.Domain.Entities.AuditLog
+    {
+        Action = "UserLogout",
+        ActorRole = request.Role ?? "UNKNOWN",
+        ActorRegion = $"IP: {clientIp}",
+        DetailsJson = JsonSerializer.Serialize(new
+        {
+            username = request.Username ?? "unknown",
+            clientIp,
+            userAgent
+        }),
+        IsSuccess = true,
+        OccurredAt = DateTimeOffset.UtcNow
+    });
+    await database.SaveChangesAsync(cancellationToken);
+
+    return Results.Ok(new { success = true });
+})
+    .WithName("AuthLogout")
+    .WithSummary("Pencatatan audit log akses saat pengguna logout.")
+    .WithTags("Autentikasi")
+    .AllowAnonymous();
+
 app.MapPost("/api/v1/pipeline/run", async (HttpContext context, ISyntheticDataSeeder seeder, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
     var (role, region) = GetClientContext(context);
@@ -1506,5 +1628,7 @@ static (string Role, string? Region) GetClientContext(HttpContext context)
 public sealed record CreateSimulationScenarioRequest(string Name, decimal PovertyWeight = 30m, decimal DepthWeight = 15m, decimal SeverityWeight = 15m, decimal HumanDevelopmentWeight = 15m, decimal GdpWeight = 15m, decimal DisasterWeight = 10m, decimal CapPercent = .25m);
 public sealed record JusiChatRequest(string Question);
 public sealed record UpdateAnomalyReviewRequest(string Status);
+public sealed record AuthLoginRequest(string Username, string Password);
+public sealed record AuthLogoutRequest(string? Username, string? Role);
 
 

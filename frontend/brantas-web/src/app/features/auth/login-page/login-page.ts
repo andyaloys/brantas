@@ -33,7 +33,7 @@ export class LoginPageComponent {
     this.showPassword.update(val => !val);
   }
 
-  protected onSubmit(): void {
+  protected async onSubmit(): Promise<void> {
     this.errorMessage.set(null);
 
     if (!this.username() || !this.password()) {
@@ -43,9 +43,8 @@ export class LoginPageComponent {
 
     this.isSubmitting.set(true);
 
-    // Sedikit delay simulasi autentikasi eksekutif (300ms) untuk efek transisi halus
-    setTimeout(() => {
-      const result = this.authService.login(this.username(), this.password());
+    try {
+      const result = await this.authService.login(this.username(), this.password());
       this.isSubmitting.set(false);
 
       if (result.success) {
@@ -53,6 +52,9 @@ export class LoginPageComponent {
       } else {
         this.errorMessage.set(result.message || 'Kredensial tidak valid.');
       }
-    }, 280);
+    } catch {
+      this.isSubmitting.set(false);
+      this.errorMessage.set('Terjadi kesalahan saat memverifikasi kredensial.');
+    }
   }
 }
