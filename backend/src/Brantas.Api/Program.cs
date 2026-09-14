@@ -57,10 +57,16 @@ app.MapGet("/api/v1/system/info", () => Results.Ok(new
 
 app.MapGet("/api/v1/system/audit-logs", async (BrantasDbContext database, CancellationToken cancellationToken) =>
 {
-    var logs = await database.AuditLogs
+    var wibOffset = TimeSpan.FromHours(7);
+    var rawLogs = await database.AuditLogs
         .OrderByDescending(item => item.OccurredAt)
         .Take(50)
-        .Select(item => new
+        .ToListAsync(cancellationToken);
+
+    var logs = rawLogs.Select(item =>
+    {
+        var wibTime = item.OccurredAt.ToOffset(wibOffset);
+        return new
         {
             id = item.Id,
             action = item.Action,
@@ -68,9 +74,11 @@ app.MapGet("/api/v1/system/audit-logs", async (BrantasDbContext database, Cancel
             actorRegion = item.ActorRegion,
             detailsJson = item.DetailsJson,
             isSuccess = item.IsSuccess,
-            occurredAt = item.OccurredAt
-        })
-        .ToListAsync(cancellationToken);
+            occurredAt = wibTime.ToString("yyyy-MM-ddTHH:mm:sszzz"),
+            occurredAtWib = wibTime.ToString("yyyy-MM-dd HH:mm:ss 'WIB'")
+        };
+    });
+
     return Results.Ok(logs);
 })
     .WithName("GetAuditLogs")
@@ -112,6 +120,8 @@ app.MapPost("/api/v1/auth/login", async (HttpContext context, AuthLoginRequest r
         avatarIcon = "pi pi-code";
     }
 
+    var nowWib = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7));
+
     if (isValid)
     {
         database.AuditLogs.Add(new Brantas.Domain.Entities.AuditLog
@@ -124,7 +134,8 @@ app.MapPost("/api/v1/auth/login", async (HttpContext context, AuthLoginRequest r
                 username,
                 clientIp,
                 userAgent,
-                status = "Success"
+                status = "Success",
+                wibTime = nowWib.ToString("yyyy-MM-dd HH:mm:ss 'WIB'")
             }),
             IsSuccess = true,
             OccurredAt = DateTimeOffset.UtcNow
@@ -155,7 +166,8 @@ app.MapPost("/api/v1/auth/login", async (HttpContext context, AuthLoginRequest r
             attemptedUsername = username,
             clientIp,
             userAgent,
-            reason = "Invalid credentials"
+            reason = "Invalid credentials",
+            wibTime = nowWib.ToString("yyyy-MM-dd HH:mm:ss 'WIB'")
         }),
         IsSuccess = false,
         OccurredAt = DateTimeOffset.UtcNow
@@ -176,6 +188,7 @@ app.MapPost("/api/v1/auth/logout", async (HttpContext context, AuthLogoutRequest
                    ?? context.Connection.RemoteIpAddress?.ToString()
                    ?? "127.0.0.1";
     var userAgent = context.Request.Headers.UserAgent.ToString();
+    var nowWib = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7));
 
     database.AuditLogs.Add(new Brantas.Domain.Entities.AuditLog
     {
@@ -186,7 +199,8 @@ app.MapPost("/api/v1/auth/logout", async (HttpContext context, AuthLogoutRequest
         {
             username = request.Username ?? "unknown",
             clientIp,
-            userAgent
+            userAgent,
+            wibTime = nowWib.ToString("yyyy-MM-dd HH:mm:ss 'WIB'")
         }),
         IsSuccess = true,
         OccurredAt = DateTimeOffset.UtcNow

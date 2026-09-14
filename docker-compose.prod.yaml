@@ -4,6 +4,8 @@ services:
     container_name: brantas-postgres
     restart: always
     environment:
+      TZ: "Asia/Jakarta"
+      PGTZ: "Asia/Jakarta"
       POSTGRES_DB: brantas
       POSTGRES_USER: brantas
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-brantas_production_secret_2026}
@@ -40,6 +42,7 @@ services:
       redis:
         condition: service_healthy
     environment:
+      - TZ=Asia/Jakarta
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5025
       - ConnectionStrings__BrantasDatabase=Host=postgres;Port=5432;Database=brantas;Username=brantas;Password=${POSTGRES_PASSWORD:-brantas_production_secret_2026}
@@ -55,6 +58,8 @@ services:
     restart: always
     depends_on:
       - backend
+    environment:
+      - TZ=Asia/Jakarta
     ports:
       - "80:80"
       - "443:443"

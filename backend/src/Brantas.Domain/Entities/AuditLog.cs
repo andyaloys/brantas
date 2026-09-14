@@ -1,4 +1,4 @@
-﻿namespace Brantas.Domain.Entities;
+namespace Brantas.Domain.Entities;
 
 public sealed class AuditLog
 {
