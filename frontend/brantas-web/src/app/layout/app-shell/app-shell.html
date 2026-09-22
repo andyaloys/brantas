@@ -173,9 +173,19 @@
           <button type="button" class="btn-kiosk-ctrl" (click)="kiosk.nextSlide()" title="Slide Berikutnya (Arrow Right)">
             <i class="pi pi-chevron-right"></i>
           </button>
-          <div class="kiosk-timer-pill">
-            <i class="pi pi-clock"></i>
-            <span>{{ kiosk.remainingSeconds() }}s</span>
+          <div
+            class="kiosk-timer-pill"
+            [class.timer-frozen]="kiosk.isTimerFrozen()"
+            [title]="kiosk.isTimerFrozen() ? 'Hitung mundur dibekukan karena kursor sedang menyorot data' : 'Sisa durasi tayangan slide'"
+          >
+            @if (kiosk.isTimerFrozen()) {
+              <i class="pi pi-pause"></i>
+              <span class="frozen-label">TERJEDA (SOROT DATA)</span>
+              <strong>{{ kiosk.remainingSeconds() }}s</strong>
+            } @else {
+              <i class="pi pi-clock"></i>
+              <span>{{ kiosk.remainingSeconds() }}s</span>
+            }
           </div>
           <button type="button" class="btn-kiosk-ctrl exit-btn" (click)="kiosk.stopKiosk()" title="Keluar dari Tayangan War Room (Esc)">
             <i class="pi pi-times"></i>
@@ -195,6 +205,8 @@
       class="workspace"
       [class.workspace-dashboard]="isDashboard()"
       [class.workspace-kiosk]="kiosk.isKioskActive()"
+      (mouseenter)="kiosk.setHoveringData(true)"
+      (mouseleave)="kiosk.setHoveringData(false)"
     >
       <router-outlet />
     </main>

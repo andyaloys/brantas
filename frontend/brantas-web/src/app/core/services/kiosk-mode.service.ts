@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 export interface KioskSlide {
@@ -17,6 +17,10 @@ export class KioskModeService {
   readonly currentSlideIndex = signal(0);
   readonly remainingSeconds = signal(15);
   readonly currentDateTime = signal(new Date());
+
+  // State untuk membekukan (freeze) waktu slide saat kursor menyorot data / workspace
+  readonly isHoveringData = signal(false);
+  readonly isTimerFrozen = computed(() => this.isKioskActive() && this.isHoveringData());
 
   readonly slides: KioskSlide[] = [
     { id: 'beranda-macro', title: 'Ringkasan Makro & 6 KPI Nasional', route: '/beranda?tab=macro', durationSeconds: 12 },
@@ -44,6 +48,7 @@ export class KioskModeService {
   startKiosk(): void {
     this.isKioskActive.set(true);
     this.isPlaying.set(true);
+    this.isHoveringData.set(false);
     this.currentSlideIndex.set(0);
     this.remainingSeconds.set(this.slides[0].durationSeconds);
 
@@ -60,6 +65,7 @@ export class KioskModeService {
 
   stopKiosk(): void {
     this.isKioskActive.set(false);
+    this.isHoveringData.set(false);
     this.clearTickerTimer();
 
     if (typeof document !== 'undefined') {
@@ -67,6 +73,12 @@ export class KioskModeService {
       if (document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
       }
+    }
+  }
+
+  setHoveringData(hovering: boolean): void {
+    if (this.isKioskActive()) {
+      this.isHoveringData.set(hovering);
     }
   }
 
@@ -103,7 +115,8 @@ export class KioskModeService {
   private startAutoPlay(): void {
     this.clearTickerTimer();
     this.tickerTimer = setInterval(() => {
-      if (!this.isPlaying()) return;
+      // Jika mode tayang tidak aktif, dijeda manual, atau kursor sedang menyorot data: freeze!
+      if (!this.isPlaying() || this.isHoveringData()) return;
 
       const rem = this.remainingSeconds() - 1;
       this.remainingSeconds.set(rem);

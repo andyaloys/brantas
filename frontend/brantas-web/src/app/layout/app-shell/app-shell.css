@@ -675,11 +675,46 @@
   border-radius: var(--radius-full);
   font-size: 12px;
   color: #cbd5e1;
+  transition: all 0.25s ease;
 }
 
 .kiosk-timer-pill strong {
   color: #2dd4bf;
   font-family: var(--font-mono);
+}
+
+.kiosk-timer-pill.timer-frozen {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.28);
+}
+
+.kiosk-timer-pill.timer-frozen i {
+  color: #f59e0b;
+  animation: pulse-kiosk-pause 1.3s ease-in-out infinite;
+}
+
+.kiosk-timer-pill.timer-frozen strong {
+  color: #fef08a;
+}
+
+.kiosk-timer-pill .frozen-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@keyframes pulse-kiosk-pause {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.2);
+  }
 }
 
 .btn-kiosk-group {
