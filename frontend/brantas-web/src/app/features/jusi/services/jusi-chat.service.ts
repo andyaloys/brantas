@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { JusiDataService, JusiResponse } from '../data/jusi-data.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 export interface ChatMessage {
   id: string;
@@ -66,6 +67,7 @@ export const EXECUTIVE_QUICK_PROMPTS: QuickPrompt[] = [
 })
 export class JusiChatService {
   private readonly jusiData = inject(JusiDataService);
+  private readonly auth = inject(AuthService);
 
   readonly sessions = signal<ChatSession[]>([]);
   readonly activeSessionId = signal<string>('');
@@ -86,27 +88,37 @@ export class JusiChatService {
   }
 
   getLastUserProfile(): UserProfile {
-    try {
-      const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed.name === 'string') {
-          return { name: parsed.name, unit: parsed.unit || '' };
-        }
-      }
-    } catch {
-      // ignore
+    const current = this.auth.currentUser();
+    if (current?.name) {
+      return {
+        name: current.name,
+        unit: current.department || current.role || 'Pusat'
+      };
     }
-    return { name: '', unit: '' };
+    return { name: 'Administrator', unit: 'Pusat' };
   }
 
   startNewSession(): void {
+    const currentAuthUser = this.auth.currentUser();
+    const userName = currentAuthUser?.name?.trim() || 'Administrator';
+    const userUnit = currentAuthUser?.department?.trim() || currentAuthUser?.role || 'Pusat';
+
+    // Pesan sapaan ringkas resmi dari JUSI dengan hanya mengambil nama pengguna
+    const welcomeMsg: ChatMessage = {
+      id: 'welcome-' + Date.now(),
+      sender: 'assistant',
+      text: `Halo Bapak/Ibu ${userName}! Saya JUSI (Juru Bantuan Sosial Interaktif), siap membantu analisis data kemiskinan, simulasi alokasi APBN, dan evaluasi efektivitas bansos BRANTAS. Ada data atau topik kebijakan yang ingin Anda diskusikan?`,
+      timestamp: new Date().toISOString()
+    };
+
     const newSession: ChatSession = {
       id: 'session-' + Date.now(),
-      title: 'Sesi Baru',
+      title: 'Obrolan Baru',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      messages: [] // Kosong, menunggu onboarding nama dan unit selesai
+      userName,
+      userUnit,
+      messages: [welcomeMsg]
     };
 
     this.sessions.update((prev) => [newSession, ...prev]);
@@ -117,26 +129,11 @@ export class JusiChatService {
   setUserProfile(name: string, unit: string): void {
     const trimmedName = name.trim();
     const trimmedUnit = unit.trim();
-    if (!trimmedName || !trimmedUnit) return;
-
-    // Simpan ke local storage untuk mempermudah sesi berikutnya
-    try {
-      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify({ name: trimmedName, unit: trimmedUnit }));
-    } catch {
-      // ignore
-    }
+    if (!trimmedName) return;
 
     const active = this.activeSession();
     if (!active) return;
     const currentSessionId = active.id;
-
-    // Pesan pembuka resmi dari JUSI setelah pengguna memasukkan identitas
-    const jusiWelcomeMsg: ChatMessage = {
-      id: 'welcome-' + Date.now(),
-      sender: 'assistant',
-      text: `Halo Bapak/Ibu ${trimmedName} dari ${trimmedUnit}! Saya JUSI (Juru Bantuan Sosial Interaktif), siap membantu Anda menganalisis data kemiskinan, simulasi alokasi anggaran APBN, dan evaluasi efektivitas program perlindungan sosial. Ada data atau topik kebijakan yang ingin Anda diskusikan?`,
-      timestamp: new Date().toISOString()
-    };
 
     this.sessions.update((list) =>
       list.map((s) =>
@@ -145,9 +142,7 @@ export class JusiChatService {
               ...s,
               userName: trimmedName,
               userUnit: trimmedUnit,
-              title: `Konsultasi ${trimmedName}`,
-              updatedAt: new Date().toISOString(),
-              messages: [jusiWelcomeMsg]
+              updatedAt: new Date().toISOString()
             }
           : s
       )
@@ -182,17 +177,15 @@ export class JusiChatService {
     if (!q || this.isLoading()) return;
 
     let active = this.activeSession();
-    if (!active || !active.userName) {
-      // Sesi belum memiliki identitas nama dan unit, abaikan input
-      return;
-    }
+    if (!active) return;
+    const currentUserName = active.userName || this.auth.currentUser()?.name || 'Administrator';
 
     const currentSessionId = active.id;
 
     const userMsg: ChatMessage = {
       id: 'user-' + Date.now(),
       sender: 'user',
-      senderName: active.userName,
+      senderName: currentUserName,
       text: q,
       timestamp: new Date().toISOString()
     };
@@ -277,8 +270,35 @@ export class JusiChatService {
       if (raw) {
         const parsed: ChatSession[] = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          this.sessions.set(parsed);
-          this.activeSessionId.set(parsed[0].id);
+          const currentAuthUser = this.auth.currentUser();
+          const fallbackName = currentAuthUser?.name?.trim() || 'Administrator';
+          const fallbackUnit = currentAuthUser?.department?.trim() || currentAuthUser?.role || 'Pusat';
+
+          const normalized: ChatSession[] = parsed.map((s) => {
+            const userName = s.userName || fallbackName;
+            const userUnit = s.userUnit || fallbackUnit;
+            let messages = s.messages || [];
+            if (messages.length === 0) {
+              messages = [
+                {
+                  id: 'welcome-' + Date.now(),
+                  sender: 'assistant',
+                  text: `Halo Bapak/Ibu ${userName}! Saya JUSI (Juru Bantuan Sosial Interaktif), siap membantu analisis data kemiskinan, simulasi alokasi APBN, dan evaluasi efektivitas bansos BRANTAS. Ada data atau topik kebijakan yang ingin Anda diskusikan?`,
+                  timestamp: s.createdAt || new Date().toISOString()
+                }
+              ];
+            }
+            return {
+              ...s,
+              userName,
+              userUnit,
+              messages
+            };
+          });
+
+          this.sessions.set(normalized);
+          this.activeSessionId.set(normalized[0].id);
+          this.saveSessionsToStorage();
           return;
         }
       }

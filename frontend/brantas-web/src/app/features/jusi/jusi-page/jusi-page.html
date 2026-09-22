@@ -88,123 +88,56 @@
     </header>
 
     <div #scrollContainer class="message-stream">
-      @if (!activeSession().userName) {
-        <!-- Tampilan Gerbang Onboarding JUSI Full Page -->
-        <div class="onboarding-gate-container">
-          <div class="onboarding-gate-card">
-            <div class="onboarding-hero">
-              <div class="onboarding-icon-badge">
-                <i class="pi pi-sparkles"></i>
-              </div>
-              <h3 class="onboarding-title">Selamat Datang di JUSI</h3>
-              <p class="onboarding-tagline">Juru Bantuan Sosial Interaktif</p>
-              <p class="onboarding-info">
-                Lengkapi identitas Anda untuk memulai konsultasi data kemiskinan, simulasi alokasi anggaran APBN, dan evaluasi bansos:
-              </p>
+      @for (msg of activeMessages(); track msg.id) {
+        @if (msg.sender === 'user') {
+          <div class="chat-bubble user-bubble">
+            <div class="bubble-content user-content">
+              <div class="bubble-title user-title">{{ msg.senderName || activeSession().userName || 'Pengguna' }}</div>
+              <p class="user-text" [innerHTML]="formatChatMessage(msg.text)"></p>
+              <span class="bubble-time user-time">{{ msg.timestamp | date:'HH:mm' }}</span>
             </div>
-
-            <div class="onboarding-form">
-              <div class="input-field-wrap">
-                <label for="jusi-page-name">
-                  <i class="pi pi-user"></i> Nama Lengkap / Panggilan <span class="required">*</span>
-                </label>
-                <input
-                  id="jusi-page-name"
-                  type="text"
-                  class="gate-input"
-                  placeholder="Contoh: Budi Santoso"
-                  [value]="profileFormName()"
-                  (input)="profileFormName.set($any($event.target).value)"
-                  (keydown.enter)="submitOnboarding()"
-                  autofocus
-                />
-              </div>
-
-              <div class="input-field-wrap">
-                <label for="jusi-page-unit">
-                  <i class="pi pi-building"></i> Unit Kerja / Instansi <span class="required">*</span>
-                </label>
-                <input
-                  id="jusi-page-unit"
-                  type="text"
-                  class="gate-input"
-                  placeholder="Contoh: Direktorat Jenderal Anggaran"
-                  [value]="profileFormUnit()"
-                  (input)="profileFormUnit.set($any($event.target).value)"
-                  (keydown.enter)="submitOnboarding()"
-                />
-              </div>
-
-              <button
-                type="button"
-                class="btn-start-gate"
-                [disabled]="!profileFormName().trim() || !profileFormUnit().trim()"
-                (click)="submitOnboarding()">
-                <span>Mulai Sesi Chat</span>
-                <i class="pi pi-arrow-right"></i>
-              </button>
-            </div>
+            <div class="avatar user-avatar"><i class="pi pi-user"></i></div>
           </div>
-        </div>
-      } @else {
-        @for (msg of activeMessages(); track msg.id) {
-          @if (msg.sender === 'user') {
-            <div class="chat-bubble user-bubble">
-              <div class="bubble-content user-content">
-                <div class="bubble-title user-title">{{ msg.senderName || activeSession()!.userName }}</div>
-                <p class="user-text" [innerHTML]="formatChatMessage(msg.text)"></p>
-                <span class="bubble-time user-time">{{ msg.timestamp | date:'HH:mm' }}</span>
-              </div>
-              <div class="avatar user-avatar"><i class="pi pi-user"></i></div>
+        } @else {
+          <div class="chat-bubble" [class.assistant-welcome]="msg.id.startsWith('welcome')" [class.answer-bubble]="!msg.id.startsWith('welcome') && !msg.isError" [class.error-bubble]="msg.isError">
+            <div class="avatar ai-avatar" [class.active]="!msg.id.startsWith('welcome') && !msg.isError" [class.error]="msg.isError">
+              <i class="pi" [class.pi-sparkles]="msg.id.startsWith('welcome')" [class.pi-check-circle]="!msg.id.startsWith('welcome') && !msg.isError" [class.pi-exclamation-circle]="msg.isError"></i>
             </div>
-          } @else {
-            <div class="chat-bubble" [class.assistant-welcome]="msg.id.startsWith('welcome')" [class.answer-bubble]="!msg.id.startsWith('welcome') && !msg.isError" [class.error-bubble]="msg.isError">
-              <div class="avatar ai-avatar" [class.active]="!msg.id.startsWith('welcome') && !msg.isError" [class.error]="msg.isError">
-                <i class="pi" [class.pi-sparkles]="msg.id.startsWith('welcome')" [class.pi-check-circle]="!msg.id.startsWith('welcome') && !msg.isError" [class.pi-exclamation-circle]="msg.isError"></i>
-              </div>
-              <div class="bubble-content">
-                <div class="bubble-title">
-                  {{ msg.isError ? 'Peringatan Sistem' : 'JUSI' }}
-                </div>
-                <p class="answer-text" [innerHTML]="formatChatMessage(msg.text)"></p>
-                <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
-              </div>
-            </div>
-          }
-        }
-
-        @if (isLoading()) {
-          <div class="chat-bubble answer-bubble loading-bubble">
-            <div class="avatar ai-avatar active"><i class="pi pi-spin pi-spinner"></i></div>
             <div class="bubble-content">
-              <div class="bubble-title">JUSI</div>
-              <p class="loading-dots">Terima kasih atas pertanyaan/tanggapannya. JUSI akan segera merespon. Mohon tunggu sebentar ya!</p>
+              <div class="bubble-title">
+                {{ msg.isError ? 'Peringatan Sistem' : 'JUSI' }}
+              </div>
+              <p class="answer-text" [innerHTML]="formatChatMessage(msg.text)"></p>
+              <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
             </div>
           </div>
         }
       }
+
+      @if (isLoading()) {
+        <div class="chat-bubble answer-bubble loading-bubble">
+          <div class="avatar ai-avatar active"><i class="pi pi-spin pi-spinner"></i></div>
+          <div class="bubble-content">
+            <div class="bubble-title">JUSI</div>
+            <p class="loading-dots">Terima kasih atas pertanyaan/tanggapannya. JUSI akan segera merespon. Mohon tunggu sebentar ya!</p>
+          </div>
+        </div>
+      }
     </div>
 
-    @if (activeSession().userName) {
-      <div class="composer-bar">
-        <textarea
-          [value]="question()"
-          (input)="updateQuestion($event)"
-          (keydown)="onKeydown($event)"
-          placeholder="Ajukan pertanyaan analitik kepada JUSI (mis: Berapa rata-rata kemiskinan nasional?)..."
-          aria-label="Pertanyaan untuk JUSI"
-          rows="2"
-        ></textarea>
-        <button type="button" class="btn-send" (click)="ask()" [disabled]="isLoading() || !question().trim()">
-          <i class="pi" [class.pi-send]="!isLoading()" [class.pi-spin]="isLoading()" [class.pi-spinner]="isLoading()" aria-hidden="true"></i>
-          <span>{{ isLoading() ? 'Menganalisis...' : 'Kirim' }}</span>
-        </button>
-      </div>
-    } @else {
-      <div class="composer-locked-bar">
-        <i class="pi pi-lock"></i>
-        <span>Lengkapi Nama dan Unit Kerja di atas untuk memulai sesi obrolan dengan JUSI</span>
-      </div>
-    }
+    <div class="composer-bar">
+      <textarea
+        [value]="question()"
+        (input)="updateQuestion($event)"
+        (keydown)="onKeydown($event)"
+        placeholder="Ajukan pertanyaan analitik kepada JUSI (mis: Berapa rata-rata kemiskinan nasional?)..."
+        aria-label="Pertanyaan untuk JUSI"
+        rows="2"
+      ></textarea>
+      <button type="button" class="btn-send" (click)="ask()" [disabled]="isLoading() || !question().trim()">
+        <i class="pi" [class.pi-send]="!isLoading()" [class.pi-spin]="isLoading()" [class.pi-spinner]="isLoading()" aria-hidden="true"></i>
+        <span>{{ isLoading() ? 'Menganalisis...' : 'Kirim' }}</span>
+      </button>
+    </div>
   </div>
 </section>
