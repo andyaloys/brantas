@@ -3,6 +3,17 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
 	{
+		path: '',
+		pathMatch: 'full',
+		title: 'BRANTAS | Landhaton 2026',
+		loadComponent: () => import('./features/landing/landing-page/landing-page').then((m) => m.LandingPageComponent)
+	},
+	{
+		path: 'landing',
+		title: 'BRANTAS | Landhaton 2026',
+		loadComponent: () => import('./features/landing/landing-page/landing-page').then((m) => m.LandingPageComponent)
+	},
+	{
 		path: 'login',
 		title: 'BRANTAS | Portal Masuk Eksekutif',
 		loadComponent: () => import('./features/auth/login-page/login-page').then((module) => module.LoginPageComponent)
@@ -46,10 +57,8 @@ export const routes: Routes = [
 				path: 'laporan',
 				title: 'BRANTAS | Rekomendasi Kebijakan & Metadata',
 				loadComponent: () => import('./features/reporting/reporting-page/reporting-page').then((module) => module.ReportingPageComponent)
-			},
-			{ path: '', pathMatch: 'full', redirectTo: 'beranda' }
+			}
 		]
 	},
-	{ path: '**', redirectTo: 'beranda' }
+	{ path: '**', redirectTo: '' }
 ];
-

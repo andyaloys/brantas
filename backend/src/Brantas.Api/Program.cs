@@ -14,6 +14,7 @@ using System.Text.Json;
 using System.Text;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks();
+builder.Services.AddMemoryCache();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCors(options => options.AddPolicy("Frontend", policy => policy
     .WithOrigins("http://127.0.0.1:4200", "http://localhost:4200", "http://127.0.0.1:4201", "http://localhost:4201")
@@ -815,7 +817,7 @@ app.MapGet("/api/v1/spatial/regions.csv", async (BrantasDbContext database, Canc
     .WithTags("Spasial")
     .AllowAnonymous();
 
-app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext database, IMemoryCache cache, CancellationToken cancellationToken) =>
 {
     var version = await database.DatasetVersions
         .Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed)
@@ -826,21 +828,41 @@ app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext data
         return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
     }
 
+    var cacheKey = $"BeneficiaryAnomalySummary_{version.Id}";
+    if (cache.TryGetValue(cacheKey, out object? cached) && cached is not null)
+    {
+        return Results.Ok(cached);
+    }
+
     var records = database.BeneficiaryRecords.Where(item => item.DatasetVersionId == version.Id);
     var duplicateGroupSizes = await records
         .GroupBy(item => item.NikHash)
         .Select(group => group.Count())
         .Where(count => count > 1)
         .ToListAsync(cancellationToken);
+
+    var counts = await records
+        .GroupBy(_ => 1)
+        .Select(group => new
+        {
+            total = group.Count(),
+            active = group.Count(item => item.IsActivePublicServant),
+            deceased = group.Count(item => item.IsDeceased),
+            asset = group.Count(item => item.HasEconomicAsset)
+        })
+        .FirstOrDefaultAsync(cancellationToken);
+
     var summary = new
     {
         datasetVersionId = version.Id,
-        totalBeneficiaries = await records.CountAsync(cancellationToken),
-        activePublicServantCount = await records.CountAsync(item => item.IsActivePublicServant, cancellationToken),
-        deceasedCount = await records.CountAsync(item => item.IsDeceased, cancellationToken),
-        economicAssetCount = await records.CountAsync(item => item.HasEconomicAsset, cancellationToken),
+        totalBeneficiaries = counts?.total ?? 0,
+        activePublicServantCount = counts?.active ?? 0,
+        deceasedCount = counts?.deceased ?? 0,
+        economicAssetCount = counts?.asset ?? 0,
         duplicateIdentityCount = duplicateGroupSizes.Sum(count => count - 1)
     };
+
+    cache.Set(cacheKey, summary, TimeSpan.FromMinutes(60));
     return Results.Ok(summary);
 })
     .WithName("GetBeneficiaryAnomalySummary")
@@ -848,10 +870,17 @@ app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext data
     .WithTags("Anomali")
     .AllowAnonymous();
 
-app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext database, IMemoryCache cache, CancellationToken cancellationToken) =>
 {
     var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
+
+    var cacheKey = $"BeneficiaryAnomalyFindings_{version.Id}";
+    if (cache.TryGetValue(cacheKey, out object? cached) && cached is not null)
+    {
+        return Results.Ok(cached);
+    }
+
     var findings = await database.BeneficiaryRecords.Where(item => item.DatasetVersionId == version.Id)
         .GroupBy(item => new { item.RegionId, Region = item.Region!.Name })
         .Select(group => new
@@ -863,12 +892,16 @@ app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext dat
             totalCount = group.Count()
         })
         .ToListAsync(cancellationToken);
-    return Results.Ok(findings.SelectMany(item => new[]
+
+    var result = findings.SelectMany(item => new[]
     {
         new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Penerima ASN/TNI/Polri aktif", count = item.activePublicServantCount, confidenceScore = 96m, severity = item.activePublicServantCount >= 80 ? "High" : "Medium", explanation = "Terdapat indikasi status aparatur aktif berdasarkan data sintetis; verifikasi administratif diperlukan." },
         new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Penerima terindikasi meninggal", count = item.deceasedCount, confidenceScore = 94m, severity = item.deceasedCount >= 35 ? "High" : "Medium", explanation = "Terdapat indikasi ketidaksesuaian status kependudukan pada data sintetis; verifikasi administratif diperlukan." },
         new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Indikator aset ekonomi", count = item.economicAssetCount, confidenceScore = 82m, severity = item.economicAssetCount >= 130 ? "High" : "Medium", explanation = "Terdapat indikator kemampuan ekonomi pada data sintetis; bukan penetapan ketidaklayakan otomatis." }
-    }).Where(item => item.count > 0).OrderByDescending(item => item.count));
+    }).Where(item => item.count > 0).OrderByDescending(item => item.count).ToList();
+
+    cache.Set(cacheKey, result, TimeSpan.FromMinutes(60));
+    return Results.Ok(result);
 })
     .WithName("GetBeneficiaryAnomalyFindings")
     .WithSummary("Mengambil temuan agregat kepesertaan per wilayah tanpa mengekspos identitas penerima.")

@@ -1,0 +1,97 @@
+<div class="landing-viewport">
+  <!-- Top Navigation Bar -->
+  <header class="landing-navbar">
+    <div class="nav-inner">
+      <div class="brand-group">
+        <div class="brand-emblem-wrap">
+          <img src="logo/brantas-emblem.jpg" alt="Logo BRANTAS" class="brand-emblem" width="42" height="42" style="width: 42px; height: 42px; object-fit: cover; border-radius: 10px;" />
+        </div>
+        <div class="brand-titles">
+          <div class="brand-main">
+            <span class="brand-name">BRANTAS</span>
+            <span class="badge-lan">LAN DATATHON 2026</span>
+          </div>
+          <span class="brand-desc">Basis Rekomendasi & Analisis Terpadu Anggaran Sosial</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button type="button" class="btn-portal" (click)="navigateToPortal()">
+          <i class="pi pi-bolt"></i>
+          <span>Buka Portal Analisis</span>
+          <i class="pi pi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Single-Screen Hero Container -->
+  <main class="landing-main">
+    <div class="hero-wrapper">
+      <div class="hero-badge">
+        <i class="pi pi-shield"></i>
+        <span>SISTEM PENDUKUNG KEPUTUSAN FISKAL NASIONAL</span>
+      </div>
+
+      <h1 class="hero-title">
+        Optimalisasi Alokasi Belanja Sosial Berbasis <span class="text-highlight">AI & Analisis Spasial</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Platform cerdas untuk pengawasan anomali fiskal daerah, pemetaan kerentanan wilayah (IKW), 
+        serta simulasi redistribusi pagu APBN berkeadilan tanpa mengganggu stabilitas fiskal 38 provinsi.
+      </p>
+
+      <div class="hero-actions">
+        <button type="button" class="btn-hero-primary" (click)="navigateToPortal()">
+          <i class="pi pi-th-large"></i>
+          <span>Mulai Eksplorasi Demo</span>
+          <i class="pi pi-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- 4 Compact Core Feature Cards -->
+      <div class="compact-features-grid">
+        <div class="feature-item" (click)="navigateToPortal()">
+          <div class="feature-icon"><i class="pi pi-exclamation-circle"></i></div>
+          <div class="feature-text">
+            <strong>Anomali Fiskal</strong>
+            <small>Deteksi salah sasaran & disparitas belanja</small>
+          </div>
+        </div>
+
+        <div class="feature-item" (click)="navigateToPortal()">
+          <div class="feature-icon"><i class="pi pi-map"></i></div>
+          <div class="feature-text">
+            <strong>Peta Spasial</strong>
+            <small>Klaster kemiskinan & risiko bencana IRBI</small>
+          </div>
+        </div>
+
+        <div class="feature-item" (click)="navigateToPortal()">
+          <div class="feature-icon"><i class="pi pi-sliders-h"></i></div>
+          <div class="feature-text">
+            <strong>Optimasi APBN</strong>
+            <small>Solver linier Google OR-Tools presisi 100%</small>
+          </div>
+        </div>
+
+        <div class="feature-item" (click)="navigateToPortal()">
+          <div class="feature-icon"><i class="pi pi-file-export"></i></div>
+          <div class="feature-text">
+            <strong>Dampak Kebijakan</strong>
+            <small>Proyeksi kemiskinan & ringkasan eksekutif</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Compact Footer -->
+  <footer class="landing-footer">
+    <div class="footer-inner">
+      <span><strong>BRANTAS</strong> &bull; Lembaga Administrasi Negara (LAN Datathon 2026)</span>
+      <span class="footer-tech">Arsitektur .NET 9 & Angular 21 &bull; Powered by Google OR-Tools</span>
+    </div>
+  </footer>
+</div>

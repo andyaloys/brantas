@@ -66,23 +66,32 @@ export class AnomalyPageComponent {
 
   async ngOnInit(): Promise<void> {
     try {
-      const [summary, anomalies, beneficiarySummary, beneficiaryFindings, onnxReport, exclusionErrors] = await Promise.all([
+      // 1. Muat data inti fiskal dan model AI secara paralel cepat
+      const [summary, anomalies, onnxReport, exclusionErrors] = await Promise.all([
         firstValueFrom(this.anomalyData.getSummary()),
         firstValueFrom(this.anomalyData.getAnomalies()),
-        firstValueFrom(this.anomalyData.getBeneficiarySummary()),
-        firstValueFrom(this.anomalyData.getBeneficiaryFindings()),
         firstValueFrom(this.anomalyData.getOnnxMultivariate()),
         firstValueFrom(this.anomalyData.getExclusionErrors())
       ]);
       this.summary.set(summary);
       this.anomalies.set(anomalies);
-      this.beneficiarySummary.set(beneficiarySummary);
-      this.beneficiaryFindings.set(beneficiaryFindings);
       this.onnxReport.set(onnxReport);
       this.exclusionErrors.set(exclusionErrors);
+
+      // Langsung buka antarmuka (UI instan dalam ~25ms) tanpa menahan layar
+      this.isLoading.set(false);
+
+      // 2. Muat data anomali kepesertaan bansos secara asinkron
+      this.anomalyData.getBeneficiarySummary().subscribe({
+        next: (bs) => this.beneficiarySummary.set(bs),
+        error: () => {}
+      });
+      this.anomalyData.getBeneficiaryFindings().subscribe({
+        next: (bf) => this.beneficiaryFindings.set(bf),
+        error: () => {}
+      });
     } catch {
       this.error.set('Temuan anomali belum dapat dimuat. Pastikan layanan BRANTAS aktif.');
-    } finally {
       this.isLoading.set(false);
     }
   }

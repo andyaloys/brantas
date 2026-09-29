@@ -57,6 +57,15 @@ export class AuthService {
   readonly currentUser = computed(() => this.sessionState());
 
   /**
+   * Bypass login otomatis untuk kebutuhan Demo Dewan Juri / Presentasi
+   */
+  loginDemo(): void {
+    const demoProfile: UserProfile = AuthService.USERS['admin'].profile;
+    this.saveSessionToStorage(demoProfile);
+    this.sessionState.set(demoProfile);
+  }
+
+  /**
    * Coba autentikasi menggunakan username dan password
    * Mengirim request ke backend API untuk pencatatan log akses (AuditLog) di database
    */
