@@ -19,16 +19,16 @@
 <section class="simulation-grid">
   <!-- Controls Aside -->
   <aside class="controls-aside">
-    <!-- Card 1: Parameter & Kendala Stabilitas -->
+    <!-- Card 1: Parameter Bobot Formula IKW -->
     <div class="aside-card">
       <header class="panel-head ribbon-teal">
         <div class="panel-titles">
           <div style="margin-bottom: 4px;">
-            <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> PARAMETER MODEL</span>
+            <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> FORMULA BOBOT IKW</span>
           </div>
-          <h2>Bobot & Batas Toleransi Alokasi</h2>
+          <h2>Prioritas Kebijakan Alokasi</h2>
         </div>
-        @if (activeScenarioName() || povertyWeight() !== 30 || capPercent() !== 25) {
+        @if (activeScenarioName() || povertyWeight() !== 30 || capPercent() !== 25 || disasterWeight() !== 10) {
           <button type="button" class="btn-reset-param" (click)="resetParameters()" title="Kembalikan ke parameter default APBN">
             <i class="pi pi-refresh"></i> Reset Default
           </button>
@@ -60,7 +60,7 @@
               <div class="ideal-icon-circle">
                 <i class="pi pi-sparkles"></i>
               </div>
-              <span class="ideal-title">Bobot Ideal</span>
+              <span class="ideal-title">Bobot Ideal BRANTAS</span>
             </div>
             <span class="ideal-status-pill">
               @if (isIdealActive()) {
@@ -84,7 +84,7 @@
           </div>
         </div>
 
-        <div class="slider-group">
+        <div class="slider-group" style="margin-bottom: 10px;">
           <div class="slider-label">
             <span>Bobot Risiko Bencana (IRBI BNPB)</span>
             <strong class="slider-val" style="color: #ea580c;">{{ disasterWeight() }}%</strong>
@@ -97,20 +97,62 @@
           </div>
         </div>
 
-        <div class="slider-group">
-          <div class="slider-label">
-            <span>Batas Penyesuaian Maksimal (Cap)</span>
-            <strong class="slider-val">{{ capPercent() }}%</strong>
+        <!-- Box Visual Komposisi Normalisasi Real-Time (100%) -->
+        <div class="formula-breakdown-card">
+          <div class="formula-breakdown-head">
+            <div class="breakdown-title">
+              <i class="pi pi-chart-pie"></i>
+              <span>Komposisi Normalisasi Solver</span>
+            </div>
+            <span class="badge-total-100">Total 100%</span>
           </div>
-          <input type="range" min="10" max="40" [value]="capPercent()" (input)="updateCap($event)" class="modern-slider">
+
+          <div class="breakdown-progress-bar">
+            <div class="bar-seg poverty" [style.width.%]="normalizedBreakdown().povertyPct" title="Kemiskinan: {{ normalizedBreakdown().povertyPct }}%"></div>
+            <div class="bar-seg disaster" [style.width.%]="normalizedBreakdown().disasterPct" title="Risiko Bencana: {{ normalizedBreakdown().disasterPct }}%"></div>
+            <div class="bar-seg others" [style.width.%]="normalizedBreakdown().othersPct" title="4 Indikator BPS: {{ normalizedBreakdown().othersPct }}%"></div>
+          </div>
+
+          <div class="breakdown-legend">
+            <div class="legend-item"><span class="dot poverty"></span><span>Kemiskinan: <strong>{{ normalizedBreakdown().povertyPct }}%</strong></span></div>
+            <div class="legend-item"><span class="dot disaster"></span><span>Risiko Bencana: <strong>{{ normalizedBreakdown().disasterPct }}%</strong></span></div>
+            <div class="legend-item" title="Kedalaman P1, Keparahan P2, Gap IPM, dan PDRB"><span class="dot others"></span><span>4 Indikator Standar BPS: <strong>{{ normalizedBreakdown().othersPct }}%</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Batas Toleransi Stabilitas Daerah (Cap / Guardrail) -->
+    <div class="aside-card guardrail-card">
+      <header class="panel-head ribbon-amber">
+        <div class="panel-titles">
+          <div style="margin-bottom: 4px;">
+            <span class="badge-accent amber"><i class="pi pi-shield"></i> KENDALA STABILITAS (GUARDRAIL)</span>
+          </div>
+          <h2>Batas Penyesuaian Anggaran (Cap)</h2>
+        </div>
+      </header>
+
+      <div class="aside-card-body">
+        <div class="guardrail-info-box">
+          <i class="pi pi-info-circle"></i>
+          <span><strong>Bukan bobot alokasi</strong>, melainkan batas deviasi maksimal per provinsi agar APBD tidak mengalami guncangan (*fiscal shock*).</span>
+        </div>
+
+        <div class="slider-group" style="margin-bottom: 0;">
+          <div class="slider-label">
+            <span>Batas Fluktuasi Maksimal (Cap)</span>
+            <strong class="slider-val val-amber">&plusmn;{{ capPercent() }}%</strong>
+          </div>
+          <input type="range" min="10" max="40" [value]="capPercent()" (input)="updateCap($event)" class="modern-slider slider-amber">
           <div class="slider-range-labels">
-            <small>±10% (Stabilitas Tinggi)</small>
-            <small>±40% (Fleksibilitas Alokasi)</small>
+            <small>&plusmn;10% (Stabilitas Tinggi)</small>
+            <small>&plusmn;40% (Fleksibilitas Alokasi)</small>
           </div>
         </div>
 
         <!-- Tombol Aksi: Menjalankan simulasi kalkulasi alokasi secara manual -->
-        <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan simulasi alokasi APBN dengan parameter yang telah ditentukan">
+        <button type="button" class="btn-run-simulation" (click)="runSimulation()" [disabled]="isRunning()" title="Jalankan simulasi alokasi APBN dengan parameter yang telah ditentukan" style="margin-top: 14px;">
           <i class="pi" [ngClass]="isRunning() ? 'pi-spin pi-spinner' : 'pi-bolt'" aria-hidden="true"></i>
           <span>{{ isRunning() ? 'Menjalankan Simulasi...' : 'Jalankan Simulasi' }}</span>
         </button>

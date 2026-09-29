@@ -58,6 +58,23 @@ export class OptimizationPageComponent {
   // Status apakah parameter saat ini sesuai rekomendasi ideal sistem BRANTAS
   protected readonly isIdealActive = computed(() => this.povertyWeight() === 45 && this.capPercent() === 20 && this.disasterWeight() === 15);
 
+  // Komposisi 6 dimensi IKW ternormalisasi (total selalu tepat 100%)
+  protected readonly normalizedBreakdown = computed(() => {
+    const p0 = this.povertyWeight();
+    const disaster = this.disasterWeight();
+    const baselineOthers = 15 * 4; // P1 (15) + P2 (15) + IPM (15) + PDRB (15) = 60
+    const total = p0 + disaster + baselineOthers;
+    const povertyPct = Math.round((p0 / total) * 1000) / 10;
+    const disasterPct = Math.round((disaster / total) * 1000) / 10;
+    const othersPct = Math.round((100 - povertyPct - disasterPct) * 10) / 10;
+    return {
+      povertyPct,
+      disasterPct,
+      othersPct,
+      totalPct: 100
+    };
+  });
+
   // Ringkasan dampak fiskal eksekutif
   protected readonly summaryImpact = computed(() => {
     const list = this.recommendations();
