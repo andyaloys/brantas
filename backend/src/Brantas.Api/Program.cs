@@ -893,12 +893,43 @@ app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext dat
         })
         .ToListAsync(cancellationToken);
 
+    var duplicateHashes = await database.BeneficiaryRecords
+        .Where(item => item.DatasetVersionId == version.Id)
+        .GroupBy(item => item.NikHash)
+        .Where(group => group.Count() > 1)
+        .Select(group => group.Key)
+        .ToListAsync(cancellationToken);
+
+    var duplicateByRegion = await database.BeneficiaryRecords
+        .Where(item => item.DatasetVersionId == version.Id && duplicateHashes.Contains(item.NikHash))
+        .GroupBy(item => new { item.RegionId, Region = item.Region!.Name })
+        .Select(group => new
+        {
+            group.Key.Region,
+            duplicateCount = group.Count()
+        })
+        .ToListAsync(cancellationToken);
+
+    var duplicateFindings = duplicateByRegion.Select(item => new
+    {
+        region = RegencyCatalog.ResolveSyntheticName(item.Region),
+        type = "Identitas NIK ganda / duplikat",
+        count = item.duplicateCount,
+        confidenceScore = 99m,
+        severity = item.duplicateCount >= 4 ? "High" : "Medium",
+        explanation = "Terdeteksi kesamaan nomor induk kependudukan (NIK) terdaftar ganda pada penyaluran bansos; verifikasi Dukcapil diperlukan."
+    });
+
     var result = findings.SelectMany(item => new[]
     {
         new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Penerima ASN/TNI/Polri aktif", count = item.activePublicServantCount, confidenceScore = 96m, severity = item.activePublicServantCount >= 80 ? "High" : "Medium", explanation = "Terdapat indikasi status aparatur aktif berdasarkan data sintetis; verifikasi administratif diperlukan." },
         new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Penerima terindikasi meninggal", count = item.deceasedCount, confidenceScore = 94m, severity = item.deceasedCount >= 35 ? "High" : "Medium", explanation = "Terdapat indikasi ketidaksesuaian status kependudukan pada data sintetis; verifikasi administratif diperlukan." },
         new { region = RegencyCatalog.ResolveSyntheticName(item.Region), type = "Indikator aset ekonomi", count = item.economicAssetCount, confidenceScore = 82m, severity = item.economicAssetCount >= 130 ? "High" : "Medium", explanation = "Terdapat indikator kemampuan ekonomi pada data sintetis; bukan penetapan ketidaklayakan otomatis." }
-    }).Where(item => item.count > 0).OrderByDescending(item => item.count).ToList();
+    })
+    .Concat(duplicateFindings)
+    .Where(item => item.count > 0)
+    .OrderByDescending(item => item.count)
+    .ToList();
 
     cache.Set(cacheKey, result, TimeSpan.FromMinutes(60));
     return Results.Ok(result);
@@ -920,6 +951,7 @@ app.MapGet("/api/v1/beneficiaries/exclusion-errors", async (BrantasDbContext dat
     }
 
     var regions = await database.WelfareCoverages
+        .Include(item => item.Region)
         .Where(item => item.DatasetVersionId == version.Id && item.EstimatedEligibleHouseholds > item.RegisteredBeneficiaries)
         .OrderByDescending(item => item.EstimatedEligibleHouseholds - item.RegisteredBeneficiaries)
         .Take(20)
@@ -929,7 +961,7 @@ app.MapGet("/api/v1/beneficiaries/exclusion-errors", async (BrantasDbContext dat
             estimatedEligibleHouseholds = item.EstimatedEligibleHouseholds,
             registeredBeneficiaries = item.RegisteredBeneficiaries,
             gap = item.EstimatedEligibleHouseholds - item.RegisteredBeneficiaries,
-            gapRate = Math.Round(100m * (item.EstimatedEligibleHouseholds - item.RegisteredBeneficiaries) / item.EstimatedEligibleHouseholds, 2)
+            gapRate = Math.Round((decimal)(item.EstimatedEligibleHouseholds - item.RegisteredBeneficiaries) / item.EstimatedEligibleHouseholds, 4)
         })
         .ToListAsync(cancellationToken);
     return Results.Ok(regions);

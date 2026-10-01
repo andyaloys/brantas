@@ -283,10 +283,6 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
         var hasBeneficiaries = await database.BeneficiaryRecords.AnyAsync(
             item => item.DatasetVersionId == version.Id,
             cancellationToken);
-        if (hasBeneficiaries)
-        {
-            return;
-        }
 
         var regencies = await database.PovertyIndicators
             .Where(item => item.DatasetVersionId == version.Id && item.Region!.Level == RegionLevel.Regency)
@@ -294,56 +290,78 @@ public sealed class SyntheticDataSeeder(BrantasDbContext database) : ISyntheticD
             .Select(item => new { item.RegionId, item.PoorPopulation })
             .ToListAsync(cancellationToken);
         var totalPoorPopulation = regencies.Sum(item => item.PoorPopulation);
-        var assigned = 0;
 
-        var connection = (NpgsqlConnection)database.Database.GetDbConnection();
-        await connection.OpenAsync(cancellationToken);
-        await using (var importer = await connection.BeginBinaryImportAsync(
-            "COPY beneficiary_records (\"Id\", \"RegionId\", \"DatasetVersionId\", \"NikHash\", \"NkkHash\", \"Program\", \"Decile\", \"IsActivePublicServant\", \"IsDeceased\", \"HasEconomicAsset\") FROM STDIN (FORMAT BINARY)",
-            cancellationToken))
+        if (!hasBeneficiaries)
         {
-            for (var regionIndex = 0; regionIndex < regencies.Count; regionIndex++)
+            var assigned = 0;
+            var connection = (NpgsqlConnection)database.Database.GetDbConnection();
+            await connection.OpenAsync(cancellationToken);
+            await using (var importer = await connection.BeginBinaryImportAsync(
+                "COPY beneficiary_records (\"Id\", \"RegionId\", \"DatasetVersionId\", \"NikHash\", \"NkkHash\", \"Program\", \"Decile\", \"IsActivePublicServant\", \"IsDeceased\", \"HasEconomicAsset\") FROM STDIN (FORMAT BINARY)",
+                cancellationToken))
             {
-                var region = regencies[regionIndex];
-                var target = regionIndex == regencies.Count - 1
-                    ? BeneficiaryTargetCount - assigned
-                    : (int)Math.Round(BeneficiaryTargetCount * (decimal)region.PoorPopulation / totalPoorPopulation);
-                assigned += target;
-
-                for (var localIndex = 0; localIndex < target; localIndex++)
+                for (var regionIndex = 0; regionIndex < regencies.Count; regionIndex++)
                 {
-                    var identityIndex = assigned - target + localIndex;
-                    var duplicate = identityIndex % 125 == 0 && identityIndex > 0;
-                    var canonicalIndex = duplicate ? identityIndex - 1 : identityIndex;
-                    await importer.StartRowAsync(cancellationToken);
-                    await importer.WriteAsync(Guid.NewGuid(), cancellationToken);
-                    await importer.WriteAsync(region.RegionId, cancellationToken);
-                    await importer.WriteAsync(version.Id, cancellationToken);
-                    await importer.WriteAsync(HashIdentity($"nik:{canonicalIndex}"), cancellationToken);
-                    await importer.WriteAsync(HashIdentity($"nkk:{canonicalIndex / 4}"), cancellationToken);
-                    await importer.WriteAsync("Program Keluarga Harapan", cancellationToken);
-                    await importer.WriteAsync(identityIndex % 10 < 7 ? 1 : 2, cancellationToken);
-                    await importer.WriteAsync(identityIndex % 83 == 0, cancellationToken);
-                    await importer.WriteAsync(identityIndex % 200 == 0, cancellationToken);
-                    await importer.WriteAsync(identityIndex % 50 == 0, cancellationToken);
+                    var region = regencies[regionIndex];
+                    var target = regionIndex == regencies.Count - 1
+                        ? BeneficiaryTargetCount - assigned
+                        : (int)Math.Round(BeneficiaryTargetCount * (decimal)region.PoorPopulation / totalPoorPopulation);
+                    assigned += target;
+
+                    for (var localIndex = 0; localIndex < target; localIndex++)
+                    {
+                        var identityIndex = assigned - target + localIndex;
+                        var duplicate = identityIndex % 125 == 0 && identityIndex > 0;
+                        var canonicalIndex = duplicate ? identityIndex - 1 : identityIndex;
+                        await importer.StartRowAsync(cancellationToken);
+                        await importer.WriteAsync(Guid.NewGuid(), cancellationToken);
+                        await importer.WriteAsync(region.RegionId, cancellationToken);
+                        await importer.WriteAsync(version.Id, cancellationToken);
+                        await importer.WriteAsync(HashIdentity($"nik:{canonicalIndex}"), cancellationToken);
+                        await importer.WriteAsync(HashIdentity($"nkk:{canonicalIndex / 4}"), cancellationToken);
+                        await importer.WriteAsync("Program Keluarga Harapan", cancellationToken);
+                        await importer.WriteAsync(identityIndex % 10 < 7 ? 1 : 2, cancellationToken);
+                        await importer.WriteAsync(identityIndex % 83 == 0, cancellationToken);
+                        await importer.WriteAsync(identityIndex % 200 == 0, cancellationToken);
+                        await importer.WriteAsync(identityIndex % 50 == 0, cancellationToken);
+                    }
                 }
+                await importer.CompleteAsync(cancellationToken);
             }
-            await importer.CompleteAsync(cancellationToken);
         }
 
-        foreach (var region in regencies)
+        var hasExclusionCoverages = await database.WelfareCoverages.AnyAsync(
+            item => item.DatasetVersionId == version.Id && item.EstimatedEligibleHouseholds > item.RegisteredBeneficiaries,
+            cancellationToken);
+
+        if (!hasExclusionCoverages)
         {
-            var registered = (int)Math.Round(BeneficiaryTargetCount * (decimal)region.PoorPopulation / totalPoorPopulation);
-            var gapMultiplier = region.RegionId.GetHashCode() % 29 == 0 ? 1.035m : 1m;
-            database.WelfareCoverages.Add(new WelfareCoverage
+            await database.WelfareCoverages.Where(item => item.DatasetVersionId == version.Id).ExecuteDeleteAsync(cancellationToken);
+
+            foreach (var region in regencies)
             {
-                RegionId = region.RegionId,
-                DatasetVersionId = version.Id,
-                RegisteredBeneficiaries = registered,
-                EstimatedEligibleHouseholds = (int)Math.Round(registered * gapMultiplier)
-            });
+                var registered = (int)Math.Round(BeneficiaryTargetCount * (decimal)region.PoorPopulation / totalPoorPopulation);
+                var hash = Math.Abs(region.RegionId.GetHashCode());
+                var hasExclusionGap = (hash % 11 == 0) || (hash % 17 == 0);
+                var gapMultiplier = hasExclusionGap
+                    ? 1.08m + ((hash % 15) * 0.012m)
+                    : 1.0m;
+                var estimated = (int)Math.Round(registered * gapMultiplier);
+                if (hasExclusionGap && estimated <= registered)
+                {
+                    estimated = registered + 25 + (hash % 30);
+                }
+
+                database.WelfareCoverages.Add(new WelfareCoverage
+                {
+                    RegionId = region.RegionId,
+                    DatasetVersionId = version.Id,
+                    RegisteredBeneficiaries = registered,
+                    EstimatedEligibleHouseholds = estimated
+                });
+            }
+            await database.SaveChangesAsync(cancellationToken);
         }
-        await database.SaveChangesAsync(cancellationToken);
     }
 
     private async Task EnsurePolicyImpactPanelAsync(DatasetVersion version, CancellationToken cancellationToken)
