@@ -5,11 +5,13 @@ import { Subject, of, firstValueFrom } from 'rxjs';
 import { debounceTime, switchMap, catchError, finalize } from 'rxjs/operators';
 import { AllocationRecommendation, OptimizationDataService, SimulationScenario } from '../data/optimization-data.service';
 import { formatCompactCurrency } from '../../../core/utils/currency-formatter';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({ selector: 'app-optimization-page', templateUrl: './optimization-page.html', styleUrl: './optimization-page.css', changeDetection: ChangeDetectionStrategy.OnPush, imports: [CommonModule] })
 export class OptimizationPageComponent {
   protected readonly formatCurrency = formatCompactCurrency;
   private readonly optimizationData = inject(OptimizationDataService);
+  protected readonly authService = inject(AuthService);
   private readonly autoCalculate$ = new Subject<void>();
 
   protected readonly povertyWeight = signal(30);

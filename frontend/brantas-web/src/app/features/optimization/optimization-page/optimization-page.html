@@ -272,23 +272,32 @@
             <input id="scenario-name" [value]="scenarioName()" (input)="updateScenarioName($event)" placeholder="Nama skenario (mis: Afirmatif 2026)...">
             <button type="button" class="btn-save" (click)="saveScenario()"><i class="pi pi-save" aria-hidden="true"></i> Simpan</button>
           </div>
+          <div class="save-privacy-note">
+            <i class="pi pi-lock"></i>
+            <span>Tersimpan pada akun <strong>{{ authService.currentUser()?.name || 'Administrator' }}</strong></span>
+          </div>
           @if (saveMessage()) { <p class="save-feedback"><i class="pi pi-check-circle"></i> {{ saveMessage() }}</p> }
         </div>
       </div>
     </div>
 
     <!-- Card 2: Riwayat Skenario Tersimpan -->
-    @if (scenarios().length > 0) {
-      <div class="aside-card">
-        <header class="panel-head ribbon-blue">
-          <div class="panel-titles">
-            <span class="badge-accent blue"><i class="pi pi-bookmark"></i> RIWAYAT SKENARIO</span>
-            <h2>Skenario Tersimpan</h2>
-          </div>
-          <span class="history-count-badge">{{ scenarios().length }} Tersimpan</span>
-        </header>
+    <div class="aside-card">
+      <header class="panel-head ribbon-blue">
+        <div class="panel-titles">
+          <span class="badge-accent blue"><i class="pi pi-bookmark"></i> RIWAYAT SKENARIO PRIBADI</span>
+          <h2>Skenario Tersimpan</h2>
+        </div>
+        <span class="history-count-badge">{{ scenarios().length }} Tersimpan</span>
+      </header>
 
-        <div class="aside-card-body">
+      <div class="aside-card-body">
+        <div class="scenario-user-banner">
+          <i class="pi pi-user-check"></i>
+          <span>Pengguna: <strong>{{ authService.currentUser()?.name || authService.currentUser()?.username }}</strong></span>
+        </div>
+
+        @if (scenarios().length > 0) {
           <div class="history-list">
             @for (scenario of scenarios().slice(0, 6); track scenario.id) {
               <div 
@@ -339,9 +348,15 @@
               </div>
             }
           </div>
-        </div>
+        } @else {
+          <div class="scenario-empty-state">
+            <i class="pi pi-folder-open"></i>
+            <p>Belum ada skenario privat tersimpan.</p>
+            <small>Formulasi alokasi yang Anda simpan akan tampil di sini khusus untuk akun Anda.</small>
+          </div>
+        }
       </div>
-    }
+    </div>
   </aside>
 
   <!-- Results Section -->
