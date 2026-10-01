@@ -218,7 +218,7 @@ app.MapPost("/api/v1/auth/logout", async (HttpContext context, AuthLogoutRequest
 
 app.MapPost("/api/v1/pipeline/run", async (HttpContext context, ISyntheticDataSeeder seeder, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
-    var (role, region) = GetClientContext(context);
+    var (role, region, _) = GetClientContext(context);
     try
     {
         var result = await seeder.SeedAsync(cancellationToken);
@@ -526,7 +526,7 @@ app.MapGet("/api/v1/anomalies/summary", async (BrantasDbContext database, Cancel
 
 app.MapGet("/api/v1/anomalies", async (HttpContext context, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
-    var (role, userRegion) = GetClientContext(context);
+    var (role, userRegion, _) = GetClientContext(context);
     var version = await database.DatasetVersions
         .Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed)
         .OrderByDescending(item => item.IngestedAt)
@@ -614,7 +614,7 @@ app.MapGet("/api/v1/anomalies/onnx-multivariate", async (BrantasDbContext databa
 
 app.MapPut("/api/v1/anomalies/{id:guid}/review", async (Guid id, UpdateAnomalyReviewRequest request, HttpContext context, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
-    var (role, userRegion) = GetClientContext(context);
+    var (role, userRegion, _) = GetClientContext(context);
     if (!Enum.TryParse<Brantas.Domain.Entities.AnomalyReviewStatus>(request.Status, true, out var status)) return Results.BadRequest(new { title = "Status tinjauan tidak valid." });
     var anomaly = await database.Anomalies.Include(a => a.Region).SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
     if (anomaly is null) return Results.NotFound(new { title = "Temuan tidak ditemukan." });
@@ -1016,7 +1016,7 @@ app.MapGet("/api/v1/optimization/recommendations", async (BrantasDbContext datab
 
 app.MapPost("/api/v1/optimization/scenarios", async (CreateSimulationScenarioRequest request, HttpContext context, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
-    var (role, userRegion) = GetClientContext(context);
+    var (role, userRegion, username) = GetClientContext(context);
     var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
     if (string.IsNullOrWhiteSpace(request.Name)) return Results.BadRequest(new { title = "Nama skenario wajib diisi." });
@@ -1058,7 +1058,7 @@ app.MapPost("/api/v1/optimization/scenarios", async (CreateSimulationScenarioReq
         DatasetVersionId = version.Id,
         Name = request.Name.Trim(),
         WeightsJson = JsonSerializer.Serialize(result.Weights),
-        ConstraintsJson = JsonSerializer.Serialize(new { floor = 500m, capPercent = request.CapPercent }),
+        ConstraintsJson = JsonSerializer.Serialize(new { floor = 500m, capPercent = request.CapPercent, username, createdBy = username }),
         TotalBudget = totalBudget
     };
     database.SimulationScenarios.Add(scenario);
@@ -1076,26 +1076,32 @@ app.MapPost("/api/v1/optimization/scenarios", async (CreateSimulationScenarioReq
         Action = "CreateSimulationScenario",
         ActorRole = role,
         ActorRegion = userRegion,
-        DetailsJson = JsonSerializer.Serialize(new { scenarioName = scenario.Name, totalBudget, scenarioId = scenario.Id }),
+        DetailsJson = JsonSerializer.Serialize(new { scenarioName = scenario.Name, totalBudget, scenarioId = scenario.Id, createdBy = username }),
         IsSuccess = true
     });
 
     await database.SaveChangesAsync(cancellationToken);
-    return Results.Created($"/api/v1/optimization/scenarios/{scenario.Id}", new { id = scenario.Id, name = scenario.Name, datasetVersionId = scenario.DatasetVersionId, createdAt = scenario.CreatedAt });
+    return Results.Created($"/api/v1/optimization/scenarios/{scenario.Id}", new { id = scenario.Id, name = scenario.Name, datasetVersionId = scenario.DatasetVersionId, createdAt = scenario.CreatedAt, createdBy = username });
 })
     .WithName("CreateSimulationScenario")
     .WithSummary("Menyimpan hasil simulasi alokasi yang dapat direproduksi dengan pencatatan audit log.")
     .WithTags("Optimasi")
     .AllowAnonymous();
 
-app.MapGet("/api/v1/optimization/scenarios", async (BrantasDbContext database, CancellationToken cancellationToken) =>
+app.MapGet("/api/v1/optimization/scenarios", async (HttpContext context, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
-    var list = await database.SimulationScenarios.OrderByDescending(item => item.CreatedAt).Take(20).ToListAsync(cancellationToken);
-    var results = list.Select(item =>
+    var (role, userRegion, username) = GetClientContext(context);
+    var list = await database.SimulationScenarios.OrderByDescending(item => item.CreatedAt).ToListAsync(cancellationToken);
+    
+    // Skenario tersimpan di user masing-masing dan tidak dapat dilihat oleh user lain
+    var userFilteredList = list.Where(item => IsScenarioOwner(item.ConstraintsJson, username)).Take(20).ToList();
+
+    var results = userFilteredList.Select(item =>
     {
         decimal povertyWeight = 30m;
         decimal disasterWeight = 10m;
         decimal capPercent = 25m;
+        string? ownerName = null;
         try
         {
             if (!string.IsNullOrEmpty(item.WeightsJson))
@@ -1125,6 +1131,10 @@ app.MapGet("/api/v1/optimization/scenarios", async (BrantasDbContext database, C
                         var val = prop.Value.GetDecimal();
                         capPercent = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
                     }
+                    else if (prop.Name.Equals("username", StringComparison.OrdinalIgnoreCase) || prop.Name.Equals("createdBy", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ownerName = prop.Value.GetString();
+                    }
                 }
             }
         }
@@ -1141,27 +1151,35 @@ app.MapGet("/api/v1/optimization/scenarios", async (BrantasDbContext database, C
             povertyWeight,
             disasterWeight,
             capPercent,
-            createdAt = item.CreatedAt
+            createdAt = item.CreatedAt,
+            createdBy = ownerName ?? username
         };
     });
     return Results.Ok(results);
 })
     .WithName("GetSimulationScenarios")
-    .WithSummary("Mengambil daftar skenario simulasi tersimpan.")
+    .WithSummary("Mengambil daftar skenario simulasi tersimpan pengguna.")
     .WithTags("Optimasi")
     .AllowAnonymous();
 
-app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, BrantasDbContext database, CancellationToken cancellationToken) =>
+app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, HttpContext context, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
+    var (role, userRegion, username) = GetClientContext(context);
     var scenario = await database.SimulationScenarios
         .Include(s => s.Results)
         .ThenInclude(r => r.Region)
         .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     if (scenario is null) return Results.NotFound(new { title = "Skenario tidak ditemukan." });
 
+    if (!IsScenarioOwner(scenario.ConstraintsJson, username))
+    {
+        return Results.NotFound(new { title = "Skenario tidak ditemukan atau Anda tidak memiliki akses ke skenario ini." });
+    }
+
     decimal povertyWeight = 30m;
     decimal disasterWeight = 10m;
     decimal capPercent = 25m;
+    string? ownerName = null;
     try
     {
         if (!string.IsNullOrEmpty(scenario.WeightsJson))
@@ -1191,6 +1209,10 @@ app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, BrantasDb
                     var val = prop.Value.GetDecimal();
                     capPercent = val <= 1m && val > 0m ? Math.Round(val * 100m) : Math.Round(val);
                 }
+                else if (prop.Name.Equals("username", StringComparison.OrdinalIgnoreCase) || prop.Name.Equals("createdBy", StringComparison.OrdinalIgnoreCase))
+                {
+                    ownerName = prop.Value.GetString();
+                }
             }
         }
     }
@@ -1208,6 +1230,7 @@ app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, BrantasDb
         disasterWeight,
         capPercent,
         createdAt = scenario.CreatedAt,
+        createdBy = ownerName ?? username,
         recommendations = scenario.Results.OrderByDescending(item => item.RecommendedAmount - item.BaselineAmount).Select(item => new
         {
             region = item.Region?.Name ?? "N/A",
@@ -1226,9 +1249,14 @@ app.MapGet("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, BrantasDb
 
 app.MapDelete("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, HttpContext context, BrantasDbContext database, CancellationToken cancellationToken) =>
 {
-    var (role, userRegion) = GetClientContext(context);
+    var (role, userRegion, username) = GetClientContext(context);
     var scenario = await database.SimulationScenarios.Include(s => s.Results).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     if (scenario is null) return Results.NotFound(new { title = "Skenario tidak ditemukan." });
+
+    if (!IsScenarioOwner(scenario.ConstraintsJson, username))
+    {
+        return Results.Forbid();
+    }
 
     database.AllocationResults.RemoveRange(scenario.Results);
     database.SimulationScenarios.Remove(scenario);
@@ -1238,7 +1266,7 @@ app.MapDelete("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, HttpCo
         Action = "DeleteSimulationScenario",
         ActorRole = role,
         ActorRegion = userRegion,
-        DetailsJson = JsonSerializer.Serialize(new { scenarioName = scenario.Name, scenarioId = scenario.Id }),
+        DetailsJson = JsonSerializer.Serialize(new { scenarioName = scenario.Name, scenarioId = scenario.Id, deletedBy = username }),
         IsSuccess = true
     });
 
@@ -1246,7 +1274,7 @@ app.MapDelete("/api/v1/optimization/scenarios/{id:guid}", async (Guid id, HttpCo
     return Results.NoContent();
 })
     .WithName("DeleteSimulationScenario")
-    .WithSummary("Menghapus skenario simulasi tersimpan.")
+    .WithSummary("Menghapus skenario simulasi tersimpan pengguna.")
     .WithTags("Optimasi")
     .AllowAnonymous();
 
@@ -1720,11 +1748,47 @@ app.Run();
 
 static string Csv(string value) => $"\"{value.Replace("\"", "\"\"")}\"";
 
-static (string Role, string? Region) GetClientContext(HttpContext context)
+static (string Role, string? Region, string Username) GetClientContext(HttpContext context)
 {
-    var role = context.Request.Headers["X-Brantas-Role"].FirstOrDefault()?.ToUpperInvariant() ?? "CENTRAL";
-    var region = context.Request.Headers["X-Brantas-Region"].FirstOrDefault();
-    return (role, region);
+    var role = context.Request.Headers["X-Brantas-Role"].FirstOrDefault()
+               ?? context.Request.Headers["X-Role"].FirstOrDefault()
+               ?? "CENTRAL";
+    var region = context.Request.Headers["X-Brantas-Region"].FirstOrDefault()
+                 ?? context.Request.Headers["X-Region"].FirstOrDefault();
+    var username = context.Request.Headers["X-Brantas-User"].FirstOrDefault()
+                   ?? context.Request.Headers["X-User-Name"].FirstOrDefault();
+    if (string.IsNullOrWhiteSpace(username))
+    {
+        username = context.Request.Query["username"].FirstOrDefault();
+    }
+    if (string.IsNullOrWhiteSpace(username))
+    {
+        username = "anonymous";
+    }
+    return (role, region, username);
+}
+
+static bool IsScenarioOwner(string? constraintsJson, string username)
+{
+    if (string.IsNullOrWhiteSpace(username) || username.Equals("admin", StringComparison.OrdinalIgnoreCase))
+    {
+        return true;
+    }
+    if (string.IsNullOrEmpty(constraintsJson))
+    {
+        return false;
+    }
+    try
+    {
+        using var doc = JsonDocument.Parse(constraintsJson);
+        if (doc.RootElement.TryGetProperty("username", out var u) || doc.RootElement.TryGetProperty("createdBy", out u))
+        {
+            var owner = u.GetString();
+            return owner != null && owner.Equals(username, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+    catch { }
+    return false;
 }
 
 public sealed record CreateSimulationScenarioRequest(string Name, decimal PovertyWeight = 30m, decimal DepthWeight = 15m, decimal SeverityWeight = 15m, decimal HumanDevelopmentWeight = 15m, decimal GdpWeight = 15m, decimal DisasterWeight = 10m, decimal CapPercent = .25m);
