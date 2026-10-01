@@ -993,7 +993,18 @@ app.MapGet("/api/v1/optimization/recommendations", async (BrantasDbContext datab
             allocation.TotalAllocation
         }).ToListAsync(cancellationToken);
     var observations = rawObservations.Select(item => new AllocationObservation(item.RegionId, item.RegionName, item.PovertyRate, item.PovertyDepthIndex, item.PovertySeverityIndex, item.HumanDevelopmentIndex, item.GdpPerCapita, DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score, item.PoorPopulation, item.TotalAllocation)).ToList();
-    var weights = new AllocationWeights(povertyWeight ?? 30m, depthWeight ?? 15m, severityWeight ?? 15m, humanDevelopmentWeight ?? 15m, gdpWeight ?? 15m, disasterWeight ?? 10m);
+    var pWeight = povertyWeight ?? 30m;
+    var dWeight = disasterWeight ?? 10m;
+    var remainingBps = Math.Max(0m, 100m - (pWeight + dWeight));
+    var defaultBpsSubWeight = remainingBps / 4m;
+
+    var weights = new AllocationWeights(
+        pWeight,
+        depthWeight ?? defaultBpsSubWeight,
+        severityWeight ?? defaultBpsSubWeight,
+        humanDevelopmentWeight ?? defaultBpsSubWeight,
+        gdpWeight ?? defaultBpsSubWeight,
+        dWeight);
     var totalBudget = observations.Sum(item => item.BaselineAllocation);
     var result = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, capPercent ?? .25m);
     return Results.Ok(new { datasetVersionId = version.Id, totalBudget, capPercent = capPercent ?? .25m, weights = result.Weights, recommendations = result.Recommendations.OrderByDescending(item => item.Delta).Select(item => new { region = item.RegionName, baselineAllocation = item.BaselineAllocation, recommendedAllocation = item.RecommendedAllocation, delta = item.Delta, deltaPercent = item.DeltaPercent, vulnerabilityIndex = item.VulnerabilityIndex, poorPopulation = item.PoorPopulation }) });
@@ -1027,7 +1038,19 @@ app.MapPost("/api/v1/optimization/scenarios", async (CreateSimulationScenarioReq
             allocation.TotalAllocation
         }).ToListAsync(cancellationToken);
     var observations = rawObservations.Select(item => new AllocationObservation(item.RegionId, item.RegionName, item.PovertyRate, item.PovertyDepthIndex, item.PovertySeverityIndex, item.HumanDevelopmentIndex, item.GdpPerCapita, DisasterRiskRepository.GetDisasterRisk(item.BpsCode).Score, item.PoorPopulation, item.TotalAllocation)).ToList();
-    var weights = new AllocationWeights(request.PovertyWeight, request.DepthWeight, request.SeverityWeight, request.HumanDevelopmentWeight, request.GdpWeight, request.DisasterWeight);
+    
+    var pWeight = request.PovertyWeight;
+    var dWeight = request.DisasterWeight;
+    var remainingBps = Math.Max(0m, 100m - (pWeight + dWeight));
+    var defaultBpsSubWeight = remainingBps / 4m;
+
+    var isDefaultBps = request.DepthWeight == 15m && request.SeverityWeight == 15m && request.HumanDevelopmentWeight == 15m && request.GdpWeight == 15m;
+    var depthWeight = isDefaultBps && (pWeight != 30m || dWeight != 10m) ? defaultBpsSubWeight : request.DepthWeight;
+    var severityWeight = isDefaultBps && (pWeight != 30m || dWeight != 10m) ? defaultBpsSubWeight : request.SeverityWeight;
+    var hdiWeight = isDefaultBps && (pWeight != 30m || dWeight != 10m) ? defaultBpsSubWeight : request.HumanDevelopmentWeight;
+    var gdpWeight = isDefaultBps && (pWeight != 30m || dWeight != 10m) ? defaultBpsSubWeight : request.GdpWeight;
+
+    var weights = new AllocationWeights(pWeight, depthWeight, severityWeight, hdiWeight, gdpWeight, dWeight);
     var totalBudget = observations.Sum(item => item.BaselineAllocation);
     var result = new AllocationOptimizer().Optimize(observations, weights, totalBudget, 500m, request.CapPercent);
     var scenario = new Brantas.Domain.Entities.SimulationScenario
