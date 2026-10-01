@@ -24,7 +24,7 @@
       <header class="panel-head ribbon-teal">
         <div class="panel-titles">
           <div style="margin-bottom: 4px;">
-            <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> FORMULA BOBOT IKW</span>
+            <span class="badge-accent teal"><i class="pi pi-sliders-v"></i> FORMULA ANGGARAN</span>
           </div>
           <h2>Prioritas Kebijakan Alokasi</h2>
         </div>
@@ -97,12 +97,12 @@
           </div>
         </div>
 
-        <!-- Box Visual Komposisi Normalisasi Real-Time (100%) -->
+        <!-- Box Visual Komposisi Real-Time (Direct Complementary 100%) -->
         <div class="formula-breakdown-card">
           <div class="formula-breakdown-head">
             <div class="breakdown-title">
               <i class="pi pi-chart-pie"></i>
-              <span>Komposisi Normalisasi Solver</span>
+              <span>Komposisi</span>
             </div>
             <span class="badge-total-100">Total 100%</span>
           </div>
@@ -110,13 +110,74 @@
           <div class="breakdown-progress-bar">
             <div class="bar-seg poverty" [style.width.%]="normalizedBreakdown().povertyPct" title="Kemiskinan: {{ normalizedBreakdown().povertyPct }}%"></div>
             <div class="bar-seg disaster" [style.width.%]="normalizedBreakdown().disasterPct" title="Risiko Bencana: {{ normalizedBreakdown().disasterPct }}%"></div>
-            <div class="bar-seg others" [style.width.%]="normalizedBreakdown().othersPct" title="4 Indikator BPS: {{ normalizedBreakdown().othersPct }}%"></div>
+            <div class="bar-seg others" [style.width.%]="normalizedBreakdown().othersPct" title="4 Dimensi Komplementer BPS: {{ normalizedBreakdown().othersPct }}%"></div>
           </div>
 
           <div class="breakdown-legend">
             <div class="legend-item"><span class="dot poverty"></span><span>Kemiskinan: <strong>{{ normalizedBreakdown().povertyPct }}%</strong></span></div>
             <div class="legend-item"><span class="dot disaster"></span><span>Risiko Bencana: <strong>{{ normalizedBreakdown().disasterPct }}%</strong></span></div>
-            <div class="legend-item" title="Kedalaman P1, Keparahan P2, Gap IPM, dan PDRB"><span class="dot others"></span><span>4 Indikator Standar BPS: <strong>{{ normalizedBreakdown().othersPct }}%</strong></span></div>
+            <div class="legend-item" title="Kedalaman P1, Keparahan P2, Gap IPM, dan Invers PDRB"><span class="dot others"></span><span>4 Dimensi BPS: <strong>{{ normalizedBreakdown().othersPct }}%</strong> ({{ normalizedBreakdown().bpsEach }}%/dimensi)</span></div>
+          </div>
+
+          <!-- Collapsible Live Math Calculation Detail (Default: Sembunyi/Hide) -->
+          <div class="calc-explainer-box">
+            <button type="button" 
+                    class="calc-explainer-toggle" 
+                    (click)="toggleCalculationBreakdown()" 
+                    [attr.aria-expanded]="isCalculationBreakdownOpen()"
+                    title="Klik untuk membuka atau menyembunyikan rincian rumus">
+              <span class="explainer-toggle-left">
+                <i class="pi pi-calculator text-teal"></i>
+                <span>Dasar Perhitungan</span>
+              </span>
+              <span class="explainer-toggle-right">
+                <span class="toggle-action-label">{{ isCalculationBreakdownOpen() ? 'Sembunyikan' : 'Lihat Detail' }}</span>
+                <i class="pi" [ngClass]="isCalculationBreakdownOpen() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+              </span>
+            </button>
+
+            @if (isCalculationBreakdownOpen()) {
+              <div class="calc-explainer-body">
+                <div class="calc-formula-row">
+                  <span class="formula-label"><span class="dot poverty"></span> Kemiskinan:</span>
+                  <span class="formula-math mono">Sesuai Slider</span>
+                  <strong class="formula-res mono text-teal">= {{ normalizedBreakdown().povertyPct }}%</strong>
+                </div>
+                <div class="calc-formula-row">
+                  <span class="formula-label"><span class="dot disaster"></span> Risiko Bencana:</span>
+                  <span class="formula-math mono">Sesuai Slider</span>
+                  <strong class="formula-res mono text-orange">= {{ normalizedBreakdown().disasterPct }}%</strong>
+                </div>
+                <div class="calc-formula-row">
+                  <span class="formula-label"><span class="dot others"></span> 4 Dimensi BPS:</span>
+                  <span class="formula-math mono">(100% - {{ normalizedBreakdown().executiveTotal }}%) &divide; 4</span>
+                  <strong class="formula-res mono text-blue">= {{ normalizedBreakdown().bpsEach }}% / dimensi</strong>
+                </div>
+
+                <!-- Daftar 4 Dimensi Pemerataan BPS -->
+                <div class="bps-detail-list">
+                  <div class="bps-detail-item"><span>1. Indeks Kedalaman Kemiskinan (P1)</span><strong class="mono">{{ normalizedBreakdown().bpsEach }}%</strong></div>
+                  <div class="bps-detail-item"><span>2. Indeks Keparahan Kemiskinan (P2)</span><strong class="mono">{{ normalizedBreakdown().bpsEach }}%</strong></div>
+                  <div class="bps-detail-item"><span>3. Kesenjangan Pembangunan Manusia (Gap IPM)</span><strong class="mono">{{ normalizedBreakdown().bpsEach }}%</strong></div>
+                  <div class="bps-detail-item"><span>4. Kapasitas Fiskal Rendah (Invers PDRB per Kapita)</span><strong class="mono">{{ normalizedBreakdown().bpsEach }}%</strong></div>
+                </div>
+
+                <div class="calc-summary-pills">
+                  <div class="summary-pill-item">
+                    <span class="pill-badge pill-teal"><i class="pi pi-calculator"></i> Cara Hitung</span>
+                    <p class="pill-desc">Pilihan slider langsung menjadi bobot riil ({{ normalizedBreakdown().executiveTotal }}%). Sisanya ({{ normalizedBreakdown().othersPct }}%) dibagi rata ke 4 indikator pemerataan BPS (Kedalaman P1, Keparahan P2, Gap IPM, Invers PDRB) sehingga total selalu tepat 100%.</p>
+                  </div>
+                  <div class="summary-pill-item">
+                    <span class="pill-badge pill-blue"><i class="pi pi-globe"></i> Best Practice</span>
+                    <p class="pill-desc">Standar <strong>OECD & World Bank (Hierarchical Weighting)</strong>: Memisahkan variabel diskresi prioritas kebijakan dari indikator dasar tanpa distorsi rasio.</p>
+                  </div>
+                  <div class="summary-pill-item">
+                    <span class="pill-badge pill-purple"><i class="pi pi-book"></i> Dasar Hukum</span>
+                    <p class="pill-desc"><strong>UU HKPD No. 1/2022 Ps. 106 & 108</strong> (alokasi prioritas & celah fiskal dasar), <strong>PP No. 45/2013</strong> (Closed Simplex APBN 100%), dan <strong>Inpres No. 4/2022</strong> (kemiskinan multidimensional).</p>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -135,8 +196,8 @@
 
       <div class="aside-card-body">
         <div class="guardrail-info-box">
-          <i class="pi pi-info-circle"></i>
-          <span><strong>Bukan bobot alokasi</strong>, melainkan batas deviasi maksimal per provinsi agar APBD tidak mengalami guncangan (*fiscal shock*).</span>
+          <i class="pi pi-shield"></i>
+          <span><strong>Batas Pengaman Perubahan</strong>: Menjaga agar kenaikan maupun pemotongan anggaran suatu provinsi tidak melampaui <strong>&plusmn;{{ capPercent() }}%</strong> dari tahun sebelumnya, demi menjaga stabilitas belanja daerah.</span>
         </div>
 
         <div class="slider-group" style="margin-bottom: 0;">
@@ -149,6 +210,54 @@
             <small>&plusmn;10% (Stabilitas Tinggi)</small>
             <small>&plusmn;40% (Fleksibilitas Alokasi)</small>
           </div>
+        </div>
+
+        <!-- Collapsible Guardrail Explainer (Default: Muncul) -->
+        <div class="calc-explainer-box cap-explainer-box">
+          <button type="button" 
+                  class="calc-explainer-toggle" 
+                  (click)="toggleCapExplainer()" 
+                  [attr.aria-expanded]="isCapExplainerOpen()"
+                  title="Klik untuk membuka atau menyembunyikan rincian batas pengaman">
+            <span class="explainer-toggle-left">
+              <i class="pi pi-shield text-amber"></i>
+              <span>Dasar Perhitungan Batas Pengaman</span>
+            </span>
+            <span class="explainer-toggle-right">
+              <span class="toggle-action-label" style="color: #d97706;">{{ isCapExplainerOpen() ? 'Sembunyikan' : 'Lihat Detail' }}</span>
+              <i class="pi" [ngClass]="isCapExplainerOpen() ? 'pi-chevron-up' : 'pi-chevron-down'" style="color: #d97706;"></i>
+            </span>
+          </button>
+
+          @if (isCapExplainerOpen()) {
+            <div class="calc-explainer-body cap-explainer-body">
+              <div class="calc-formula-row">
+                <span class="formula-label" style="width: 100px;"><i class="pi pi-arrow-down text-orange"></i> Batas Bawah:</span>
+                <span class="formula-math mono">Alokasi Lalu &times; (100% - {{ capPercent() }}%)</span>
+                <strong class="formula-res mono text-orange">Min {{ 100 - capPercent() }}%</strong>
+              </div>
+              <div class="calc-formula-row">
+                <span class="formula-label" style="width: 100px;"><i class="pi pi-arrow-up text-teal"></i> Batas Atas:</span>
+                <span class="formula-math mono">Alokasi Lalu &times; (100% + {{ capPercent() }}%)</span>
+                <strong class="formula-res mono text-teal">Maks {{ 100 + capPercent() }}%</strong>
+              </div>
+
+              <div class="calc-summary-pills">
+                <div class="summary-pill-item">
+                  <span class="pill-badge pill-amber"><i class="pi pi-calculator"></i> Cara Hitung</span>
+                  <p class="pill-desc">Anggaran provinsi dijamin berada di rentang aman <strong>{{ 100 - capPercent() }}% s.d. {{ 100 + capPercent() }}%</strong> dari tahun lalu. Solver linier mencari alokasi paling optimal di dalam koridor ini.</p>
+                </div>
+                <div class="summary-pill-item">
+                  <span class="pill-badge pill-blue"><i class="pi pi-globe"></i> Best Practice</span>
+                  <p class="pill-desc">Prinsip <strong>Hold-Harmless & Fiscal Banding (OECD & IMF)</strong>: Mencegah kontraksi mendadak pada belanja wajib operasional daerah (<em>mandatory spending</em>).</p>
+                </div>
+                <div class="summary-pill-item">
+                  <span class="pill-badge pill-purple"><i class="pi pi-book"></i> Dasar Hukum</span>
+                  <p class="pill-desc"><strong>UU HKPD No. 1/2022 Ps. 107</strong> (transisi bertahap kesinambungan fiskal daerah) dan <strong>UU Keuangan Negara No. 17/2003</strong> (asas kehati-hatian/prudence).</p>
+                </div>
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Tombol Aksi: Menjalankan simulasi kalkulasi alokasi secara manual -->
@@ -352,7 +461,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of recommendations(); track item.region) {
+              @for (item of paginatedRecommendations(); track item.region) {
                 <tr>
                   <td class="col-prov"><strong>{{ item.region }}</strong></td>
                   <td class="col-ikw"><span class="ikw-pill">{{ item.vulnerabilityIndex.toFixed(3) }}</span></td>
@@ -368,6 +477,93 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Interactive Table Pagination Bar (10, 25, 50 baris) -->
+        <footer class="table-pagination-bar" aria-label="Navigasi halaman hasil simulasi alokasi">
+          <div class="pagination-left">
+            <!-- Page Size Selector -->
+            <div class="page-size-selector">
+              <span class="page-size-label">Baris:</span>
+              <div class="page-size-pills">
+                @for (opt of pageSizeOptions; track opt) {
+                  <button
+                    type="button"
+                    class="page-size-btn"
+                    [class.active]="pageSize() === opt"
+                    (click)="setPageSize(opt)">
+                    {{ opt }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Range Info -->
+            <span class="pagination-info">
+              Menampilkan <strong>{{ startIndex() }}-{{ endIndex() }}</strong> dari <strong>{{ recommendations().length }}</strong> provinsi
+            </span>
+          </div>
+
+          <div class="pagination-right">
+            @if (totalPages() > 1) {
+              <div class="pagination-controls">
+                <!-- First Page -->
+                <button
+                  type="button"
+                  class="page-btn page-arrow"
+                  [disabled]="currentPage() === 1"
+                  (click)="setPage(1)"
+                  title="Halaman Pertama">
+                  <i class="pi pi-angle-double-left"></i>
+                </button>
+
+                <!-- Prev Page -->
+                <button
+                  type="button"
+                  class="page-btn page-arrow"
+                  [disabled]="currentPage() === 1"
+                  (click)="prevPage()"
+                  title="Halaman Sebelumnya">
+                  <i class="pi pi-angle-left"></i>
+                </button>
+
+                <!-- Page Numbers -->
+                @for (p of pagesList(); track $index) {
+                  @if (p === '...') {
+                    <span class="page-ellipsis">…</span>
+                  } @else {
+                    <button
+                      type="button"
+                      class="page-btn page-num"
+                      [class.active]="currentPage() === p"
+                      (click)="setPage(p)">
+                      {{ p }}
+                    </button>
+                  }
+                }
+
+                <!-- Next Page -->
+                <button
+                  type="button"
+                  class="page-btn page-arrow"
+                  [disabled]="currentPage() === totalPages()"
+                  (click)="nextPage()"
+                  title="Halaman Berikutnya">
+                  <i class="pi pi-angle-right"></i>
+                </button>
+
+                <!-- Last Page -->
+                <button
+                  type="button"
+                  class="page-btn page-arrow"
+                  [disabled]="currentPage() === totalPages()"
+                  (click)="setPage(totalPages())"
+                  title="Halaman Terakhir">
+                  <i class="pi pi-angle-double-right"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </footer>
       }
     </div>
   </section>

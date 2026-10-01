@@ -35,8 +35,17 @@ export class OptimizationPageComponent {
         switchMap(() => {
           this.isRunning.set(true);
           this.error.set(null);
+          const bpsSub = this.getBpsSubWeight();
           return this.optimizationData
-            .getRecommendations(this.povertyWeight(), this.capPercent(), this.disasterWeight())
+            .getRecommendations(
+              this.povertyWeight(), 
+              this.capPercent(), 
+              this.disasterWeight(),
+              bpsSub,
+              bpsSub,
+              bpsSub,
+              bpsSub
+            )
             .pipe(
               catchError(() => {
                 this.error.set('Simulasi belum dapat dihitung. Pastikan layanan BRANTAS aktif.');
@@ -58,21 +67,107 @@ export class OptimizationPageComponent {
   // Status apakah parameter saat ini sesuai rekomendasi ideal sistem BRANTAS
   protected readonly isIdealActive = computed(() => this.povertyWeight() === 45 && this.capPercent() === 20 && this.disasterWeight() === 15);
 
-  // Komposisi 6 dimensi IKW ternormalisasi (total selalu tepat 100%)
+  // Perhitungan bobot komplementer untuk 4 dimensi dasar BPS (P1, P2, Gap IPM, Invers PDRB)
+  // Menjamin closed simplex total tepat 100% tanpa distorsi rasio pilihan eksekutif
+  protected getBpsSubWeight(): number {
+    const remaining = Math.max(0, 100 - (this.povertyWeight() + this.disasterWeight()));
+    return remaining / 4;
+  }
+
+  // Komposisi 6 dimensi IKW dengan Model Direct Complementary 100%
   protected readonly normalizedBreakdown = computed(() => {
-    const p0 = this.povertyWeight();
-    const disaster = this.disasterWeight();
-    const baselineOthers = 15 * 4; // P1 (15) + P2 (15) + IPM (15) + PDRB (15) = 60
-    const total = p0 + disaster + baselineOthers;
-    const povertyPct = Math.round((p0 / total) * 1000) / 10;
-    const disasterPct = Math.round((disaster / total) * 1000) / 10;
-    const othersPct = Math.round((100 - povertyPct - disasterPct) * 10) / 10;
+    const povertyPct = this.povertyWeight();
+    const disasterPct = this.disasterWeight();
+    const executiveTotal = povertyPct + disasterPct;
+    const othersPct = Math.max(0, 100 - executiveTotal);
+    const bpsEach = Math.round((othersPct / 4) * 10) / 10;
     return {
       povertyPct,
       disasterPct,
       othersPct,
+      bpsEach,
+      executiveTotal,
       totalPct: 100
     };
+  });
+
+  // Kontrol rincian dasar perhitungan formula (default: tertutup/hide)
+  protected readonly isCalculationBreakdownOpen = signal<boolean>(false);
+
+  protected toggleCalculationBreakdown(): void {
+    this.isCalculationBreakdownOpen.update(v => !v);
+  }
+
+  // Kontrol rincian dasar perhitungan batas pengaman / cap (default: tertutup/hide)
+  protected readonly isCapExplainerOpen = signal<boolean>(false);
+
+  protected toggleCapExplainer(): void {
+    this.isCapExplainerOpen.update(v => !v);
+  }
+
+  // State Pagination Tabel Rekomendasi Alokasi (10, 25, 50 baris)
+  protected readonly pageSize = signal<number>(10);
+  protected readonly pageSizeOptions: number[] = [10, 25, 50];
+  protected readonly currentPage = signal<number>(1);
+
+  protected setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
+  protected setPage(page: number | string): void {
+    if (typeof page === 'number' && page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  protected prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
+
+  protected nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  protected readonly totalPages = computed(() => {
+    return Math.ceil(this.recommendations().length / this.pageSize()) || 1;
+  });
+
+  protected readonly paginatedRecommendations = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.recommendations().slice(start, start + this.pageSize());
+  });
+
+  protected readonly startIndex = computed(() => {
+    return this.recommendations().length === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1;
+  });
+
+  protected readonly endIndex = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.recommendations().length);
+  });
+
+  protected readonly pagesList = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: (number | string)[] = [];
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (current > 3) pages.push('...');
+      const start = Math.max(2, current - 1);
+      const end = Math.min(total - 1, current + 1);
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) pages.push(i);
+      }
+      if (current < total - 2) pages.push('...');
+      if (!pages.includes(total)) pages.push(total);
+    }
+    return pages;
   });
 
   // Ringkasan dampak fiskal eksekutif
@@ -112,7 +207,18 @@ export class OptimizationPageComponent {
     this.error.set(null);
     this.isRunning.set(true);
     try {
-      const result = await firstValueFrom(this.optimizationData.getRecommendations(this.povertyWeight(), this.capPercent(), this.disasterWeight()));
+      const bpsSub = this.getBpsSubWeight();
+      const result = await firstValueFrom(
+        this.optimizationData.getRecommendations(
+          this.povertyWeight(), 
+          this.capPercent(), 
+          this.disasterWeight(),
+          bpsSub,
+          bpsSub,
+          bpsSub,
+          bpsSub
+        )
+      );
       this.totalBudget.set(result.totalBudget);
       this.recommendations.set(result.recommendations);
     } catch { 
@@ -126,18 +232,21 @@ export class OptimizationPageComponent {
     this.povertyWeight.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
+    this.autoCalculate$.next();
   }
 
   protected updateDisasterWeight(event: Event): void {
     this.disasterWeight.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
+    this.autoCalculate$.next();
   }
 
   protected updateCap(event: Event): void {
     this.capPercent.set(Number((event.target as HTMLInputElement).value));
     this.activeScenarioId.set(null);
     this.activeScenarioName.set(null);
+    this.autoCalculate$.next();
   }
 
   protected updateScenarioName(event: Event): void { this.scenarioName.set((event.target as HTMLInputElement).value); }
@@ -145,7 +254,19 @@ export class OptimizationPageComponent {
   protected async saveScenario(): Promise<void> {
     this.saveMessage.set(null);
     try {
-      const scenario = await firstValueFrom(this.optimizationData.saveScenario(this.scenarioName(), this.povertyWeight(), this.capPercent(), this.disasterWeight()));
+      const bpsSub = this.getBpsSubWeight();
+      const scenario = await firstValueFrom(
+        this.optimizationData.saveScenario(
+          this.scenarioName(), 
+          this.povertyWeight(), 
+          this.capPercent(), 
+          this.disasterWeight(),
+          bpsSub,
+          bpsSub,
+          bpsSub,
+          bpsSub
+        )
+      );
       this.saveMessage.set(`Skenario "${scenario.name}" berhasil disimpan.`);
       this.activeScenarioId.set(scenario.id);
       this.activeScenarioName.set(scenario.name);

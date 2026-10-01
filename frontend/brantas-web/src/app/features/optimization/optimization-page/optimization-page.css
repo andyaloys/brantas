@@ -647,6 +647,275 @@
   background: #64748b;
 }
 
+/* Sub-legend chip 4 Dimensi BPS */
+.bps-sub-legend {
+  margin-left: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.bps-sub-legend span {
+  display: inline-block;
+  background: rgba(100, 116, 139, 0.08);
+  border: 1px solid rgba(100, 116, 139, 0.18);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+:host-context([data-theme="dark"]) .bps-sub-legend span {
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+}
+
+/* Rincian 4 Dimensi BPS di dalam box kalkulasi */
+.bps-detail-list {
+  background: rgba(100, 116, 139, 0.06);
+  border: 1px solid rgba(100, 116, 139, 0.15);
+  border-radius: 4px;
+  padding: 5px 8px;
+  margin: 3px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bps-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.bps-detail-item strong {
+  color: #2563eb;
+}
+
+:host-context([data-theme="dark"]) .bps-detail-list {
+  background: rgba(100, 116, 139, 0.15);
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+:host-context([data-theme="dark"]) .bps-detail-item strong {
+  color: #60a5fa;
+}
+
+/* Collapsible Calculation Detail Box */
+.calc-explainer-box {
+  margin-top: 8px;
+  border-top: 1px dashed var(--border-subtle);
+  padding-top: 7px;
+}
+
+.calc-explainer-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 3px 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.calc-explainer-toggle:hover {
+  color: var(--text-primary);
+}
+
+.explainer-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.explainer-toggle-left i {
+  color: #0d9488;
+  font-size: 11px;
+}
+
+.explainer-toggle-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #0d9488;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.calc-explainer-body {
+  margin-top: 6px;
+  background: rgba(13, 148, 136, 0.05);
+  border: 1px solid rgba(13, 148, 136, 0.15);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 10.5px;
+}
+
+.calc-formula-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.formula-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  width: 95px;
+  flex-shrink: 0;
+}
+
+.formula-math {
+  color: var(--text-muted);
+  font-size: 10px;
+  flex: 1;
+}
+
+.formula-res {
+  font-size: 11px;
+}
+
+.text-teal { color: #0d9488; }
+.text-orange { color: #ea580c; }
+.text-blue { color: #2563eb; }
+
+.calc-formula-note {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(13, 148, 136, 0.2);
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.calc-formula-note strong {
+  color: var(--text-primary);
+}
+
+.calc-formula-note i {
+  margin-top: 2px;
+  flex-shrink: 0;
+  font-size: 10px;
+}
+
+/* Ringkasan Pill: Cara Hitung, Best Practice, Dasar Hukum */
+.calc-summary-pills {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(13, 148, 136, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-pill-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.pill-teal {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0d9488;
+  border: 1px solid rgba(13, 148, 136, 0.25);
+}
+
+.pill-amber {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.pill-blue {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.pill-purple {
+  background: rgba(124, 58, 237, 0.12);
+  color: #7c3aed;
+  border: 1px solid rgba(124, 58, 237, 0.25);
+}
+
+.pill-desc {
+  margin: 0;
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.pill-desc strong {
+  color: var(--text-primary);
+}
+
+/* Card 2: Batas Pengaman / Cap Explainer */
+.cap-explainer-box {
+  margin-top: 10px;
+  border-top: 1px dashed rgba(245, 158, 11, 0.25);
+  padding-top: 8px;
+}
+
+.cap-explainer-body {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.cap-explainer-body .calc-summary-pills {
+  border-top-color: rgba(245, 158, 11, 0.2);
+}
+
+.text-amber {
+  color: #d97706;
+}
+
+:host-context([data-theme="dark"]) .calc-explainer-body {
+  background: rgba(13, 148, 136, 0.12);
+  border-color: rgba(13, 148, 136, 0.3);
+}
+
+:host-context([data-theme="dark"]) .cap-explainer-body {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+:host-context([data-theme="dark"]) .text-teal { color: #2dd4bf; }
+:host-context([data-theme="dark"]) .text-orange { color: #fb923c; }
+:host-context([data-theme="dark"]) .text-blue { color: #60a5fa; }
+:host-context([data-theme="dark"]) .text-amber { color: #fbbf24; }
+
 /* Batasan Fiskal APBN: 2-Kolom Simetris & Proporsional */
 .fiscal-limits-grid {
   margin: 12px 0 14px;
@@ -1109,7 +1378,8 @@ body.theme-light .kpi-sub,
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
 table {
@@ -1360,4 +1630,194 @@ td.col-delta {
   .impact-summary-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* =========================================================================
+   INTERACTIVE TABLE PAGINATION BAR (10, 25, 50 baris)
+   ========================================================================= */
+.table-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: var(--surface-card, #ffffff);
+  border: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-muted, #64748b);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-size-label {
+  font-size: 11.5px;
+  color: var(--text-muted, #64748b);
+  font-weight: 600;
+}
+
+.page-size-pills {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.page-size-btn {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-size-btn:hover {
+  color: #0f172a;
+}
+
+.page-size-btn.active {
+  background: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.3);
+}
+
+.pagination-info {
+  font-size: 12px;
+  color: var(--text-muted, #64748b);
+}
+
+.pagination-info strong {
+  color: var(--text-main, #0f172a);
+}
+
+.pagination-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+
+.page-btn.active {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 118, 110, 0.35);
+}
+
+.page-ellipsis {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 28px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+/* Dark Mode Adaptation */
+:host-context([data-theme='dark']) .table-pagination-bar {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+:host-context([data-theme='dark']) .page-size-label {
+  color: #94a3b8;
+}
+
+:host-context([data-theme='dark']) .page-size-pills {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+:host-context([data-theme='dark']) .page-size-btn {
+  color: #94a3b8;
+}
+
+:host-context([data-theme='dark']) .page-size-btn:hover {
+  color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .page-size-btn.active {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+:host-context([data-theme='dark']) .pagination-info strong {
+  color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .page-btn {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .page-btn:hover:not(:disabled) {
+  background: #334155;
+  border-color: #2dd4bf;
+  color: #2dd4bf;
+}
+
+:host-context([data-theme='dark']) .page-btn:disabled {
+  background: #0f172a;
+  opacity: 0.3;
+}
+
+:host-context([data-theme='dark']) .page-btn.active {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
 }

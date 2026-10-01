@@ -44,20 +44,57 @@ export class OptimizationDataService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${API_BASE_URL}/optimization`;
 
-  getRecommendations(povertyWeight: number, capPercent: number, disasterWeight?: number) {
+  getRecommendations(
+    povertyWeight: number, 
+    capPercent: number, 
+    disasterWeight?: number,
+    depthWeight?: number,
+    severityWeight?: number,
+    humanDevelopmentWeight?: number,
+    gdpWeight?: number
+  ) {
     let params = new HttpParams().set('povertyWeight', povertyWeight).set('capPercent', capPercent / 100);
     if (disasterWeight !== undefined) {
       params = params.set('disasterWeight', disasterWeight);
     }
+    if (depthWeight !== undefined) {
+      params = params.set('depthWeight', depthWeight);
+    }
+    if (severityWeight !== undefined) {
+      params = params.set('severityWeight', severityWeight);
+    }
+    if (humanDevelopmentWeight !== undefined) {
+      params = params.set('humanDevelopmentWeight', humanDevelopmentWeight);
+    }
+    if (gdpWeight !== undefined) {
+      params = params.set('gdpWeight', gdpWeight);
+    }
     return this.http.get<OptimizationResult>(`${this.apiUrl}/recommendations`, { params });
   }
 
-  saveScenario(name: string, povertyWeight: number, capPercent: number, disasterWeight?: number) {
+  saveScenario(
+    name: string, 
+    povertyWeight: number, 
+    capPercent: number, 
+    disasterWeight?: number,
+    depthWeight?: number,
+    severityWeight?: number,
+    humanDevelopmentWeight?: number,
+    gdpWeight?: number
+  ) {
+    const dWeight = disasterWeight ?? 10;
+    const remainingBps = Math.max(0, 100 - (povertyWeight + dWeight));
+    const subBps = remainingBps / 4;
+
     return this.http.post<SimulationScenario>(`${this.apiUrl}/scenarios`, {
       name,
       povertyWeight,
       capPercent: capPercent / 100,
-      disasterWeight: disasterWeight ?? 10
+      disasterWeight: dWeight,
+      depthWeight: depthWeight ?? subBps,
+      severityWeight: severityWeight ?? subBps,
+      humanDevelopmentWeight: humanDevelopmentWeight ?? subBps,
+      gdpWeight: gdpWeight ?? subBps
     });
   }
 
