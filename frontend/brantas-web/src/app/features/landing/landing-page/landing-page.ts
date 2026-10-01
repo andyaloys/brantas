@@ -16,11 +16,15 @@ export class LandingPageComponent {
 
   readonly isAuthenticated = this.authService.isAuthenticated;
 
-  navigateToPortal(): void {
+  navigateTo(path: string = '/beranda'): void {
     // Mode Demo: Otomatis masuk sebagai Dewan Juri / Eksekutif tanpa form login
     if (!this.isAuthenticated()) {
       this.authService.loginDemo();
     }
-    this.router.navigate(['/beranda']);
+    this.router.navigate([path]);
+  }
+
+  navigateToPortal(): void {
+    this.navigateTo('/beranda');
   }
 }

@@ -5,12 +5,12 @@ export const routes: Routes = [
 	{
 		path: '',
 		pathMatch: 'full',
-		title: 'BRANTAS | Landhaton 2026',
+		title: 'BRANTAS | LAN Datathon 2026',
 		loadComponent: () => import('./features/landing/landing-page/landing-page').then((m) => m.LandingPageComponent)
 	},
 	{
 		path: 'landing',
-		title: 'BRANTAS | Landhaton 2026',
+		title: 'BRANTAS | LAN Datathon 2026',
 		loadComponent: () => import('./features/landing/landing-page/landing-page').then((m) => m.LandingPageComponent)
 	},
 	{
