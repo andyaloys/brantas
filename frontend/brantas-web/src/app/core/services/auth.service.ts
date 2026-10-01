@@ -12,12 +12,22 @@ export interface UserProfile {
   avatarIcon: string;
 }
 
+interface StoredSession {
+  user: UserProfile;
+  loginTime: number;
+  expiresAt: number;     // 60 menit batas maksimal sesi login
+  lastActiveAt: number;  // timestamp aktivitas interaksi terakhir pengguna
+}
+
 interface LoginResponse {
   success: boolean;
   user: UserProfile;
 }
 
 const STORAGE_KEY = 'brantas_auth_session';
+const MAX_SESSION_DURATION_MS = 60 * 60 * 1000; // 60 menit (maksimal durasi sesi)
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000;          // 30 menit (batas inaktivitas pengguna)
+const ACTIVITY_THROTTLE_MS = 10 * 1000;         // 10 detik throttle deteksi aktivitas
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +65,16 @@ export class AuthService {
 
   readonly isAuthenticated = computed(() => this.sessionState() !== null);
   readonly currentUser = computed(() => this.sessionState());
+
+  private heartbeatTimer?: any;
+  private lastThrottledUpdate = 0;
+  private activityListeners: Array<{ event: string; listener: () => void }> = [];
+
+  constructor() {
+    if (this.sessionState()) {
+      this.startInactivityMonitoring();
+    }
+  }
 
   /**
    * Bypass login otomatis untuk kebutuhan Demo Dewan Juri / Presentasi
@@ -115,7 +135,7 @@ export class AuthService {
   /**
    * Keluar dari sistem, kirim log akses ke database, hapus sesi, dan arahkan kembali ke /login
    */
-  async logout(): Promise<void> {
+  async logout(reason?: string): Promise<void> {
     const user = this.sessionState();
     if (user) {
       try {
@@ -130,41 +150,183 @@ export class AuthService {
       }
     }
 
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {
-        console.warn('Gagal menghapus localStorage:', e);
-      }
-    }
+    this.clearStorage();
+    this.stopInactivityMonitoring();
     this.sessionState.set(null);
-    this.router.navigate(['/login']);
+
+    if (reason) {
+      this.router.navigate(['/login'], { queryParams: { reason } });
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
+  /**
+   * Membaca sesi dari sessionStorage (otomatis terhapus saat user menutup browser/tab).
+   * Memvalidasi durasi maksimal 60 menit dan inaktivitas 30 menit.
+   */
   private loadSessionFromStorage(): UserProfile | null {
     if (typeof window === 'undefined') return null;
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
-      if (data) {
-        const parsed = JSON.parse(data) as UserProfile;
-        if (parsed.name === 'Administrator Penjurian') {
-          parsed.name = 'Administrator';
-          this.saveSessionToStorage(parsed);
-        }
-        return parsed;
+      // Bersihkan localStorage sisa implementasi sebelumnya untuk migrasi ke sessionStorage
+      localStorage.removeItem(STORAGE_KEY);
+
+      const data = sessionStorage.getItem(STORAGE_KEY);
+      if (!data) return null;
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(data);
+      } catch {
+        this.clearStorage();
+        return null;
       }
+
+      // Format legacy UserProfile polos -> konversi ke StoredSession
+      if (!parsed.expiresAt || !parsed.user) {
+        const now = Date.now();
+        const profile = parsed as UserProfile;
+        this.saveSessionToStorage(profile);
+        return profile;
+      }
+
+      const session = parsed as StoredSession;
+      const now = Date.now();
+
+      // 1. Validasi batas maksimal sesi (60 menit)
+      if (now > session.expiresAt) {
+        console.warn('Sesi login telah mencapai batas maksimal 60 menit.');
+        this.clearStorage();
+        return null;
+      }
+
+      // 2. Validasi batas inaktivitas (30 menit)
+      if (now - session.lastActiveAt > IDLE_TIMEOUT_MS) {
+        console.warn('Sesi login kedaluwarsa karena tidak ada aktivitas.');
+        this.clearStorage();
+        return null;
+      }
+
+      // Update aktivitas pada saat load
+      session.lastActiveAt = now;
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+      return session.user;
     } catch (e) {
-      console.warn('Gagal membaca sesi auth dari storage:', e);
+      console.warn('Gagal membaca sesi auth dari sessionStorage:', e);
     }
     return null;
   }
 
+  /**
+   * Menyimpan sesi ke sessionStorage dengan cap maksimal 60 menit
+   */
   private saveSessionToStorage(profile: UserProfile): void {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      const now = Date.now();
+      const session: StoredSession = {
+        user: profile,
+        loginTime: now,
+        expiresAt: now + MAX_SESSION_DURATION_MS,
+        lastActiveAt: now
+      };
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+      this.startInactivityMonitoring();
     } catch (e) {
-      console.warn('Gagal menyimpan sesi auth ke storage:', e);
+      console.warn('Gagal menyimpan sesi auth ke sessionStorage:', e);
+    }
+  }
+
+  private clearStorage(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Gagal membersihkan storage auth:', e);
+    }
+  }
+
+  /**
+   * Monitor aktivitas interaksi pengguna (mousemove, keydown, click, scroll, touch)
+   * dan periodik heartbeat timer setiap 15 detik.
+   */
+  private startInactivityMonitoring(): void {
+    if (typeof window === 'undefined') return;
+    this.stopInactivityMonitoring();
+
+    const updateActivity = () => {
+      const now = Date.now();
+      if (now - this.lastThrottledUpdate < ACTIVITY_THROTTLE_MS) return;
+      this.lastThrottledUpdate = now;
+
+      try {
+        const data = sessionStorage.getItem(STORAGE_KEY);
+        if (data) {
+          const session = JSON.parse(data) as StoredSession;
+          if (session && session.user) {
+            session.lastActiveAt = now;
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+          }
+        }
+      } catch {}
+    };
+
+    this.activityListeners = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].map(evtName => {
+      const listener = () => updateActivity();
+      window.addEventListener(evtName, listener, { passive: true });
+      return { event: evtName, listener };
+    });
+
+    this.heartbeatTimer = setInterval(() => {
+      this.checkSessionValidity();
+    }, 15000);
+  }
+
+  private stopInactivityMonitoring(): void {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = undefined;
+    }
+    if (typeof window !== 'undefined' && this.activityListeners.length > 0) {
+      for (const item of this.activityListeners) {
+        window.removeEventListener(item.event, item.listener);
+      }
+      this.activityListeners = [];
+    }
+  }
+
+  /**
+   * Mengecek validitas sesi aktif terhadap batas 60 menit dan inaktivitas 30 menit
+   */
+  checkSessionValidity(): void {
+    if (typeof window === 'undefined') return;
+    const data = sessionStorage.getItem(STORAGE_KEY);
+    if (!data) {
+      if (this.sessionState() !== null) {
+        this.sessionState.set(null);
+        this.router.navigate(['/login']);
+      }
+      return;
+    }
+
+    try {
+      const session = JSON.parse(data) as StoredSession;
+      const now = Date.now();
+
+      // 1. Batas maksimal 60 menit
+      if (session.expiresAt && now > session.expiresAt) {
+        this.logout('session_expired');
+        return;
+      }
+
+      // 2. Batas inaktivitas 30 menit
+      if (session.lastActiveAt && (now - session.lastActiveAt > IDLE_TIMEOUT_MS)) {
+        this.logout('inactivity');
+        return;
+      }
+    } catch {
+      this.logout('unauthorized');
     }
   }
 }

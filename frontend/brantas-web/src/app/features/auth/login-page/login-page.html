@@ -15,6 +15,14 @@
         <p class="brand-subtitle">Basis Rekomendasi & Analisis Terpadu Anggaran Sosial</p>
       </div>
 
+      <!-- Session Expiration or Inactivity Notice -->
+      @if (infoMessage()) {
+        <div class="alert-info" role="status" aria-live="polite">
+          <i class="pi pi-clock"></i>
+          <span>{{ infoMessage() }}</span>
+        </div>
+      }
+
       <!-- Error Alert -->
       @if (errorMessage()) {
         <div class="alert-error" role="alert" aria-live="polite">
