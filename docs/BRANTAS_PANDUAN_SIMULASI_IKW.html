@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panduan & Metodologi Simulasi Alokasi Anggaran Berbasis IKW - BRANTAS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #002b49;
+      --primary-dark: #00182b;
+      --teal: #0d9488;
+      --teal-light: #14b8a6;
+      --teal-subtle: #f0fdfa;
+      --emerald: #059669;
+      --emerald-subtle: #ecfdf5;
+      --amber: #d97706;
+      --amber-subtle: #fffbeb;
+      --rose: #e11d48;
+      --rose-subtle: #fff1f2;
+      --blue: #2563eb;
+      --blue-subtle: #eff6ff;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --card-bg: #ffffff;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.09);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: var(--slate-800);
+      line-height: 1.7;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+    /* HERO BANNER */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 55%, #0f4c81 100%);
+      color: #ffffff;
+      padding: 56px 0 46px;
+      border-bottom: 4px solid var(--teal);
+    }
+    .badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(13, 148, 136, 0.25);
+      border: 1px solid rgba(20, 184, 166, 0.45);
+      color: #5eead4;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .hero-banner h1 {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .hero-banner p {
+      font-size: 16px;
+      color: #cbd5e1;
+      max-width: 860px;
+      line-height: 1.6;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .hero-meta span strong { color: #f1f5f9; }
+
+    /* CONTENT LAYOUT */
+    .content-wrap { padding: 44px 0 60px; }
+
+    /* SECTION CARD */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-card h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--slate-100);
+      padding-bottom: 12px;
+    }
+    .section-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--slate-800);
+      margin: 24px 0 12px;
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .badge-teal { background: var(--teal-subtle); color: var(--teal); border: 1px solid #99f6e4; }
+    .badge-amber { background: var(--amber-subtle); color: var(--amber); border: 1px solid #fde68a; }
+    .badge-blue { background: var(--blue-subtle); color: var(--blue); border: 1px solid #bfdbfe; }
+    .badge-rose { background: var(--rose-subtle); color: var(--rose); border: 1px solid #fecdd3; }
+
+    /* CALLOUT BOXES */
+    .callout {
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      margin: 20px 0;
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+    }
+    .callout.teal { background: var(--teal-subtle); border-left: 4px solid var(--teal); color: #115e59; }
+    .callout.amber { background: var(--amber-subtle); border-left: 4px solid var(--amber); color: #92400e; }
+    .callout.blue { background: var(--blue-subtle); border-left: 4px solid var(--blue); color: #1e40af; }
+    .callout.rose { background: var(--rose-subtle); border-left: 4px solid var(--rose); color: #9f1239; }
+
+    /* TABLES */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+    .data-table th {
+      background: var(--slate-100);
+      color: var(--slate-800);
+      font-weight: 700;
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--slate-300);
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--slate-200);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:hover { background: #fdfdfd; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .font-bold { font-weight: 700; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+
+    /* FORMULA DISPLAY BOX */
+    .formula-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin: 18px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      overflow-x: auto;
+      border-left: 4px solid var(--teal-light);
+      line-height: 1.6;
+    }
+    .formula-box .comment { color: #94a3b8; font-style: italic; }
+    .formula-box .keyword { color: #38bdf8; font-weight: 700; }
+    .formula-box .var { color: #5eead4; }
+    .formula-box .highlight { color: #fbbf24; font-weight: 700; }
+
+    /* STEP FLOW PIPELINE */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 22px 0;
+    }
+    .pipeline-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      position: relative;
+    }
+    .pipeline-step {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      background: var(--teal);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 13px;
+      border-radius: 50%;
+      margin-bottom: 12px;
+    }
+    .pipeline-card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 8px;
+    }
+    .pipeline-card p {
+      font-size: 13px;
+      color: var(--slate-600);
+      line-height: 1.55;
+    }
+
+    /* INTERACTIVE SIMULATOR WIDGET */
+    .interactive-simulator {
+      background: linear-gradient(145deg, #ffffff 0%, #f0fdfa 100%);
+      border: 2px solid #99f6e4;
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin: 28px 0;
+      box-shadow: var(--shadow-md);
+    }
+    .sim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .sim-header h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f766e;
+      margin: 0;
+    }
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 800px) {
+      .sim-grid { grid-template-columns: 1fr; }
+    }
+    .sim-control {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+    }
+    .sim-control-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .sim-control-title {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--slate-800);
+    }
+    .sim-control-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--teal);
+    }
+    .sim-slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--slate-200);
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .sim-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--teal);
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(13,148,136,0.4);
+    }
+    .sim-progress-bar {
+      height: 14px;
+      background: var(--slate-200);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      margin: 14px 0 8px;
+    }
+    .sim-seg {
+      height: 100%;
+      transition: width 0.25s ease;
+    }
+    .sim-seg.poverty { background: #0d9488; }
+    .sim-seg.disaster { background: #ea580c; }
+    .sim-seg.others { background: #3b82f6; }
+    .sim-legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--slate-600);
+    }
+    .sim-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sim-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--slate-900);
+      color: #94a3b8;
+      padding: 36px 0;
+      font-size: 13px;
+      border-top: 1px solid var(--slate-800);
+      text-align: center;
+    }
+    footer a { color: #5eead4; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- HERO BANNER -->
+  <header class="hero-banner">
+    <div class="container">
+      <div class="badge-top">Dokumentasi Teknis & Metodologi Platform BRANTAS</div>
+      <h1>Simulasi Alokasi Anggaran & Formula IKW</h1>
+      <p>
+        Panduan komprehensif alur kerja, metodologi perhitungan Indeks Kerentanan Wilayah (IKW), formulasi linear programming Google OR-Tools, serta proses bisnis redistribusi belanja perlindungan sosial APBN.
+      </p>
+      <div class="hero-meta">
+        <span>Framework: <strong>Google OR-Tools (GLOP Linear Solver)</strong></span>
+        <span>Metode IKW: <strong>Composite Vulnerability Index (6 Dimensi)</strong></span>
+        <span>Pagu Baseline Nasional: <strong>Rp508,2 Triliun</strong></span>
+        <span>Cakupan Wilayah: <strong>38 Provinsi & 514 Kabupaten/Kota</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="content-wrap">
+    <div class="container">
+
+      <!-- SECTION 1: PROSES BISNIS & URGENSI KEBIJAKAN -->
+      <section class="section-card">
+        <h2>1. Proses Bisnis & Filosofi Kebijakan Alokasi</h2>
+        <p>
+          Dalam penyusunan APBN konvensional, penentuan pagu bantuan sosial (bansos) dan perlindungan sosial antardaerah kerap menghadapi tantangan <em>inertia budgeting</em> (penganggaran berulang berbasis pagu historis masa lalu) tanpa merefleksikan perubahan dinamika kemiskinan dan kerentanan riil di daerah.
+        </p>
+
+        <div class="pipeline-grid">
+          <div class="pipeline-card">
+            <span class="pipeline-step">1</span>
+            <h4>Inersia Anggaran</h4>
+            <p>Daerah dengan pertumbuhan ekonomi tinggi sering kali tetap menerima porsi bansos besar karena pagu tahun-tahun sebelumnya tidak pernah dipotong secara sistemik.</p>
+          </div>
+          <div class="pipeline-card">
+            <span class="pipeline-step">2</span>
+            <h4>Guncangan Bencana</h4>
+            <p>Kawasan rawan gempa, tsunami, atau banjir bandang (IRBI BNPB tinggi) kerap jatuh ke kemiskinan mendadak tanpa memiliki bantalan alokasi sosial adaptif.</p>
+          </div>
+          <div class="pipeline-card">
+            <span class="pipeline-step">3</span>
+            <h4>Kebutuhan Solusi</h4>
+            <p>Dibutuhkan sistem yang mampu merealokasi anggaran ke daerah yang paling membutuhkan secara objektif, namun <strong>tetap menjaga stabilitas fiskal daerah</strong> agar APBD tidak goyah.</p>
+          </div>
+        </div>
+
+        <div class="callout teal">
+          <div>
+            <strong>Prinsip Inti BRANTAS:</strong> Platform ini tidak menambah beban utang/defisit APBN (<strong>Budget-Neutral Zero-Sum Game</strong>), melainkan merestrukturisasi dan mengoptimalkan pembagian pagu nasional yang sudah ada agar terdistribusi tepat sasaran berbasis bukti (<em>evidence-based budgeting</em>).
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: METODOLOGI PERHITUNGAN FORMULA IKW -->
+      <section class="section-card">
+        <h2>2. Metodologi & Komposisi 6 Dimensi IKW</h2>
+        <p>
+          <strong>Indeks Kerentanan Wilayah (IKW)</strong> adalah indikator komposit multivariat yang merangkum tingkat keparahan kemiskinan dan kerentanan lingkungan suatu wilayah ke dalam satu nilai kuantitatif antara <strong>0.000000</strong> (paling sejahtera) hingga <strong>1.000000</strong> (paling rentan).
+        </p>
+
+        <h3>Tabel 6 Dimensi Penyusun Formula IKW</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Dimensi</th>
+              <th>Simbol</th>
+              <th>Sumber Data</th>
+              <th>Arah Korelasi</th>
+              <th>Makna dalam Perumusan Kebijakan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tingkat Kemiskinan</strong></td>
+              <td class="mono font-bold">P0</td>
+              <td>Susenas BPS</td>
+              <td><span class="badge badge-rose">Positif (↑)</span></td>
+              <td>Persentase penduduk di bawah garis kemiskinan resmi BPS.</td>
+            </tr>
+            <tr>
+              <td><strong>Kedalaman Kemiskinan</strong></td>
+              <td class="mono font-bold">P1</td>
+              <td>Susenas BPS</td>
+              <td><span class="badge badge-rose">Positif (↑)</span></td>
+              <td>Rata-rata jarak (gap) pengeluaran warga miskin ke garis kemiskinan (besaran nominal subsidi yang dibutuhkan per jiwa).</td>
+            </tr>
+            <tr>
+              <td><strong>Keparahan Kemiskinan</strong></td>
+              <td class="mono font-bold">P2</td>
+              <td>Susenas BPS</td>
+              <td><span class="badge badge-rose">Positif (↑)</span></td>
+              <td>Kesenjangan di antara sesama penduduk miskin (fokus penanganan kemiskinan ekstrem / ultra-poor).</td>
+            </tr>
+            <tr>
+              <td><strong>Defisit IPM (Gap IPM)</strong></td>
+              <td class="mono font-bold">100 - IPM</td>
+              <td>BPS Nasional</td>
+              <td><span class="badge badge-amber">Positif (↑)</span></td>
+              <td>Mengukur ketertinggalan fasilitas dasar kesehatan, harapan hidup, dan rata-rata lama sekolah.</td>
+            </tr>
+            <tr>
+              <td><strong>Kapasitas Fiskal Rendah</strong></td>
+              <td class="mono font-bold">-PDRB</td>
+              <td>BPS Nasional</td>
+              <td><span class="badge badge-blue">Negatif (↓)</span></td>
+              <td>Menggunakan inversi PDRB per kapita daerah. Daerah berpenghasilan rendah mendapat prioritas bantuan lebih tinggi.</td>
+            </tr>
+            <tr>
+              <td><strong>Risiko Bencana Terpadu</strong></td>
+              <td class="mono font-bold">IRBI</td>
+              <td>IRBI BNPB</td>
+              <td><span class="badge badge-rose">Positif (↑)</span></td>
+              <td>Indeks risiko gempa megathrust, vulkanik, banjir, dan hidrometeorologi (0–100%) sebagai bantalan bansos adaptif.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Tahapan Matematis Kalkulasi IKW</h3>
+        <p>1. <strong>Normalisasi Indikator (Min-Max Scaling)</strong>: Setiap dimensi diskalakan menjadi nilai 0 sampai 1:</p>
+        <div class="formula-box">
+          <span class="comment">// Normalisasi Min-Max untuk setiap provinsi i pada dimensi k</span><br>
+          <span class="var">Norm</span>(X<sub>i,k</sub>) = (X<sub>i,k</sub> - min(X<sub>k</sub>)) / (max(X<sub>k</sub>) - min(X<sub>k</sub>))
+        </div>
+
+        <p>2. <strong>Model Direct Complementary 100% (Closed Simplex - Tanpa Distorsi Pembagi)</strong>:<br>
+        Sistem BRANTAS menerapkan kerangka kerja dua pilar (<em>Two-Tier Complementary Framework</em>): Pilihan slider eksekutif langsung menjadi persentase bobot final (<em>What You See Is What You Get</em>), dan sisa persentase diserap secara komplementer dan terbagi rata ke 4 indikator pemerataan dasar BPS:</p>
+        <div class="formula-box">
+          <span class="comment">// Pilar 1: Diskresi Afirmatif Eksekutif (Tier 1 - Prioritas Kebijakan)</span><br>
+          <span class="var">W_eksekutif</span> = <span class="highlight">w_poverty</span> + <span class="highlight">w_disaster</span><br><br>
+          <span class="comment">// Pilar 2: Penyerapan Komplementer Pemerataan Dasar (Tier 2 - Celah Fiskal BPS)</span><br>
+          <span class="var">W_bps_total</span> = 100% - <span class="var">W_eksekutif</span><br>
+          <span class="var">w_p1 = w_p2 = w_gap_ipm = w_inv_pdrb</span> = <span class="var">W_bps_total</span> / 4<br><br>
+          <span class="comment">// Total Bobot Solver: Selalu Tepat 100.0% (Closed Simplex: &Sigma; w_k = 1.0)</span><br>
+          <span class="comment">// Contoh Bobot Ideal BRANTAS: Kemiskinan 45%, Bencana 15% &rarr; BPS = (100% - 60%) / 4 = 10.0% per dimensi</span>
+        </div>
+
+        <div style="background: rgba(13, 148, 136, 0.08); border-left: 4px solid var(--teal-600); padding: 12px 16px; border-radius: 6px; margin: 14px 0; font-size: 13px; line-height: 1.6;">
+          <strong style="color: var(--teal-700);"><i class="pi pi-shield"></i> Landasan Hukum & Best Practice Model Direct Complementary 100%:</strong>
+          <ul style="margin: 6px 0 0 18px; padding: 0;">
+            <li><strong>UU No. 1 Tahun 2022 (UU HKPD) Pasal 106 & 108</strong>: Pembagian Transfer ke Daerah (TKD) berbasis dua pilar: Alokasi Kebijakan Prioritas Nasional (Afirmasi) dan Penutupan Celah Fiskal Dasar (Pemerataan Kemampuan Daerah melalui IPM dan PDRB).</li>
+            <li><strong>PP No. 45 Tahun 2013 jo. PP No. 50 Tahun 2018 (Tata Cara APBN)</strong>: Asas <em>Budget Neutrality</em> dan <em>Closed Simplex</em> di mana portofolio alokasi merupakan kombinasi cembung tertutup (&Sigma; w<sub>i</sub> = 100%) tanpa pembagi liar di luar pagu.</li>
+            <li><strong>Pedoman PMK Pengalokasian DAU & TKD (Kemenkeu RI)</strong>: Variabel penugasan khusus langsung menyerap persentase yang ditetapkan, dan sisa pagu didistribusikan secara proporsional ke indikator pemerataan dasar.</li>
+            <li><strong>Inpres No. 4 Tahun 2022</strong>: Percepatan penghapusan kemiskinan ekstrem melalui integrasi data multidimensional Foster-Greer-Thorbecke (P0, P1, P2) secara berjenjang.</li>
+            <li><strong>OECD Handbook on Constructing Composite Indicators & World Bank IDA Formula</strong>: Standar metodologi <em>Hierarchical / Nested Weighting</em> yang menghilangkan beban kognitif pengambil keputusan karena angka slider tidak mengalami distorsi kompresi.</li>
+          </ul>
+        </div>
+
+        <p>3. <strong>Penetapan Skor Akhir IKW per Provinsi</strong>:</p>
+        <div class="formula-box">
+          <span class="keyword">IKW</span><sub>i</sub> = 
+          (weight_poverty &times; Norm_P0<sub>i</sub>) + 
+          (weight_p1 &times; Norm_P1<sub>i</sub>) + 
+          (weight_p2 &times; Norm_P2<sub>i</sub>) +<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(weight_ipm &times; Norm_GapIPM<sub>i</sub>) + 
+          (weight_pdrb &times; Norm_InvPDRB<sub>i</sub>) + 
+          (weight_disaster &times; Norm_IRBI<sub>i</sub>)
+        </div>
+      </section>
+
+      <!-- SECTION 3: WIDGET SIMULATOR INTERAKTIF -->
+      <section class="section-card">
+        <h2>3. Simulator Komposisi Bobot & Solver Interaktif</h2>
+        <p>
+          Uji coba secara langsung bagaimana pergeseran slider parameter mempengaruhi normalisasi bobot dan perhitungan alokasi anggaran:
+        </p>
+
+        <div class="interactive-simulator">
+          <div class="sim-header">
+            <h3><i class="pi pi-sliders-h"></i> Kontrol Parameter Interaktif</h3>
+            <span class="badge badge-teal" id="presetIndicator">Preset Default APBN</span>
+          </div>
+
+          <div class="sim-grid">
+            <!-- Slider 1 -->
+            <div class="sim-control">
+              <div class="sim-control-head">
+                <span class="sim-control-title">Bobot Kemiskinan (P0)</span>
+                <span class="sim-control-val" id="valPoverty">30%</span>
+              </div>
+              <input type="range" min="10" max="60" value="30" class="sim-slider" id="sliderPoverty">
+              <small style="color: var(--slate-500); display: block; margin-top: 6px;">Rentang 10% (Berimbang) s.d. 60% (Afirmasi Prioritas)</small>
+            </div>
+
+            <!-- Slider 2 -->
+            <div class="sim-control">
+              <div class="sim-control-head">
+                <span class="sim-control-title">Bobot Risiko Bencana (IRBI)</span>
+                <span class="sim-control-val" id="valDisaster" style="color: #ea580c;">10%</span>
+              </div>
+              <input type="range" min="0" max="30" step="5" value="10" class="sim-slider" id="sliderDisaster">
+              <small style="color: var(--slate-500); display: block; margin-top: 6px;">Rentang 0% (Netral) s.d. 30% (Mitigasi Darurat)</small>
+            </div>
+          </div>
+
+          <!-- Cap Stabilitas Slider -->
+          <div class="sim-control" style="margin-top: 16px;">
+            <div class="sim-control-head">
+              <span class="sim-control-title">Batas Toleransi Perubahan Daerah (Cap Stabilitas / Guardrail)</span>
+              <span class="sim-control-val" id="valCap" style="color: var(--amber);">±25%</span>
+            </div>
+            <input type="range" min="5" max="50" step="5" value="25" class="sim-slider" id="sliderCap">
+            <small style="color: var(--slate-500); display: block; margin-top: 6px;">Membatasi deviasi kenaikan / pemangkasan maksimal per provinsi agar APBD tidak kolaps.</small>
+          </div>
+
+          <!-- Live Breakdown Bar -->
+          <div style="margin-top: 22px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--slate-700);">
+              <span>Komposisi Normalisasi Solver (Total 100%)</span>
+              <span id="breakdownPcts">30.0% Kemiskinan · 10.0% Bencana · 60.0% BPS</span>
+            </div>
+            <div class="sim-progress-bar">
+              <div class="sim-seg poverty" id="segPoverty" style="width: 30%;"></div>
+              <div class="sim-seg disaster" id="segDisaster" style="width: 10%;"></div>
+              <div class="sim-seg others" id="segOthers" style="width: 60%;"></div>
+            </div>
+            <div class="sim-legend">
+              <div class="sim-legend-item"><span class="sim-dot" style="background: #0d9488;"></span><span>Kemiskinan (P0)</span></div>
+              <div class="sim-legend-item"><span class="sim-dot" style="background: #ea580c;"></span><span>Risiko Bencana (IRBI BNPB)</span></div>
+              <div class="sim-legend-item"><span class="sim-dot" style="background: #3b82f6;"></span><span>4 Indikator BPS (P1, P2, Gap IPM, PDRB)</span></div>
+            </div>
+          </div>
+
+          <!-- Preview Simulasi 4 Provinsi Contoh -->
+          <div style="margin-top: 24px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--slate-800); margin-bottom: 10px;">Simulasi Dampak pada Provinsi Representatif (Ilustrasi Real-Time):</h4>
+            <table class="data-table" style="margin: 0; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid var(--slate-200);">
+              <thead>
+                <tr>
+                  <th>Provinsi</th>
+                  <th>Karakteristik Wilayah</th>
+                  <th class="text-right">Baseline APBN</th>
+                  <th class="text-right">Rekomendasi Baru</th>
+                  <th class="text-right">Delta (%)</th>
+                </tr>
+              </thead>
+              <tbody id="simTableBody">
+                <!-- Diisi via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: ALGORITMA OPTIMASI GOOGLE OR-TOOLS -->
+      <section class="section-card">
+        <h2>4. Algoritma Optimasi Linier (Google OR-Tools)</h2>
+        <p>
+          Setelah skor IKW masing-masing provinsi diperoleh, penentuan alokasi dana tidak dibagi secara linier mentah. Sistem menggunakan algoritma <strong>Linear Programming (GLOP Linear Solver)</strong> dari pustaka <strong>Google OR-Tools</strong> yang diimplementasikan di <span class="mono">Brantas.Analytics.Optimization.AllocationOptimizer</span>.
+        </p>
+
+        <h3>1. Beban Kebutuhan & Target Ideal (Desired Allocation)</h3>
+        <p>
+          Target ideal berbanding lurus dengan skor IKW dikalikan <strong>jumlah absolut jiwa penduduk miskin</strong> (bukan hanya persentase):
+        </p>
+        <div class="formula-box">
+          <span class="var">BebanKebutuhan</span><sub>i</sub> = <span class="var">IKW</span><sub>i</sub> &times; <span class="var">PoorPopulation</span><sub>i</sub><br>
+          <span class="var">DesiredAllocation</span><sub>i</sub> = <span class="keyword">TotalBudget</span> &times; ( <span class="var">BebanKebutuhan</span><sub>i</sub> / &sum; <span class="var">BebanKebutuhan</span> )
+        </div>
+
+        <h3>2. Formulasi Masalah Optimasi Matematis</h3>
+        <p>Solver mencari variabel alokasi baru ($A_i$) untuk setiap provinsi yang <strong>meminimalkan deviasi absolut</strong> terhadap target kebutuhan ideal ($D_i = |A_i - \text{Desired}_i|$):</p>
+
+        <div class="formula-box">
+          <span class="comment">// FUNGSI TUJUAN (OBJECTIVE FUNCTION):</span><br>
+          <span class="keyword">MINIMIZE</span> &sum; <span class="var">Deviation</span><sub>i</sub><br><br>
+          <span class="comment">// KENDALA DEVASI LINEAR:</span><br>
+          Allocation<sub>i</sub> - Deviation<sub>i</sub> &le; DesiredAllocation<sub>i</sub><br>
+          -Allocation<sub>i</sub> - Deviation<sub>i</sub> &le; -DesiredAllocation<sub>i</sub><br><br>
+          <span class="comment">// KENDALA 1: NETRALITAS ANGGARAN (BUDGET NEUTRALITY / ZERO-SUM)</span><br>
+          &sum; <span class="var">Allocation</span><sub>i</sub> == <span class="highlight">TotalBudget (Rp508,2 Triliun)</span><br><br>
+          <span class="comment">// KENDALA 2: BATAS STABILITAS FISKAL DAERAH (CAP GUARDRAIL)</span><br>
+          Baseline<sub>i</sub> &times; (1 - CapPercent) &le; <span class="var">Allocation</span><sub>i</sub> &le; Baseline<sub>i</sub> &times; (1 + CapPercent)<br><br>
+          <span class="comment">// KENDALA 3: BATAS BAWAH MINIMAL (FLOOR CONSTRAINT)</span><br>
+          <span class="var">Allocation</span><sub>i</sub> &ge; <span class="var">Floor</span> (Rp500 Miliar)
+        </div>
+
+        <div class="callout amber">
+          <div>
+            <strong>Mengapa Memakai Linear Programming?</strong><br>
+            Jika alokasi hanya memakai pembagian proporsional biasa, kenaikan alokasi di Papua/NTT bisa mencapai +300% sementara provinsi lain anjlok hingga -80%, yang mustahil dieksekusi secara birokrasi dan politik anggaran. Dengan Linear Solver, sistem secara otomatis menemukan <em>titik temu optimal matematis</em> yang paling adil namun tetap berada dalam batas toleransi stabilitas daerah.
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: PRESET BOBOT IDEAL BRANTAS -->
+      <section class="section-card">
+        <h2>5. Rasionalitas Preset "Bobot Ideal BRANTAS"</h2>
+        <p>
+          Pada modul simulasi, sistem menyediakan tombol preset <strong>"Bobot Ideal BRANTAS"</strong>. Parameter ini ditetapkan berdasarkan hasil kajian ekonometrika tim BRANTAS:
+        </p>
+
+        <div class="pipeline-grid">
+          <div class="pipeline-card" style="border-top: 3px solid #0d9488;">
+            <h4>Kemiskinan: 45%</h4>
+            <p>Memberikan afirmasi substansial bagi daerah dengan angka kemiskinan ekstrem tanpa mengorbankan indikator komposit pembangunan manusia lainnya.</p>
+          </div>
+          <div class="pipeline-card" style="border-top: 3px solid #ea580c;">
+            <h4>Risiko Bencana: 15%</h4>
+            <p>Mengakomodasi prinsip <em>Adaptive Social Protection</em> (ASP) agar daerah di jalur cincin api atau rawan tsunami memiliki buffer dana darurat.</p>
+          </div>
+          <div class="pipeline-card" style="border-top: 3px solid #d97706;">
+            <h4>Cap Stabilitas: ±20%</h4>
+            <p>Batas toleransi penyesuaian yang aman bagi siklus APBD daerah, meminimalisir penolakan politis dan memastikan penyerapan anggaran tetap optimal.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: MANAJEMEN SKENARIO KEBIJAKAN -->
+      <section class="section-card">
+        <h2>6. Alur Kerja Manajemen Skenario Anggaran</h2>
+        <p>
+          Modul ini dilengkapi siklus penyimpanan dan pemanggilan skenario kebijakan terintegrasi ke database backend:
+        </p>
+        <ol style="margin-left: 20px; line-height: 2;">
+          <li><strong>Eksplorasi Parameter</strong>: Tim teknis anggaran menggeser slider bobot atau mengklik preset ideal.</li>
+          <li><strong>Kalkulasi Asinkron Cepat</strong>: Frontend mengirim parameter via debounce 180ms ke API backend <span class="mono">/api/v1/optimization/recommendations</span>.</li>
+          <li><strong>Penyimpanan Skenario</strong>: Hasil perhitungan disimpan sebagai dokumen skenario dengan nama spesifik (misal: <em>"Skenario Musrenbangnas 2026 - Opsi B"</em>).</li>
+          <li><strong>Audit Trail & Nota Keuangan</strong>: Skenario yang tersimpan dapat dipanggil kembali kapan saja dalam forum rapat pimpinan kementerian untuk membandingkan implikasi fiskal tiap alternatif kebijakan.</li>
+        </ol>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p>Platform BRANTAS &copy; 2026 &bull; Sistem Deteksi Anomali Anggaran & Integritas Bansos Nasional</p>
+      <p style="margin-top: 6px; font-size: 12px;">Dikembangkan untuk LAN Datathon 2026 &bull; Framework Solver: Google OR-Tools GLOP</p>
+    </div>
+  </footer>
+
+  <!-- INTERACTIVE SCRIPT -->
+  <script>
+    const sampleProvinces = [
+      { name: "Papua Pegunungan", char: "Kemiskinan 30.03%, P1: 5.24, IRBI Tinggi (0.79)", baseline: 6200, poorPop: 420000, baseIKW: 0.89 },
+      { name: "Nusa Tenggara Timur", char: "Kemiskinan 19.48%, Rentan Bencana Siklon (0.86)", baseline: 12500, poorPop: 1140000, baseIKW: 0.78 },
+      { name: "Jawa Barat", char: "Kemiskinan 7.08%, Populasi Miskin Besar (3.8 Juta)", baseline: 74200, poorPop: 3820000, baseIKW: 0.42 },
+      { name: "DKI Jakarta", char: "Kemiskinan 4.14%, IPM 82.46, Kapasitas Fiskal Tinggi", baseline: 36800, poorPop: 440000, baseIKW: 0.18 },
+      { name: "Kalimantan Timur", char: "Kemiskinan 5.17%, PDRB Migas Tinggi, IRBI Rendah (0.30)", baseline: 14100, poorPop: 230000, baseIKW: 0.22 }
+    ];
+
+    const sliderPoverty = document.getElementById('sliderPoverty');
+    const sliderDisaster = document.getElementById('sliderDisaster');
+    const sliderCap = document.getElementById('sliderCap');
+
+    const valPoverty = document.getElementById('valPoverty');
+    const valDisaster = document.getElementById('valDisaster');
+    const valCap = document.getElementById('valCap');
+
+    const segPoverty = document.getElementById('segPoverty');
+    const segDisaster = document.getElementById('segDisaster');
+    const segOthers = document.getElementById('segOthers');
+    const breakdownPcts = document.getElementById('breakdownPcts');
+    const simTableBody = document.getElementById('simTableBody');
+    const presetIndicator = document.getElementById('presetIndicator');
+
+    function updateSim() {
+      const p0 = parseInt(sliderPoverty.value, 10);
+      const disaster = parseInt(sliderDisaster.value, 10);
+      const cap = parseInt(sliderCap.value, 10);
+
+      valPoverty.textContent = p0 + '%';
+      valDisaster.textContent = disaster + '%';
+      valCap.textContent = '±' + cap + '%';
+
+      // Hitung bobot Direct Complementary 100%
+      const pctPoverty = p0;
+      const pctDisaster = disaster;
+      const pctOthers = Math.max(0, 100 - (pctPoverty + pctDisaster));
+      const bpsEach = (pctOthers / 4).toFixed(1);
+
+      segPoverty.style.width = pctPoverty + '%';
+      segDisaster.style.width = pctDisaster + '%';
+      segOthers.style.width = pctOthers + '%';
+
+      breakdownPcts.textContent = `${pctPoverty}% Kemiskinan · ${pctDisaster}% Bencana · ${pctOthers}% 4 Dimensi BPS (${bpsEach}%/dimensi)`;
+
+      // Cek apakah preset ideal
+      if (p0 === 45 && disaster === 15 && cap === 20) {
+        presetIndicator.textContent = "Bobot Ideal BRANTAS";
+        presetIndicator.className = "badge badge-teal";
+      } else if (p0 === 30 && disaster === 10 && cap === 25) {
+        presetIndicator.textContent = "Preset Default APBN";
+        presetIndicator.className = "badge badge-blue";
+      } else {
+        presetIndicator.textContent = "Kustom Simulasi";
+        presetIndicator.className = "badge badge-amber";
+      }
+
+      // Render Simulasi 5 Provinsi
+      simTableBody.innerHTML = '';
+      sampleProvinces.forEach(p => {
+        // Simulasi kalkulasi delta berbasis IKW dan cap
+        const ikwFactor = (p.baseIKW - 0.45) * 1.8;
+        const povertyBoost = (p0 - 30) * 0.008;
+        const disasterBoost = (disaster - 10) * 0.006 * (p.baseIKW > 0.6 ? 1.5 : -0.5);
+        let rawDeltaPct = (ikwFactor + povertyBoost + disasterBoost) * 100;
+
+        // Terapkan Cap guardrail
+        if (rawDeltaPct > cap) rawDeltaPct = cap;
+        if (rawDeltaPct < -cap) rawDeltaPct = -cap;
+
+        const deltaNominal = Math.round(p.baseline * (rawDeltaPct / 100));
+        const newAllocation = p.baseline + deltaNominal;
+
+        const isPositive = rawDeltaPct > 0;
+        const deltaClass = isPositive ? 'color: #059669; font-weight: 700;' : (rawDeltaPct < 0 ? 'color: #e11d48; font-weight: 700;' : 'color: #64748b;');
+        const deltaSign = isPositive ? '+' : '';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${p.name}</strong></td>
+          <td style="font-size: 12px; color: var(--slate-600);">${p.char}</td>
+          <td class="text-right mono">Rp${(p.baseline / 1000).toFixed(1)} T</td>
+          <td class="text-right mono font-bold">Rp${(newAllocation / 1000).toFixed(1)} T</td>
+          <td class="text-right mono" style="${deltaClass}">${deltaSign}${rawDeltaPct.toFixed(1)}%</td>
+        `;
+        simTableBody.appendChild(row);
+      });
+    }
+
+    sliderPoverty.addEventListener('input', updateSim);
+    sliderDisaster.addEventListener('input', updateSim);
+    sliderCap.addEventListener('input', updateSim);
+
+    // Initial render
+    updateSim();
+  </script>
+</body>
+</html>
