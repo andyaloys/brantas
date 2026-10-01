@@ -32,6 +32,18 @@ export class CausalPageComponent implements OnInit, OnDestroy {
 
   private chartInstance?: echarts.ECharts;
 
+  protected readonly activeTab = signal<'causal' | 'asp'>('causal');
+
+  protected setTab(tab: 'causal' | 'asp'): void {
+    this.activeTab.set(tab);
+    if (tab === 'causal') {
+      setTimeout(() => {
+        this.renderChart();
+        this.chartInstance?.resize();
+      }, 60);
+    }
+  }
+
   protected readonly result = signal<CausalResult | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly isLoading = signal<boolean>(true);

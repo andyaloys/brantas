@@ -25,8 +25,58 @@
     <p>{{ error() }}</p>
   </section>
 } @else if (result(); as data) {
-  <!-- 4 Core High-Impact KPIs Grid -->
-  <section class="executive-kpi-grid" aria-label="Ringkasan dampak kebijakan fiskal">
+  <!-- Executive Causal Evaluation Tab Switcher Bar -->
+  <section class="dashboard-tab-bar" aria-label="Navigasi Tab Modul Evaluasi Dampak">
+    <div class="tab-pill-group">
+      <button
+        type="button"
+        class="tab-nav-btn"
+        [class.active]="activeTab() === 'causal'"
+        (click)="setTab('causal')">
+        <i class="pi pi-chart-line"></i>
+        <span>Evaluasi Kausal Anggaran (DiD)</span>
+        <span class="tab-count-badge teal">38 Provinsi</span>
+        @if (activeTab() === 'causal') {
+          <span class="active-dot"></span>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="tab-nav-btn"
+        [class.active]="activeTab() === 'asp'"
+        (click)="setTab('asp')">
+        <i class="pi pi-shield"></i>
+        <span>Perlindungan Sosial Adaptif (ASP)</span>
+        <span class="tab-count-badge amber">10 Daerah Rawan</span>
+        @if (activeTab() === 'asp') {
+          <span class="active-dot"></span>
+        }
+      </button>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 1: EVALUASI KAUSAL ANGGARAN (DiD) ==================== -->
+  @if (activeTab() === 'causal') {
+    <div class="tab-content-view tab-fade-in">
+      <!-- Banner Penjelasan Tab 1: Evaluasi Kausal Anggaran -->
+      <div class="tab-explainer-banner banner-teal">
+        <div class="explainer-banner-icon teal">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="explainer-banner-content">
+          <div class="explainer-banner-head">
+            <h3>Metodologi Difference-in-Differences (DiD) Evaluasi Kebijakan Bansos</h3>
+            <span class="explainer-badge teal">TERUJI ILMIAH &amp; STANDAR EMAS</span>
+          </div>
+          <p>
+            Menganalisis dampak bersih penambahan alokasi belanja bansos afirmatif di <strong>{{ data.treatedRegionCount }} provinsi prioritas</strong> terhadap <strong>{{ data.controlRegionCount }} provinsi pembanding</strong>. Membandingkan trajektori laju penurunan kemiskinan sebelum dan sesudah kebijakan intervensi fiskal (TA 2020–2026).
+          </p>
+        </div>
+      </div>
+
+      <!-- 4 Core High-Impact KPIs Grid -->
+      <section class="executive-kpi-grid" aria-label="Ringkasan dampak kebijakan fiskal">
     <!-- KPI 1: Laju Penurunan Kemiskinan -->
     <article class="kpi-card kpi-teal">
       <div class="kpi-top">
@@ -216,12 +266,32 @@
       </div>
     </article>
   </section>
+    </div>
+  }
 
-  <!-- Panel Perlindungan Sosial Adaptif (Adaptive Social Protection - Kebencanaan) -->
-  @if (data.adaptiveSocialProtection; as asp) {
-    <section class="panel result-panel asp-panel" aria-label="Dimensi Perlindungan Sosial Adaptif Kebencanaan">
-      <!-- 1. Header Panel Berpita Standar BRANTAS (Sesuai Menu Simulasi & Audit) -->
-      <header class="panel-head ribbon-teal">
+  <!-- ==================== TAB 2: PERLINDUNGAN SOSIAL ADAPTIF (ASP) ==================== -->
+  @if (activeTab() === 'asp') {
+    <div class="tab-content-view tab-fade-in">
+      @if (data.adaptiveSocialProtection; as asp) {
+        <!-- Banner Penjelasan Tab 2: Perlindungan Sosial Adaptif -->
+        <div class="tab-explainer-banner banner-amber">
+          <div class="explainer-banner-icon amber">
+            <i class="pi pi-shield"></i>
+          </div>
+          <div class="explainer-banner-content">
+            <div class="explainer-banner-head">
+              <h3>Kerangka Kerja Perlindungan Sosial Adaptif (Adaptive Social Protection)</h3>
+              <span class="explainer-badge amber">SHOCK-RESPONSIVE BUFFER</span>
+            </div>
+            <p>
+              Mengintegrasikan jaring pengaman sosial dengan mitigasi risiko bencana alam berbasis <strong>Indeks Risiko Bencana Indonesia (IRBI) BNPB</strong> di {{ asp.highRiskTreatedCount }} provinsi prioritas untuk mencegah guncangan kemiskinan pascabencana hidrometeorologi &amp; gempa tektonik.
+            </p>
+          </div>
+        </div>
+
+        <section class="panel result-panel asp-panel" aria-label="Dimensi Perlindungan Sosial Adaptif Kebencanaan">
+          <!-- 1. Header Panel Berpita Standar BRANTAS (Sesuai Menu Simulasi & Audit) -->
+          <header class="panel-head ribbon-teal">
         <div class="panel-titles">
           <span class="badge-accent teal"><i class="pi pi-shield"></i> ADAPTIVE SOCIAL PROTECTION (ASP)</span>
           <h2>Dimensi Perlindungan Sosial Adaptif Kebencanaan</h2>
@@ -422,5 +492,7 @@
         </div>
       </div>
     </section>
+      }
+    </div>
   }
 }

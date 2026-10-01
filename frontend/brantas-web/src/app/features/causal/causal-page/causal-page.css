@@ -70,6 +70,264 @@
 }
 
 /* =========================================================================
+   EXECUTIVE CAUSAL TAB SWITCHER BAR
+   ========================================================================= */
+.dashboard-tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 2px;
+  margin-bottom: 14px;
+  padding: 5px 12px;
+  background: #0b1120;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.tab-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.tab-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(45, 212, 191, 0.3);
+  color: #f8fafc;
+}
+
+.tab-nav-btn.active {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25) 0%, rgba(2, 132, 199, 0.25) 100%);
+  border-color: #2dd4bf;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(45, 212, 191, 0.25);
+}
+
+.tab-nav-btn i {
+  color: #2dd4bf;
+  font-size: 13px;
+}
+
+.tab-count-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1.5px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+}
+
+.tab-nav-btn.active .tab-count-badge.teal {
+  background: rgba(45, 212, 191, 0.2);
+  border-color: rgba(45, 212, 191, 0.4);
+  color: #2dd4bf;
+}
+
+.tab-nav-btn.active .tab-count-badge.amber {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.active-dot {
+  width: 5px;
+  height: 5px;
+  background: #2dd4bf;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #2dd4bf;
+}
+
+.tab-content-view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tab-fade-in {
+  animation: tabFadeIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tabFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================================
+   MODULAR TAB EXPLAINER BANNERS
+   ========================================================================= */
+.tab-explainer-banner {
+  display: flex;
+  gap: 14px;
+  padding: 13px 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+  align-items: flex-start;
+}
+
+.explainer-banner-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.explainer-banner-content {
+  flex: 1;
+}
+
+.explainer-banner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.explainer-banner-head h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.explainer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2.5px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.tab-explainer-banner p {
+  font-size: 12.5px;
+  color: #334155;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.tab-explainer-banner p strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* Banner Teal (DiD Evaluation) */
+.tab-explainer-banner.banner-teal {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
+  border: 1px solid rgba(20, 184, 166, 0.28);
+}
+.explainer-banner-icon.teal {
+  background: rgba(20, 184, 166, 0.14);
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  color: #0f766e;
+}
+.explainer-badge.teal {
+  background: rgba(20, 184, 166, 0.12);
+  color: #0f766e;
+  border: 1px solid rgba(20, 184, 166, 0.28);
+}
+
+/* Banner Amber (Adaptive Social Protection) */
+.tab-explainer-banner.banner-amber {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+.explainer-banner-icon.amber {
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #b45309;
+}
+.explainer-badge.amber {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+/* Dark Mode Overrides */
+[data-theme='dark'] .tab-explainer-banner.banner-teal {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+}
+[data-theme='dark'] .tab-explainer-banner.banner-teal .explainer-banner-head h3,
+[data-theme='dark'] .tab-explainer-banner.banner-teal p strong {
+  color: #f8fafc;
+}
+[data-theme='dark'] .tab-explainer-banner.banner-teal p {
+  color: #cbd5e1;
+}
+[data-theme='dark'] .explainer-banner-icon.teal {
+  background: rgba(45, 212, 191, 0.2);
+  border-color: rgba(45, 212, 191, 0.5);
+  color: #2dd4bf;
+}
+[data-theme='dark'] .explainer-badge.teal {
+  background: rgba(45, 212, 191, 0.2);
+  color: #2dd4bf;
+  border-color: rgba(45, 212, 191, 0.4);
+}
+
+[data-theme='dark'] .tab-explainer-banner.banner-amber {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+[data-theme='dark'] .tab-explainer-banner.banner-amber .explainer-banner-head h3,
+[data-theme='dark'] .tab-explainer-banner.banner-amber p strong {
+  color: #f8fafc;
+}
+[data-theme='dark'] .tab-explainer-banner.banner-amber p {
+  color: #cbd5e1;
+}
+[data-theme='dark'] .explainer-banner-icon.amber {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+[data-theme='dark'] .explainer-badge.amber {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* =========================================================================
    4 CORE HIGH-IMPACT KPIS GRID (Matches Anomaly & Optimization)
    ========================================================================= */
 .executive-kpi-grid {
