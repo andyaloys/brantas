@@ -102,10 +102,10 @@
         </div>
 
         <div class="topbar-right">
-          <!-- Real-Time Executive Clock -->
+          <!-- Real-Time Executive Clock (Bahasa Indonesia) -->
           <div class="clock-chip">
             <i class="pi pi-clock"></i>
-            <span>{{ kiosk.currentDateTime() | date:'EEEE, dd MMM yyyy · HH:mm:ss' }} WIB</span>
+            <span>{{ kiosk.formattedIndonesianDateTime() }}</span>
           </div>
 
           <div class="period-chip">
@@ -129,25 +129,64 @@
             <span>Mode Tayang Eksekutif</span>
           </button>
 
-          <!-- Executive User Chip & Logout Button -->
-          <div class="user-chip" [title]="'Sesi Aktif: ' + (auth.currentUser()?.name || 'Administrator')">
-            <div class="user-avatar-mini">
-              <i class="pi pi-user"></i>
-            </div>
-            <div class="user-meta">
-              <span class="user-name-text">{{ auth.currentUser()?.name || 'Administrator' }}</span>
-              <span class="user-role-badge">JURI / ADMIN</span>
-            </div>
-          </div>
+          <!-- Executive User Profile Menu Dropdown (integrating Logout) -->
+          <div class="user-profile-menu-container">
+            <button
+              type="button"
+              class="user-profile-btn"
+              (click)="toggleProfileMenu($event)"
+              [class.active]="isProfileMenuOpen()"
+              [attr.aria-expanded]="isProfileMenuOpen()"
+              title="Menu Profil & Sesi Pengguna">
+              <div class="user-avatar-mini">
+                <i class="pi pi-user"></i>
+              </div>
+              <div class="user-meta">
+                <span class="user-name-text">{{ auth.currentUser()?.name || 'Administrator' }}</span>
+                <span class="user-role-badge">JURI / ADMIN</span>
+              </div>
+              <i class="pi pi-chevron-down profile-chevron" [class.rotated]="isProfileMenuOpen()"></i>
+            </button>
 
-          <button
-            type="button"
-            class="btn-logout"
-            (click)="auth.logout()"
-            title="Keluar dari Portal Eksekutif (Logout)">
-            <i class="pi pi-sign-out"></i>
-            <span>Keluar</span>
-          </button>
+            @if (isProfileMenuOpen()) {
+              <div class="user-dropdown-popover" (click)="$event.stopPropagation()">
+                <div class="user-dropdown-header">
+                  <div class="user-avatar-large">
+                    <i class="pi pi-user"></i>
+                  </div>
+                  <div class="user-dropdown-info">
+                    <div class="user-dropdown-name">{{ auth.currentUser()?.name || 'Administrator' }}</div>
+                    <div class="user-dropdown-email">{{ auth.currentUser()?.username || 'admin' }}&#64;lan.go.id</div>
+                    <span class="user-role-pill">JURI / ADMIN</span>
+                  </div>
+                </div>
+
+                <div class="user-dropdown-section">
+                  <div class="session-status-row">
+                    <div class="session-dot-wrap">
+                      <span class="pulse-emerald"></span>
+                      <span class="session-label">Sesi Terautentikasi</span>
+                    </div>
+                    <span class="session-time-badge">Maks. 60 Menit</span>
+                  </div>
+                  <div class="session-hint">Sesi akan otomatis berakhir jika browser ditutup atau tidak ada aktivitas.</div>
+                </div>
+
+                <div class="user-dropdown-divider"></div>
+
+                <div class="user-dropdown-actions">
+                  <button
+                    type="button"
+                    class="btn-dropdown-logout"
+                    (click)="handleLogout()"
+                    title="Keluar dari Portal Eksekutif">
+                    <i class="pi pi-sign-out"></i>
+                    <span>Keluar dari Sistem</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
         </div>
       </header>
     } @else {

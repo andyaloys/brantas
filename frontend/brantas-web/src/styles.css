@@ -18,23 +18,23 @@
   --bg-sidebar-hover: #f1f5f9;
   --bg-topbar: rgba(255, 255, 255, 0.95);
 
-  /* Primary Sovereign Executive Accents (Prestigious Forest & Emerald Green) */
-  --primary-50: #f0fdf4;
-  --primary-100: #dcfce7;
-  --primary-200: #bbf7d0;
-  --primary-400: #4ade80;
-  --primary-500: #16a34a;
-  --primary-600: #15803d;
-  --primary-700: #166534;
-  --primary-900: #14532d;
-  --primary-gradient: linear-gradient(135deg, #15803d 0%, #166534 100%);
-  --accent-cyan: #059669;
+  /* Primary Sovereign Executive Accents (Prestigious BRANTAS Emerald & Deep Oceanic Teal) */
+  --primary-50: #f0fdfa;
+  --primary-100: #ccfbf1;
+  --primary-200: #99f6e4;
+  --primary-400: #2dd4bf;
+  --primary-500: #14b8a6;
+  --primary-600: #0d9488;
+  --primary-700: #0f766e;
+  --primary-900: #042f2e;
+  --primary-gradient: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  --accent-cyan: #0d9488;
 
   /* High-Contrast Semantic State Colors for Light Mode */
   --accent-blue: #0284c7;
   --accent-amber: #d97706;
   --accent-rose: #e11d48;
-  --accent-emerald: #15803d;
+  --accent-emerald: #0d9488;
   --accent-indigo: #4338ca;
   --accent-purple: #7e22ce;
 
@@ -48,7 +48,7 @@
   /* Modern Subtle Borders & Dividers */
   --border-subtle: #e2e8f0;      /* Slate 200 */
   --border-light: #f1f5f9;       /* Slate 100 */
-  --border-focus: #15803d;
+  --border-focus: #0d9488;
   --border-glass: #e2e8f0;
   
   /* Crisp Modern Shadows */
@@ -57,7 +57,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-glow-teal: 0 4px 14px rgba(21, 128, 61, 0.16);
+  --shadow-glow-teal: 0 4px 14px rgba(13, 148, 136, 0.2);
   --shadow-glow-blue: 0 4px 14px rgba(15, 23, 42, 0.06);
 
   --radius-xs: 4px;
@@ -191,7 +191,7 @@ body.theme-light .brand-text strong,
 
 body.theme-light .brand-text small,
 [data-theme='light'] .brand-text small {
-  color: #15803d !important;
+  color: #0d9488 !important;
   font-weight: 700 !important;
 }
 
@@ -205,9 +205,9 @@ body.theme-light .btn-toggle-sidebar,
 
 body.theme-light .btn-toggle-sidebar:hover,
 [data-theme='light'] .btn-toggle-sidebar:hover {
-  background: #f0fdf4 !important;
-  border-color: #bbf7d0 !important;
-  color: #15803d !important;
+  background: #f0fdfa !important;
+  border-color: #99f6e4 !important;
+  color: #0d9488 !important;
 }
 
 body.theme-light .nav-section-title,
@@ -232,20 +232,20 @@ body.theme-light .nav-item i,
 body.theme-light .nav-item:hover,
 [data-theme='light'] .nav-item:hover {
   background: #f8fafc !important;
-  color: #15803d !important;
+  color: #0d9488 !important;
   box-shadow: none !important;
 }
 
 body.theme-light .nav-item:hover i,
 [data-theme='light'] .nav-item:hover i {
-  color: #15803d !important;
+  color: #0d9488 !important;
 }
 
 body.theme-light .nav-item.active,
 [data-theme='light'] .nav-item.active {
-  background: #15803d !important;
+  background: #0d9488 !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.22) !important;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25) !important;
   font-weight: 700 !important;
   border-left: none !important;
 }
@@ -274,9 +274,9 @@ body.theme-light .nav-badge-warn,
 
 body.theme-light .nav-badge-gis,
 [data-theme='light'] .nav-badge-gis {
-  background: #f0fdf4 !important;
-  color: #15803d !important;
-  border: 1px solid #bbf7d0 !important;
+  background: #f0fdfa !important;
+  color: #0d9488 !important;
+  border: 1px solid #99f6e4 !important;
 }
 
 body.theme-light .sidebar-footer,
@@ -299,11 +299,11 @@ body.theme-light .role-info strong,
 
 body.theme-light .role-info small,
 [data-theme='light'] .role-info small {
-  color: #15803d !important;
+  color: #0d9488 !important;
   font-weight: 600 !important;
 }
 
-/* Topbar in Light Mode */
+/* Topbar in Light Mode - Harmonized Sovereign Emerald Elements */
 body.theme-light .topbar,
 [data-theme='light'] .topbar {
   background: rgba(255, 255, 255, 0.95) !important;
@@ -313,9 +313,10 @@ body.theme-light .topbar,
 
 body.theme-light .portal-tag,
 [data-theme='light'] .portal-tag {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(13, 148, 136, 0.22) !important;
   color: #0d9488 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
 }
 
 body.theme-light .search-command-pill,
@@ -330,12 +331,12 @@ body.theme-light .clock-chip,
 body.theme-light .period-chip,
 [data-theme='light'] .period-chip {
   background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
+  border: 1px solid rgba(13, 148, 136, 0.22) !important;
   color: #1e293b !important;
   font-family: var(--font-main) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
 }
 
 body.theme-light .clock-chip i,
@@ -354,22 +355,43 @@ body.theme-light .period-chip strong,
 
 body.theme-light .btn-theme-toggle,
 [data-theme='light'] .btn-theme-toggle {
-  background: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(13, 148, 136, 0.22) !important;
+  color: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+body.theme-light .btn-theme-toggle i,
+[data-theme='light'] .btn-theme-toggle i {
+  color: #0d9488 !important;
 }
 
 body.theme-light .btn-theme-toggle:hover,
 [data-theme='light'] .btn-theme-toggle:hover {
-  background: #e2e8f0 !important;
-  color: #15803d !important;
+  background: #f0fdfa !important;
+  border-color: #0d9488 !important;
+  color: #0d9488 !important;
 }
 
 body.theme-light .btn-kiosk-trigger,
 [data-theme='light'] .btn-kiosk-trigger {
-  background: #15803d !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25) !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(13, 148, 136, 0.22) !important;
+  color: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+body.theme-light .btn-kiosk-trigger i,
+[data-theme='light'] .btn-kiosk-trigger i {
+  color: #0d9488 !important;
+}
+
+body.theme-light .btn-kiosk-trigger:hover,
+[data-theme='light'] .btn-kiosk-trigger:hover {
+  background: #f0fdfa !important;
+  border-color: #0d9488 !important;
+  color: #0d9488 !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.18) !important;
 }
 
 /* Dashboard Tab Bar */
@@ -389,10 +411,10 @@ body.theme-light .tab-nav-btn,
 
 body.theme-light .tab-nav-btn.active,
 [data-theme='light'] .tab-nav-btn.active {
-  background: #f0fdf4 !important;
-  border-color: #15803d !important;
-  color: #15803d !important;
-  box-shadow: 0 1px 4px rgba(21, 128, 61, 0.15) !important;
+  background: #f0fdfa !important;
+  border-color: #0d9488 !important;
+  color: #0d9488 !important;
+  box-shadow: 0 1px 4px rgba(13, 148, 136, 0.15) !important;
 }
 
 /* AI Executive Briefing Strip */
@@ -400,7 +422,7 @@ body.theme-light .executive-briefing-strip,
 [data-theme='light'] .executive-briefing-strip {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
-  border-left: 4px solid #15803d !important;
+  border-left: 4px solid #0d9488 !important;
   box-shadow: var(--shadow-sm) !important;
 }
 
@@ -411,7 +433,7 @@ body.theme-light .briefing-header,
 
 body.theme-light .briefing-title,
 [data-theme='light'] .briefing-title {
-  color: #15803d !important;
+  color: #0d9488 !important;
   font-weight: 800 !important;
 }
 
@@ -424,9 +446,9 @@ body.theme-light .briefing-tag,
 
 body.theme-light .briefing-item .item-num,
 [data-theme='light'] .briefing-item .item-num {
-  background: #f0fdf4 !important;
-  border: 1px solid #bbf7d0 !important;
-  color: #15803d !important;
+  background: #f0fdfa !important;
+  border: 1px solid #99f6e4 !important;
+  color: #0d9488 !important;
 }
 
 body.theme-light .briefing-item .item-content strong,
@@ -443,18 +465,18 @@ body.theme-light .briefing-item .item-content p,
 /* Executive Hero Banner */
 body.theme-light .executive-hero,
 [data-theme='light'] .executive-hero {
-  background: linear-gradient(135deg, #14532d 0%, #15803d 100%) !important;
+  background: linear-gradient(135deg, #022c22 0%, #042f2e 45%, #0f766e 100%) !important;
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 4px 16px rgba(21, 128, 61, 0.18) !important;
+  border: 1px solid rgba(45, 212, 191, 0.35) !important;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.2) !important;
 }
 
 /* Executive Dashboard Header Strip */
 body.theme-light .dashboard-header-strip,
 [data-theme='light'] .dashboard-header-strip {
-  background: linear-gradient(135deg, #14532d 0%, #15803d 100%) !important;
-  border: 1px solid #166534 !important;
-  box-shadow: 0 4px 14px rgba(21, 128, 61, 0.18) !important;
+  background: linear-gradient(135deg, #022c22 0%, #042f2e 45%, #0f766e 100%) !important;
+  border: 1px solid rgba(45, 212, 191, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.18) !important;
   padding: 8px 16px !important;
   margin-bottom: 8px !important;
 }
@@ -464,12 +486,12 @@ body.theme-light .dashboard-header-strip .header-left h1,
   color: #ffffff !important;
   font-weight: 800 !important;
   font-size: 18px !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
 }
 
 body.theme-light .dashboard-header-strip .header-subtitle,
 [data-theme='light'] .dashboard-header-strip .header-subtitle {
-  color: #dcfce7 !important;
+  color: #ccfbf1 !important;
   font-size: 12px !important;
 }
 
@@ -853,12 +875,12 @@ body.theme-light .kpi-card,
 
 body.theme-light .kpi-card.kpi-teal,
 [data-theme='light'] .kpi-card.kpi-teal {
-  border-top: 3px solid #15803d !important;
+  border-top: 3px solid #0d9488 !important;
 }
 
 body.theme-light .kpi-teal .kpi-icon,
 [data-theme='light'] .kpi-teal .kpi-icon {
-  background: #15803d !important;
+  background: #0d9488 !important;
   color: #ffffff !important;
 }
 
@@ -875,12 +897,12 @@ body.theme-light .kpi-blue .kpi-icon,
 
 body.theme-light .kpi-card.kpi-emerald,
 [data-theme='light'] .kpi-card.kpi-emerald {
-  border-top: 3px solid #15803d !important;
+  border-top: 3px solid #0d9488 !important;
 }
 
 body.theme-light .kpi-emerald .kpi-icon,
 [data-theme='light'] .kpi-emerald .kpi-icon {
-  background: #15803d !important;
+  background: #0d9488 !important;
   color: #ffffff !important;
 }
 

@@ -66,8 +66,39 @@ export class AppShellComponent {
     this.isSidebarPinned.update(val => !val);
   }
 
+  // State untuk dropdown menu profil pengguna di header
+  protected readonly isProfileMenuOpen = signal(false);
+
+  protected toggleProfileMenu(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.isProfileMenuOpen.update(open => !open);
+  }
+
+  protected closeProfileMenu(): void {
+    this.isProfileMenuOpen.set(false);
+  }
+
+  protected handleLogout(): void {
+    this.closeProfileMenu();
+    this.auth.logout();
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.isProfileMenuOpen()) {
+      this.isProfileMenuOpen.set(false);
+    }
+  }
+
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
+    if (event.code === 'Escape' && this.isProfileMenuOpen()) {
+      this.closeProfileMenu();
+      return;
+    }
+
     if (this.kiosk.isKioskActive()) {
       if (event.code === 'Space') {
         event.preventDefault();

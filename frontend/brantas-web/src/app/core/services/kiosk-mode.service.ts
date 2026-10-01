@@ -18,6 +18,21 @@ export class KioskModeService {
   readonly remainingSeconds = signal(15);
   readonly currentDateTime = signal(new Date());
 
+  private static readonly DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  private static readonly MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+  readonly formattedIndonesianDateTime = computed(() => {
+    const d = this.currentDateTime();
+    const dayName = KioskModeService.DAYS_ID[d.getDay()];
+    const dateNum = String(d.getDate()).padStart(2, '0');
+    const monthName = KioskModeService.MONTHS_ID[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${dayName}, ${dateNum} ${monthName} ${year} · ${hours}:${minutes}:${seconds} WIB`;
+  });
+
   // State untuk membekukan (freeze) waktu slide saat kursor menyorot data / workspace
   readonly isHoveringData = signal(false);
   readonly isTimerFrozen = computed(() => this.isKioskActive() && this.isHoveringData());
