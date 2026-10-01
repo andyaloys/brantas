@@ -70,6 +70,110 @@
   flex-shrink: 0;
 }
 
+.executive-kpi-grid.beneficiary-kpi-grid {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+/* Clickable and Active States for KPI Filter Cards */
+.kpi-card.clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.kpi-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-card.clickable.active {
+  box-shadow: 0 0 0 2.5px var(--kpi-active-ring, #0f766e), 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+.kpi-card.clickable.active.kpi-rose {
+  --kpi-active-ring: #e11d48;
+  border-color: #fca5a5 !important;
+}
+
+.kpi-card.clickable.active.kpi-amber {
+  --kpi-active-ring: #d97706;
+  border-color: #fcd34d !important;
+}
+
+.kpi-card.clickable.active.kpi-blue {
+  --kpi-active-ring: #0284c7;
+  border-color: #93c5fd !important;
+}
+
+.kpi-card.clickable.active.kpi-teal {
+  --kpi-active-ring: #0f766e;
+  border-color: #5eead4 !important;
+}
+
+.kpi-card.clickable.active.kpi-purple {
+  --kpi-active-ring: #9333ea;
+  border-color: #d8b4fe !important;
+}
+
+.kpi-card.clickable.active.kpi-indigo {
+  --kpi-active-ring: #4f46e5;
+  border-color: #a5b4fc !important;
+}
+
+[data-theme='dark'] .kpi-card.clickable:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .kpi-card.clickable.active {
+  box-shadow: 0 0 0 2.5px var(--kpi-active-ring, #2dd4bf), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme='dark'] .kpi-card.clickable.active.kpi-rose {
+  --kpi-active-ring: #fb7185;
+}
+
+[data-theme='dark'] .kpi-card.clickable.active.kpi-amber {
+  --kpi-active-ring: #fbbf24;
+}
+
+[data-theme='dark'] .kpi-card.clickable.active.kpi-blue {
+  --kpi-active-ring: #38bdf8;
+}
+
+[data-theme='dark'] .kpi-card.clickable.active.kpi-teal {
+  --kpi-active-ring: #2dd4bf;
+}
+
+[data-theme='dark'] .kpi-card.clickable.active.kpi-purple {
+  --kpi-active-ring: #c084fc;
+}
+
+[data-theme='dark'] .kpi-card.clickable.active.kpi-indigo {
+  --kpi-active-ring: #818cf8;
+}
+
+@media (max-width: 1200px) {
+  .executive-kpi-grid.beneficiary-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .executive-kpi-grid,
+  .executive-kpi-grid.beneficiary-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .executive-kpi-grid,
+  .executive-kpi-grid.beneficiary-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Executive Anomaly Tab Switcher Bar */
 .dashboard-tab-bar {
   display: flex;

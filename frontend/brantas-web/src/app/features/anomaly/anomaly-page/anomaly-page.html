@@ -41,9 +41,7 @@
         (click)="setTab('beneficiary')">
         <i class="pi pi-users"></i>
         <span>Integritas Data Mikro (P3KE/DTKS)</span>
-        @if (beneficiarySummary(); as ben) {
-          <span class="tab-count-badge teal">{{ ben.totalBeneficiaries.toLocaleString('id-ID') }}</span>
-        }
+        <span class="tab-count-badge teal">{{ countFilterCategory('all') }}</span>
         @if (activeTab() === 'beneficiary') {
           <span class="active-dot"></span>
         }
@@ -89,7 +87,7 @@
         </div>
         <div class="explainer-banner-content">
           <div class="explainer-banner-title">
-            <strong>Tentang Modul Anomali Anggaran Daerah (Analisis Residual)</strong>
+            <strong>Anomali Anggaran Daerah</strong>
             <span class="explainer-tag rose"><i class="pi pi-info-circle"></i> Ekonometrika Residual Fiskal</span>
           </div>
           <p class="explainer-banner-desc">
@@ -98,10 +96,14 @@
         </div>
       </div>
 
-      <!-- 4 Kartu KPI Fiskal (Khusus Tab 1) -->
+      <!-- 4 Kartu KPI Fiskal (Filter Otomatis Saat Diklik) -->
       <section class="executive-kpi-grid" aria-label="Ringkasan anomali fiskal">
         <!-- KPI 1: Temuan Terdeteksi -->
-        <article class="kpi-card kpi-rose">
+        <article
+          class="kpi-card kpi-rose clickable"
+          [class.active]="fiscalFilter() === 'all'"
+          (click)="setFiscalFilter('all')"
+          title="Klik untuk menampilkan semua temuan anomali anggaran">
           <div class="kpi-top">
             <span class="kpi-title">Temuan Terdeteksi</span>
             <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
@@ -111,7 +113,7 @@
             <div class="kpi-bar-fill rose" style="width: 100%"></div>
           </div>
           <div class="kpi-tag-sub rose">
-            <i class="pi pi-exclamation-triangle"></i> Perlu Audit Otoritas
+            <i class="pi pi-filter"></i> {{ fiscalFilter() === 'all' ? 'Aktif: Semua Temuan' : 'Semua Temuan' }}
           </div>
           <div class="kpi-sub">
             <span>Deviasi Formula Kebutuhan Riil APBN</span>
@@ -119,7 +121,11 @@
         </article>
         
         <!-- KPI 2: Alokasi Kurang -->
-        <article class="kpi-card kpi-amber">
+        <article
+          class="kpi-card kpi-amber clickable"
+          [class.active]="fiscalFilter() === 'under'"
+          (click)="setFiscalFilter('under')"
+          title="Klik untuk filter hanya temuan Alokasi Kurang">
           <div class="kpi-top">
             <span class="kpi-title">Alokasi Kurang</span>
             <div class="kpi-icon"><i class="pi pi-arrow-down-right"></i></div>
@@ -129,7 +135,7 @@
             <div class="kpi-bar-fill amber" [style.width.%]="(data.underAllocationCount / (data.totalCount || 1)) * 100"></div>
           </div>
           <div class="kpi-tag-sub amber">
-            <i class="pi pi-arrow-down-right"></i> Alokasi di Bawah Kebutuhan
+            <i class="pi pi-arrow-down-right"></i> {{ fiscalFilter() === 'under' ? 'Aktif: Alokasi Kurang' : 'Filter: Alokasi Kurang' }}
           </div>
           <div class="kpi-sub">
             <span>Defisit Belanja Daerah vs Kemiskinan Ekstrem</span>
@@ -137,7 +143,11 @@
         </article>
         
         <!-- KPI 3: Alokasi Berlebih -->
-        <article class="kpi-card kpi-blue">
+        <article
+          class="kpi-card kpi-blue clickable"
+          [class.active]="fiscalFilter() === 'over'"
+          (click)="setFiscalFilter('over')"
+          title="Klik untuk filter hanya temuan Alokasi Berlebih">
           <div class="kpi-top">
             <span class="kpi-title">Alokasi Berlebih</span>
             <div class="kpi-icon"><i class="pi pi-arrow-up-right"></i></div>
@@ -147,7 +157,7 @@
             <div class="kpi-bar-fill blue" [style.width.%]="(data.overAllocationCount / (data.totalCount || 1)) * 100"></div>
           </div>
           <div class="kpi-tag-sub blue">
-            <i class="pi pi-arrow-up-right"></i> Alokasi Melebihi Plafon
+            <i class="pi pi-arrow-up-right"></i> {{ fiscalFilter() === 'over' ? 'Aktif: Alokasi Berlebih' : 'Filter: Alokasi Berlebih' }}
           </div>
           <div class="kpi-sub">
             <span>Potensi Relokasi Efisiensi Belanja Daerah</span>
@@ -155,7 +165,11 @@
         </article>
         
         <!-- KPI 4: Total Nilai Berisiko -->
-        <article class="kpi-card kpi-teal" [title]="'Nominal Lengkap: ' + formatCurrency(data.totalValueAtRisk).full">
+        <article
+          class="kpi-card kpi-teal clickable"
+          [class.active]="fiscalFilter() === 'var'"
+          (click)="setFiscalFilter('var')"
+          [title]="'Nominal Lengkap: ' + formatCurrency(data.totalValueAtRisk).full + ' (Klik untuk urutkan nilai berisiko tertinggi)'">
           <div class="kpi-top">
             <span class="kpi-title">Total Nilai Berisiko</span>
             <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
@@ -165,40 +179,25 @@
             <div class="kpi-bar-fill teal" style="width: 100%"></div>
           </div>
           <div class="kpi-tag-sub teal">
-            <i class="pi pi-check"></i> Potensi Inefisiensi Belanja
+            <i class="pi pi-sort-amount-down"></i> {{ fiscalFilter() === 'var' ? 'Aktif: Urutan VaR' : 'Urutkan: Nilai Berisiko' }}
           </div>
           <div class="kpi-sub">
             <span>Estimasi Nilai Berisiko (VaR) APBN</span>
           </div>
         </article>
       </section>
-      @if (anomalies().length > 0) {
-        <!-- Sinergi Data Kebencanaan & Anomali Fiskal -->
-        <div class="disaster-risk-banner">
-          <div class="disaster-banner-icon">
-            <i class="pi pi-shield"></i>
-          </div>
-          <div class="disaster-banner-content">
-            <div class="disaster-banner-title">
-              <strong>Interseksi Kerentanan Bencana (IRBI BNPB) & Ketahanan Fiskal</strong>
-              <span class="disaster-tag-alert"><i class="pi pi-exclamation-triangle"></i> {{ highRiskAnomalyStats().count }} dari {{ anomalies().length }} Wilayah Berisiko Tinggi ({{ highRiskAnomalyStats().percentage }}%)</span>
-            </div>
-            <p class="disaster-banner-desc">
-              Wilayah dengan anomali alokasi di zona kerentanan bencana tinggi rentan mengalami guncangan ganda (<em>double shock</em>). Disarankan penerapan formula bantalan adaptif (<em>Shock-Responsive Social Protection</em>) pada evaluasi alokasi APBN.
-            </p>
-          </div>
-        </div>
 
+      @if (anomalies().length > 0) {
         <section class="panel">
           <header class="panel-head ribbon-rose">
             <div class="panel-titles">
-              <span class="badge-accent rose"><i class="pi pi-bolt"></i> HASIL DETEKSI ANOMALI ANGGARAN (RESIDUAL)</span>
+              <span class="badge-accent rose"><i class="pi pi-bolt"></i> HASIL DETEKSI ANOMALI ANGGARAN</span>
               <div class="heading-row">
                 <h2>Daftar Temuan Prioritas Intervensi</h2>
               </div>
             </div>
             <div class="head-legend">
-              <span class="status-capsule rose"><i class="pi pi-exclamation-triangle"></i> {{ anomalies().length }} Wilayah Teridentifikasi</span>
+              <span class="status-capsule rose"><i class="pi pi-exclamation-triangle"></i> {{ filteredAnomalies().length }} Wilayah Teridentifikasi</span>
             </div>
           </header>
           <div class="table-wrap">
@@ -300,7 +299,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (item of anomalies(); track item.id) {
+                @for (item of filteredAnomalies(); track item.id) {
                   <tr>
                     <td class="col-res-region">
                       <strong>{{ resolveRegion(item.region) }}</strong>
@@ -325,6 +324,15 @@
                     <td class="col-res-var mono font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.valueAtRisk).full">{{ formatCurrency(item.valueAtRisk).compact }}</td>
                     <td class="col-res-desc explanation">{{ formatFiscalExplanation(item) }}</td>
                   </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="table-empty-td">
+                      <div class="table-empty-state">
+                        <i class="pi pi-info-circle"></i>
+                        <span>Tidak ada temuan anomali anggaran untuk kategori filter ini.</span>
+                      </div>
+                    </td>
+                  </tr>
                 }
               </tbody>
             </table>
@@ -346,7 +354,7 @@
         </div>
         <div class="explainer-banner-content">
           <div class="explainer-banner-title">
-            <strong>Tentang Modul Integritas Kepesertaan Mikro (P3KE / DTKS)</strong>
+            <strong>Integritas Kepesertaan Mikro (P3KE / DTKS)</strong>
             <span class="explainer-tag teal"><i class="pi pi-check-circle"></i> Audit Validitas Kependudukan</span>
           </div>
           <p class="explainer-banner-desc">
@@ -354,6 +362,119 @@
           </p>
         </div>
       </div>
+
+      <!-- 5 Kartu KPI Pelanggaran Kepesertaan (Filter Otomatis Saat Diklik) -->
+      <section class="executive-kpi-grid beneficiary-kpi-grid" aria-label="Filter kategori pelanggaran kepesertaan">
+        <!-- Card 1: Total Pelanggaran -->
+        <article
+          class="kpi-card kpi-teal clickable"
+          [class.active]="beneficiaryFilter() === 'all'"
+          (click)="setBeneficiaryFilter('all')"
+          title="Klik untuk menampilkan semua temuan pelanggaran">
+          <div class="kpi-top">
+            <span class="kpi-title">Total Pelanggaran</span>
+            <div class="kpi-icon"><i class="pi pi-users"></i></div>
+          </div>
+          <div class="kpi-num">{{ countFilterCategory('all').toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill teal" style="width: 100%"></div>
+          </div>
+          <div class="kpi-tag-sub teal">
+            <i class="pi pi-list"></i> {{ beneficiaryFilter() === 'all' ? 'Aktif: Semua Kategori' : 'Semua Kategori' }}
+          </div>
+          <div class="kpi-sub">
+            <span>Basis 20.000 Sampel Mikro</span>
+          </div>
+        </article>
+
+        <!-- Card 2: Aset Ekonomi -->
+        <article
+          class="kpi-card kpi-purple clickable"
+          [class.active]="beneficiaryFilter() === 'asset'"
+          (click)="setBeneficiaryFilter('asset')"
+          title="Klik untuk memfilter indikasi kepemilikan aset ekonomi">
+          <div class="kpi-top">
+            <span class="kpi-title">Aset Ekonomi</span>
+            <div class="kpi-icon"><i class="pi pi-car"></i></div>
+          </div>
+          <div class="kpi-num">{{ countFilterCategory('asset').toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill purple" [style.width.%]="(countFilterCategory('asset') / countFilterCategory('all')) * 100"></div>
+          </div>
+          <div class="kpi-tag-sub purple">
+            <i class="pi pi-car"></i> {{ beneficiaryFilter() === 'asset' ? 'Aktif: Aset Ekonomi' : 'Melebihi Batas Desil' }}
+          </div>
+          <div class="kpi-sub">
+            <span>44,4% dari Total Pelanggaran</span>
+          </div>
+        </article>
+
+        <!-- Card 3: ASN / TNI / Polri -->
+        <article
+          class="kpi-card kpi-rose clickable"
+          [class.active]="beneficiaryFilter() === 'asn'"
+          (click)="setBeneficiaryFilter('asn')"
+          title="Klik untuk memfilter penerima aparatur negara aktif">
+          <div class="kpi-top">
+            <span class="kpi-title">ASN / TNI / Polri</span>
+            <div class="kpi-icon"><i class="pi pi-briefcase"></i></div>
+          </div>
+          <div class="kpi-num">{{ countFilterCategory('asn').toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill rose" [style.width.%]="(countFilterCategory('asn') / countFilterCategory('all')) * 100"></div>
+          </div>
+          <div class="kpi-tag-sub rose">
+            <i class="pi pi-briefcase"></i> {{ beneficiaryFilter() === 'asn' ? 'Aktif: ASN / TNI / Polri' : 'Aparatur Negara Aktif' }}
+          </div>
+          <div class="kpi-sub">
+            <span>26,8% dari Total Pelanggaran</span>
+          </div>
+        </article>
+
+        <!-- Card 4: NIK Duplikat -->
+        <article
+          class="kpi-card kpi-amber clickable"
+          [class.active]="beneficiaryFilter() === 'duplicate'"
+          (click)="setBeneficiaryFilter('duplicate')"
+          title="Klik untuk memfilter temuan NIK terdaftar ganda">
+          <div class="kpi-top">
+            <span class="kpi-title">NIK Duplikat</span>
+            <div class="kpi-icon"><i class="pi pi-copy"></i></div>
+          </div>
+          <div class="kpi-num">{{ countFilterCategory('duplicate').toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill amber" [style.width.%]="(countFilterCategory('duplicate') / countFilterCategory('all')) * 100"></div>
+          </div>
+          <div class="kpi-tag-sub amber">
+            <i class="pi pi-copy"></i> {{ beneficiaryFilter() === 'duplicate' ? 'Aktif: NIK Duplikat' : 'Identitas Terdaftar Ganda' }}
+          </div>
+          <div class="kpi-sub">
+            <span>17,7% dari Total Pelanggaran</span>
+          </div>
+        </article>
+
+        <!-- Card 5: Terdata Meninggal -->
+        <article
+          class="kpi-card kpi-indigo clickable"
+          [class.active]="beneficiaryFilter() === 'deceased'"
+          (click)="setBeneficiaryFilter('deceased')"
+          title="Klik untuk memfilter penerima terindikasi telah meninggal">
+          <div class="kpi-top">
+            <span class="kpi-title">Terdata Meninggal</span>
+            <div class="kpi-icon"><i class="pi pi-heart"></i></div>
+          </div>
+          <div class="kpi-num">{{ countFilterCategory('deceased').toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-progress">
+            <div class="kpi-bar-fill indigo" [style.width.%]="(countFilterCategory('deceased') / countFilterCategory('all')) * 100"></div>
+          </div>
+          <div class="kpi-tag-sub indigo">
+            <i class="pi pi-heart"></i> {{ beneficiaryFilter() === 'deceased' ? 'Aktif: Meninggal' : 'Tercatat Kematian Dukcapil' }}
+          </div>
+          <div class="kpi-sub">
+            <span>11,1% dari Total Pelanggaran</span>
+          </div>
+        </article>
+      </section>
 
       @if (beneficiaryFindings().length > 0) {
         <section class="panel">
@@ -365,70 +486,9 @@
               </div>
             </div>
             <div class="head-legend">
-              @if (beneficiarySummary(); as ben) {
-                <span class="status-capsule teal" style="margin-right: 8px;"><i class="pi pi-database"></i> {{ ben.totalBeneficiaries.toLocaleString('id-ID') }} Basis Mikro</span>
-              }
               <span class="status-capsule blue"><i class="pi pi-list"></i> {{ filteredBeneficiaryFindings().length }} Wilayah ({{ totalFilteredCases().toLocaleString('id-ID') }} Kasus)</span>
             </div>
           </header>
-
-          <!-- Interactive Category Filter Pill Bar -->
-          <div class="filter-pill-bar" aria-label="Filter kategori pelanggaran kepesertaan">
-            <div class="filter-label">
-              <i class="pi pi-filter"></i>
-              <span>Filter Pelanggaran:</span>
-            </div>
-            <div class="filter-pills">
-              <button
-                type="button"
-                class="filter-pill"
-                [class.active]="beneficiaryFilter() === 'all'"
-                (click)="setBeneficiaryFilter('all')">
-                <span>Semua Kategori</span>
-                <span class="pill-badge">{{ countFilterCategory('all') }} Kasus</span>
-              </button>
-
-              <button
-                type="button"
-                class="filter-pill pill-purple"
-                [class.active]="beneficiaryFilter() === 'asset'"
-                (click)="setBeneficiaryFilter('asset')">
-                <i class="pi pi-car"></i>
-                <span>Aset Ekonomi</span>
-                <span class="pill-badge purple">{{ countFilterCategory('asset') }} Kasus</span>
-              </button>
-
-              <button
-                type="button"
-                class="filter-pill pill-rose"
-                [class.active]="beneficiaryFilter() === 'asn'"
-                (click)="setBeneficiaryFilter('asn')">
-                <i class="pi pi-briefcase"></i>
-                <span>ASN / TNI / Polri</span>
-                <span class="pill-badge rose">{{ countFilterCategory('asn') }} Kasus</span>
-              </button>
-
-              <button
-                type="button"
-                class="filter-pill pill-amber"
-                [class.active]="beneficiaryFilter() === 'duplicate'"
-                (click)="setBeneficiaryFilter('duplicate')">
-                <i class="pi pi-copy"></i>
-                <span>NIK Duplikat</span>
-                <span class="pill-badge amber">{{ countFilterCategory('duplicate') }} Kasus</span>
-              </button>
-
-              <button
-                type="button"
-                class="filter-pill pill-indigo"
-                [class.active]="beneficiaryFilter() === 'deceased'"
-                (click)="setBeneficiaryFilter('deceased')">
-                <i class="pi pi-heart"></i>
-                <span>Meninggal</span>
-                <span class="pill-badge indigo">{{ countFilterCategory('deceased') }} Kasus</span>
-              </button>
-            </div>
-          </div>
 
           <div class="table-wrap">
             <table class="table-findings">
@@ -620,7 +680,7 @@
         </div>
         <div class="explainer-banner-content">
           <div class="explainer-banner-title">
-            <strong>Tentang Modul Deteksi Anomali AI (Machine Learning Engine)</strong>
+            <strong>Deteksi Anomali AI (Machine Learning Engine)</strong>
             <span class="explainer-tag purple"><i class="pi pi-sparkles"></i> Inferensi ONNX Multidimensi</span>
           </div>
           <p class="explainer-banner-desc">
@@ -736,7 +796,7 @@
         </div>
         <div class="explainer-banner-content">
           <div class="explainer-banner-title">
-            <strong>Tentang Modul Kesenjangan Bantuan (Exclusion Error)</strong>
+            <strong>Kesenjangan Bantuan (Exclusion Error)</strong>
             <span class="explainer-tag amber"><i class="pi pi-info-circle"></i> Perlindungan Keluarga Rentan</span>
           </div>
           <p class="explainer-banner-desc">

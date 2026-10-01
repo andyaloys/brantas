@@ -43,13 +43,42 @@ export class AnomalyPageComponent {
     };
   });
 
+  protected readonly fiscalFilter = signal<string>('all');
+
+  protected setFiscalFilter(filter: string): void {
+    if (this.fiscalFilter() === filter && filter !== 'all') {
+      this.fiscalFilter.set('all');
+    } else {
+      this.fiscalFilter.set(filter);
+    }
+  }
+
+  protected readonly filteredAnomalies = computed(() => {
+    const list = this.anomalies();
+    const filter = this.fiscalFilter();
+    if (filter === 'under') {
+      return list.filter(item => item.type === 'Under-allocation');
+    }
+    if (filter === 'over') {
+      return list.filter(item => item.type === 'Over-allocation');
+    }
+    if (filter === 'var') {
+      return [...list].sort((a, b) => b.valueAtRisk - a.valueAtRisk);
+    }
+    return list;
+  });
+
   protected readonly beneficiaryFilter = signal<string>('all');
   protected readonly pageSize = signal<number>(10);
   protected readonly pageSizeOptions: number[] = [10, 25, 50];
   protected readonly currentPage = signal<number>(1);
 
   protected setBeneficiaryFilter(filter: string): void {
-    this.beneficiaryFilter.set(filter);
+    if (this.beneficiaryFilter() === filter && filter !== 'all') {
+      this.beneficiaryFilter.set('all');
+    } else {
+      this.beneficiaryFilter.set(filter);
+    }
     this.currentPage.set(1);
   }
 
