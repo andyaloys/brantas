@@ -214,6 +214,16 @@
               <span class="status-capsule teal"><i class="pi pi-database"></i> {{ filteredRegions().length }} Daerah</span>
             </div>
           </header>
+
+          <!-- Table Active Sorting Banner -->
+          <div class="table-sort-banner">
+            <div class="sort-info">
+              <i class="pi pi-sort-amount-down"></i>
+              <span>Diurutkan berdasarkan: <strong>{{ activeLayerMeta().name }}</strong> ({{ activeLayerMeta().sortDesc }})</span>
+            </div>
+            <span class="sort-hint"><i class="pi pi-info-circle"></i> Klik tombol indikator di atas untuk mengubah urutan metrik</span>
+          </div>
+
           <div class="table-responsive">
             <table class="spatial-data-table">
               <thead>
@@ -221,9 +231,12 @@
                   <th class="col-no">No</th>
                   <th class="col-kab">Kabupaten / Kota</th>
                   <th class="col-prov">Provinsi</th>
-                  <th class="col-stat text-right">
+                  <th class="col-stat text-right" [class.active-col]="activeLayer() === 'povertyRate'">
                     <div class="th-stat right">
                       <span>Kemiskinan (%)</span>
+                      @if (activeLayer() === 'povertyRate') {
+                        <i class="pi pi-sort-down sort-active-badge" title="Diurutkan tertinggi ke terendah"></i>
+                      }
                       <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
                       <div class="stat-tooltip">
                         <div class="stat-tooltip-head">
@@ -240,9 +253,12 @@
                     </div>
                   </th>
                   <th class="col-stat text-right">Penduduk Miskin</th>
-                  <th class="col-stat text-right">
+                  <th class="col-stat text-right" [class.active-col]="activeLayer() === 'hdi'">
                     <div class="th-stat right">
                       <span>Indeks IPM</span>
+                      @if (activeLayer() === 'hdi') {
+                        <i class="pi pi-sort-up sort-active-badge" title="Diurutkan terendah (paling rentan) ke tertinggi"></i>
+                      }
                       <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
                       <div class="stat-tooltip">
                         <div class="stat-tooltip-head">
@@ -258,9 +274,12 @@
                       </div>
                     </div>
                   </th>
-                  <th class="col-stat text-right">
+                  <th class="col-stat text-right" [class.active-col]="activeLayer() === 'povertyDepth'">
                     <div class="th-stat right">
                       <span>Kedalaman (P1)</span>
+                      @if (activeLayer() === 'povertyDepth') {
+                        <i class="pi pi-sort-down sort-active-badge" title="Diurutkan terdalam ke terendah"></i>
+                      }
                       <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
                       <div class="stat-tooltip">
                         <div class="stat-tooltip-head">
@@ -276,9 +295,12 @@
                       </div>
                     </div>
                   </th>
-                  <th class="col-stat text-right">
+                  <th class="col-stat text-right" [class.active-col]="activeLayer() === 'povertySeverity'">
                     <div class="th-stat right">
                       <span>Keparahan (P2)</span>
+                      @if (activeLayer() === 'povertySeverity') {
+                        <i class="pi pi-sort-down sort-active-badge" title="Diurutkan terparah ke terendah"></i>
+                      }
                       <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
                       <div class="stat-tooltip">
                         <div class="stat-tooltip-head">
@@ -294,9 +316,12 @@
                       </div>
                     </div>
                   </th>
-                  <th class="col-stat text-right">
+                  <th class="col-stat text-right" [class.active-col]="activeLayer() === 'disasterRisk'">
                     <div class="th-stat right">
                       <span>Risiko Bencana</span>
+                      @if (activeLayer() === 'disasterRisk') {
+                        <i class="pi pi-sort-down sort-active-badge" title="Diurutkan risiko tertinggi ke terendah"></i>
+                      }
                       <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
                       <div class="stat-tooltip">
                         <div class="stat-tooltip-head">
@@ -312,7 +337,12 @@
                       </div>
                     </div>
                   </th>
-                  <th class="col-cluster">Klaster Spasial</th>
+                  <th class="col-cluster" [class.active-col]="activeLayer() === 'cluster'">
+                    <span>Klaster Spasial</span>
+                    @if (activeLayer() === 'cluster') {
+                      <i class="pi pi-sort-down sort-active-badge" title="Diurutkan Hotspot ke Coldspot"></i>
+                    }
+                  </th>
                   <th class="col-action">Aksi</th>
                 </tr>
               </thead>
@@ -322,17 +352,25 @@
                     <td class="col-no">{{ i + 1 }}</td>
                     <td class="col-kab"><strong>{{ r.name }}</strong></td>
                     <td class="col-prov">{{ r.parent }}</td>
-                    <td class="col-stat text-right"><strong>{{ r.povertyRate.toFixed(2) }}%</strong></td>
+                    <td class="col-stat text-right" [class.col-active-cell]="activeLayer() === 'povertyRate'">
+                      <strong>{{ r.povertyRate.toFixed(2) }}%</strong>
+                    </td>
                     <td class="col-stat text-right mono">{{ r.poorPopulation.toLocaleString('id-ID') }}</td>
-                    <td class="col-stat text-right font-bold">{{ r.humanDevelopmentIndex.toFixed(2) }}</td>
-                    <td class="col-stat text-right mono">{{ r.povertyDepthIndex.toFixed(3) }}</td>
-                    <td class="col-stat text-right mono">{{ r.povertySeverityIndex.toFixed(3) }}</td>
-                    <td class="col-stat text-right">
+                    <td class="col-stat text-right font-bold" [class.col-active-cell]="activeLayer() === 'hdi'">
+                      {{ r.humanDevelopmentIndex.toFixed(2) }}
+                    </td>
+                    <td class="col-stat text-right mono" [class.col-active-cell]="activeLayer() === 'povertyDepth'">
+                      {{ r.povertyDepthIndex.toFixed(3) }}
+                    </td>
+                    <td class="col-stat text-right mono" [class.col-active-cell]="activeLayer() === 'povertySeverity'">
+                      {{ r.povertySeverityIndex.toFixed(3) }}
+                    </td>
+                    <td class="col-stat text-right" [class.col-active-cell]="activeLayer() === 'disasterRisk'">
                       <span class="mono font-bold" [style.color]="(r.disasterRisk ?? 0.5) >= 0.7 ? '#dc2626' : ((r.disasterRisk ?? 0.5) >= 0.45 ? '#ea580c' : '#16a34a')">
                         {{ r.disasterRisk ? (r.disasterRisk * 100).toFixed(0) + '%' : '-' }}
                       </span>
                     </td>
-                    <td class="col-cluster">
+                    <td class="col-cluster" [class.col-active-cell]="activeLayer() === 'cluster'">
                       <span class="cluster-capsule" [ngClass]="getClusterClass(r.cluster)">
                         {{ translateClusterShort(r.cluster) }}
                       </span>
@@ -569,7 +607,7 @@
           <div class="inspector-body">
             <dl class="stat-list">
               <!-- Rerata Kemiskinan Provinsi -->
-              <div class="stat-item highlight">
+              <div class="stat-item" [class.highlight]="activeLayer() === 'povertyRate'">
                 <dt class="dt-stat">
                   <span>Rerata Kemiskinan Provinsi</span>
                   <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
@@ -599,7 +637,7 @@
               </div>
 
               <!-- Rerata Kedalaman (P1) -->
-              <div class="stat-item">
+              <div class="stat-item" [class.highlight]="activeLayer() === 'povertyDepth'">
                 <dt class="dt-stat">
                   <span>Rerata Kedalaman (P1)</span>
                   <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
@@ -614,7 +652,7 @@
               </div>
 
               <!-- Rerata Keparahan (P2) -->
-              <div class="stat-item">
+              <div class="stat-item" [class.highlight]="activeLayer() === 'povertySeverity'">
                 <dt class="dt-stat">
                   <span>Rerata Keparahan (P2)</span>
                   <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
@@ -629,7 +667,7 @@
               </div>
 
               <!-- Rerata Indeks IPM -->
-              <div class="stat-item">
+              <div class="stat-item" [class.highlight]="activeLayer() === 'hdi'">
                 <dt class="dt-stat">
                   <span>Rerata Indeks IPM</span>
                   <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
@@ -644,7 +682,7 @@
               </div>
 
               <!-- Rerata Risiko Bencana (IRBI) -->
-              <div class="stat-item" [title]="'Rerata Indeks Risiko Bencana BNPB Provinsi'">
+              <div class="stat-item" [class.highlight]="activeLayer() === 'disasterRisk'" [title]="'Rerata Indeks Risiko Bencana BNPB Provinsi'">
                 <dt class="dt-stat">
                   <span>Rerata Risiko Bencana (IRBI)</span>
                   <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
@@ -661,7 +699,7 @@
               </div>
 
               <!-- Klaster Spasial Dominan -->
-              <div class="stat-item cluster-item">
+              <div class="stat-item cluster-item" [class.highlight]="activeLayer() === 'cluster'">
                 <dt class="dt-stat">
                   <span>Klaster Spasial Dominan</span>
                   <i class="pi pi-info-circle dt-info-icon" aria-hidden="true"></i>
@@ -698,7 +736,177 @@
           <div class="inspector-body">
             <p class="guide-text">Pilih provinsi pada dropdown di atas atau klik langsung pada poligon peta untuk menginspeksi indikator & klasifikasi klaster.</p>
             
-            @if (activeLayer() === 'disasterRisk') {
+            @if (activeLayer() === 'cluster') {
+              <div class="legend-card">
+                <span class="legend-title">Klasifikasi Klaster Spasial Kemiskinan (Moran's I)</span>
+                <div class="legend">
+                  <div class="legend-row">
+                    <span class="cluster-dot hh"></span>
+                    <div>
+                      <strong>Klaster Kemiskinan Tinggi (Hotspot)</strong>
+                      <small>Merah Pekat · Kantong kemiskinan tinggi yang saling bersebelahan (High-High)</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot hl"></span>
+                    <div>
+                      <strong>Kantong Miskin Terisolasi (Outlier Tinggi)</strong>
+                      <small>Merah Biasa · Daerah miskin di sekitar kawasan maju (High-Low)</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot lh"></span>
+                    <div>
+                      <strong>Wilayah Maju Terjepit (Outlier Rendah)</strong>
+                      <small>Kuning/Oranye · Daerah relatif sejahtera di sekitar kawasan tertinggal (Low-High)</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot ll"></span>
+                    <div>
+                      <strong>Klaster Sejahtera (Coldspot)</strong>
+                      <small>Kuning · Daerah dengan tingkat kemiskinan rendah & ekonomi kuat (Low-Low)</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else if (activeLayer() === 'povertyRate') {
+              <div class="legend-card">
+                <span class="legend-title">Klasifikasi Tingkat Kemiskinan (%) (Headcount P0)</span>
+                <div class="legend">
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #991b1b; border: 1.5px solid #be123c;"></span>
+                    <div>
+                      <strong>Kemiskinan Sangat Tinggi (≥ 18.00%)</strong>
+                      <small>Merah Pekat · Prevalensi kemiskinan paling kritis nasional (prioritas utama intervensi)</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #ef4444; border: 1.5px solid #f87171;"></span>
+                    <div>
+                      <strong>Kemiskinan Tinggi (12.00% - 17.99%)</strong>
+                      <small>Merah · Daerah di atas rata-rata kemiskinan nasional</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #f97316; border: 1.5px solid #fb923c;"></span>
+                    <div>
+                      <strong>Kemiskinan Sedang (7.00% - 11.99%)</strong>
+                      <small>Oranye · Wilayah dengan proporsi kemiskinan moderat</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #eab308; border: 1.5px solid #facc15;"></span>
+                    <div>
+                      <strong>Kemiskinan Rendah (&lt; 7.00%)</strong>
+                      <small>Kuning · Kawasan dengan tingkat kemiskinan minimal / terkendali</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else if (activeLayer() === 'povertyDepth') {
+              <div class="legend-card">
+                <span class="legend-title">Klasifikasi Indeks Kedalaman Kemiskinan (P1)</span>
+                <div class="legend">
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #991b1b; border: 1.5px solid #be123c;"></span>
+                    <div>
+                      <strong>Kesenjangan Sangat Dalam (≥ 2.500)</strong>
+                      <small>Merah Pekat · Pengeluaran warga miskin jauh di bawah garis kemiskinan (butuh transfer bansos tinggi)</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #ef4444; border: 1.5px solid #f87171;"></span>
+                    <div>
+                      <strong>Kesenjangan Dalam (1.500 - 2.499)</strong>
+                      <small>Merah · Gap pengeluaran relatif tinggi terhadap garis kemiskinan</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #f97316; border: 1.5px solid #fb923c;"></span>
+                    <div>
+                      <strong>Kesenjangan Sedang (0.800 - 1.499)</strong>
+                      <small>Oranye · Jarak pengeluaran moderat terhadap garis kemiskinan</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #eab308; border: 1.5px solid #facc15;"></span>
+                    <div>
+                      <strong>Kesenjangan Dangkal (&lt; 0.800)</strong>
+                      <small>Kuning · Pengeluaran warga miskin sudah mendekati batas garis kemiskinan</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else if (activeLayer() === 'povertySeverity') {
+              <div class="legend-card">
+                <span class="legend-title">Klasifikasi Indeks Keparahan Kemiskinan (P2)</span>
+                <div class="legend">
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #991b1b; border: 1.5px solid #be123c;"></span>
+                    <div>
+                      <strong>Ketimpangan Sangat Parah (≥ 0.800)</strong>
+                      <small>Merah Pekat · Ketimpangan ekstrem di antara sesama warga miskin (prioritas bansos afirmatif)</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #ef4444; border: 1.5px solid #f87171;"></span>
+                    <div>
+                      <strong>Ketimpangan Parah (0.400 - 0.799)</strong>
+                      <small>Merah · Variasi pengeluaran antar-keluarga miskin cukup tinggi</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #f97316; border: 1.5px solid #fb923c;"></span>
+                    <div>
+                      <strong>Ketimpangan Sedang (0.200 - 0.399)</strong>
+                      <small>Oranye · Tingkat kesenjangan internal warga miskin moderat</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #eab308; border: 1.5px solid #facc15;"></span>
+                    <div>
+                      <strong>Ketimpangan Ringan (&lt; 0.200)</strong>
+                      <small>Kuning · Kondisi ekonomi sesama warga miskin relatif homogen</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else if (activeLayer() === 'hdi') {
+              <div class="legend-card">
+                <span class="legend-title">Klasifikasi Indeks Pembangunan Manusia (IPM)</span>
+                <div class="legend">
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #059669; border: 1.5px solid #10b981;"></span>
+                    <div>
+                      <strong>IPM Sangat Tinggi (≥ 75.00)</strong>
+                      <small>Hijau Zamrud · Capaian standar kesehatan, pendidikan, dan daya beli prima</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #0d9488; border: 1.5px solid #14b8a6;"></span>
+                    <div>
+                      <strong>IPM Tinggi (70.00 - 74.99)</strong>
+                      <small>Teal · Pembangunan manusia di atas rata-rata standar</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #0284c7; border: 1.5px solid #38bdf8;"></span>
+                    <div>
+                      <strong>IPM Sedang (66.00 - 69.99)</strong>
+                      <small>Biru Langit · Capaian pembangunan manusia tingkat menengah</small>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="cluster-dot" style="background: #d97706; border: 1.5px solid #f59e0b;"></span>
+                    <div>
+                      <strong>IPM Rendah (&lt; 66.00)</strong>
+                      <small>Amber · Wilayah tertinggal yang memerlukan intervensi sarana publik dan beasiswa</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else if (activeLayer() === 'disasterRisk') {
               <div class="legend-card">
                 <span class="legend-title">Klasifikasi Indeks Risiko Bencana (IRBI BNPB)</span>
                 <div class="legend">
@@ -728,40 +936,6 @@
                     <div>
                       <strong>Risiko Rendah (&lt; 45%)</strong>
                       <small>Kuning · Kawasan geologis stabil dengan ancaman minimum (Babel, Kepri, Kalbar, Kaltim)</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            } @else {
-              <div class="legend-card">
-                <span class="legend-title">Klasifikasi Klaster Spasial Kemiskinan</span>
-                <div class="legend">
-                  <div class="legend-row">
-                    <span class="cluster-dot hh"></span>
-                    <div>
-                      <strong>Klaster Kemiskinan Tinggi (Hotspot)</strong>
-                      <small>Merah Pekat · Kantong kemiskinan tinggi yang saling bersebelahan</small>
-                    </div>
-                  </div>
-                  <div class="legend-row">
-                    <span class="cluster-dot hl"></span>
-                    <div>
-                      <strong>Kantong Miskin Terisolasi (Outlier Tinggi)</strong>
-                      <small>Merah Biasa · Daerah miskin di sekitar kawasan maju</small>
-                    </div>
-                  </div>
-                  <div class="legend-row">
-                    <span class="cluster-dot lh"></span>
-                    <div>
-                      <strong>Wilayah Maju Terjepit (Outlier Rendah)</strong>
-                      <small>Kuning/Oranye · Daerah relatif sejahtera di sekitar kawasan tertinggal</small>
-                    </div>
-                  </div>
-                  <div class="legend-row">
-                    <span class="cluster-dot ll"></span>
-                    <div>
-                      <strong>Klaster Sejahtera (Coldspot)</strong>
-                      <small>Teal/Hijau · Daerah dengan tingkat kemiskinan rendah & ekonomi kuat</small>
                     </div>
                   </div>
                 </div>

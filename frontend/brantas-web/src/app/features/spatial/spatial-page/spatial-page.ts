@@ -47,15 +47,68 @@ export class SpatialPageComponent implements AfterViewInit, OnDestroy {
     return Array.from(unique).sort((a, b) => a.localeCompare(b, 'id'));
   });
 
-  // Filtered regions list for Table view
+  // Filtered regions list for Table view (auto-sorts based on active indicator layer)
   protected readonly filteredRegions = computed(() => {
     const data = this.geoJson();
     if (!data) return [];
     const prov = this.selectedProvince();
+    const layer = this.activeLayer();
+
+    const clusterRank: Record<string, number> = {
+      'High-High': 4,
+      'High-Low': 3,
+      'Low-High': 2,
+      'Low-Low': 1
+    };
+
     return data.features
       .map(f => f.properties)
       .filter(p => !!p && (prov === 'all' || p.parent.toLowerCase() === prov.toLowerCase()))
-      .sort((a, b) => b.povertyRate - a.povertyRate);
+      .sort((a, b) => {
+        switch (layer) {
+          case 'cluster': {
+            const rankA = clusterRank[a.cluster] ?? 0;
+            const rankB = clusterRank[b.cluster] ?? 0;
+            return rankB !== rankA ? rankB - rankA : b.povertyRate - a.povertyRate;
+          }
+          case 'povertyRate':
+            return b.povertyRate - a.povertyRate;
+          case 'povertyDepth':
+            return b.povertyDepthIndex - a.povertyDepthIndex;
+          case 'povertySeverity':
+            return b.povertySeverityIndex - a.povertySeverityIndex;
+          case 'hdi':
+            // Urutkan daerah dengan capaian IPM terendah (paling rentan / tertinggal) ke tertinggi
+            return a.humanDevelopmentIndex - b.humanDevelopmentIndex;
+          case 'disasterRisk': {
+            const riskA = a.disasterRisk ?? 0.5;
+            const riskB = b.disasterRisk ?? 0.5;
+            return riskB - riskA;
+          }
+          default:
+            return b.povertyRate - a.povertyRate;
+        }
+      });
+  });
+
+  // Label dan keterangan pengurutan indikator aktif untuk tabel
+  protected readonly activeLayerMeta = computed(() => {
+    switch (this.activeLayer()) {
+      case 'cluster':
+        return { name: 'Klaster Spasial Kemiskinan', sortDesc: 'Prioritas Hotspot (Tinggi) ke Coldspot' };
+      case 'povertyRate':
+        return { name: 'Tingkat Kemiskinan (%)', sortDesc: 'Tertinggi ke Terendah (Headcount P0)' };
+      case 'povertyDepth':
+        return { name: 'Kedalaman Kemiskinan (P1)', sortDesc: 'Kesenjangan Pengeluaran Terdalam ke Dangkal' };
+      case 'povertySeverity':
+        return { name: 'Keparahan Kemiskinan (P2)', sortDesc: 'Ketimpangan Terparah ke Ringan' };
+      case 'hdi':
+        return { name: 'Indeks IPM', sortDesc: 'IPM Terendah (Tertinggal) ke Tertinggi' };
+      case 'disasterRisk':
+        return { name: 'Risiko Bencana (IRBI)', sortDesc: 'Risiko Tertinggi ke Terendah' };
+      default:
+        return { name: 'Tingkat Kemiskinan', sortDesc: 'Tertinggi ke Terendah' };
+    }
   });
 
   // Compute aggregate stats for selected province
