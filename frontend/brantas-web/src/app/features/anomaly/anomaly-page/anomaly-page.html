@@ -18,564 +18,788 @@
 } @else if (error()) {
   <section class="state error"><i class="pi pi-exclamation-circle" aria-hidden="true"></i><p>{{ error() }}</p></section>
 } @else if (summary(); as data) {
-  <section class="executive-kpi-grid" aria-label="Ringkasan anomali fiskal">
-    <!-- KPI 1: Temuan Terdeteksi -->
-    <article class="kpi-card kpi-rose">
-      <div class="kpi-top">
-        <span class="kpi-title">Temuan Terdeteksi</span>
-        <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
-      </div>
-      <div class="kpi-num">{{ data.totalCount }} <small class="text-rose">Wilayah</small></div>
-      <div class="kpi-progress">
-        <div class="kpi-bar-fill rose" style="width: 100%"></div>
-      </div>
-      <div class="kpi-tag-sub rose">
-        <i class="pi pi-exclamation-triangle"></i> Perlu Audit Otoritas
-      </div>
-      <div class="kpi-sub">
-        <span>Deviasi Formula Kebutuhan Riil APBN</span>
-      </div>
-    </article>
-    
-    <!-- KPI 2: Alokasi Kurang -->
-    <article class="kpi-card kpi-amber">
-      <div class="kpi-top">
-        <span class="kpi-title">Alokasi Kurang</span>
-        <div class="kpi-icon"><i class="pi pi-arrow-down-right"></i></div>
-      </div>
-      <div class="kpi-num">{{ data.underAllocationCount }} <small>Wilayah</small></div>
-      <div class="kpi-progress">
-        <div class="kpi-bar-fill amber" [style.width.%]="(data.underAllocationCount / (data.totalCount || 1)) * 100"></div>
-      </div>
-      <div class="kpi-tag-sub amber">
-        <i class="pi pi-arrow-down-right"></i> Alokasi di Bawah Kebutuhan
-      </div>
-      <div class="kpi-sub">
-        <span>Defisit Belanja Daerah vs Kemiskinan Ekstrem</span>
-      </div>
-    </article>
-    
-    <!-- KPI 3: Alokasi Berlebih -->
-    <article class="kpi-card kpi-blue">
-      <div class="kpi-top">
-        <span class="kpi-title">Alokasi Berlebih</span>
-        <div class="kpi-icon"><i class="pi pi-arrow-up-right"></i></div>
-      </div>
-      <div class="kpi-num">{{ data.overAllocationCount }} <small>Wilayah</small></div>
-      <div class="kpi-progress">
-        <div class="kpi-bar-fill blue" [style.width.%]="(data.overAllocationCount / (data.totalCount || 1)) * 100"></div>
-      </div>
-      <div class="kpi-tag-sub blue">
-        <i class="pi pi-arrow-up-right"></i> Alokasi Melebihi Plafon
-      </div>
-      <div class="kpi-sub">
-        <span>Potensi Relokasi Efisiensi Belanja Daerah</span>
-      </div>
-    </article>
-    
-    <!-- KPI 4: Total Nilai Berisiko -->
-    <article class="kpi-card kpi-teal" [title]="'Nominal Lengkap: ' + formatCurrency(data.totalValueAtRisk).full">
-      <div class="kpi-top">
-        <span class="kpi-title">Total Nilai Berisiko</span>
-        <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
-      </div>
-      <div class="kpi-num">{{ formatCurrency(data.totalValueAtRisk).compact }}</div>
-      <div class="kpi-progress">
-        <div class="kpi-bar-fill teal" style="width: 100%"></div>
-      </div>
-      <div class="kpi-tag-sub teal">
-        <i class="pi pi-check"></i> Potensi Inefisiensi Belanja
-      </div>
-      <div class="kpi-sub">
-        <span>Estimasi Nilai Berisiko (VaR) APBN</span>
-      </div>
-    </article>
+  <!-- Executive Anomaly Tab Switcher Bar -->
+  <section class="dashboard-tab-bar" aria-label="Navigasi Tab Modul Anomali">
+    <div class="tab-pill-group">
+      <button
+        type="button"
+        class="tab-nav-btn"
+        [class.active]="activeTab() === 'fiscal'"
+        (click)="setTab('fiscal')">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>Anomali Anggaran Daerah</span>
+        <span class="tab-count-badge rose">{{ anomalies().length }}</span>
+        @if (activeTab() === 'fiscal') {
+          <span class="active-dot"></span>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="tab-nav-btn"
+        [class.active]="activeTab() === 'beneficiary'"
+        (click)="setTab('beneficiary')">
+        <i class="pi pi-users"></i>
+        <span>Integritas Data Mikro (P3KE/DTKS)</span>
+        @if (beneficiarySummary(); as ben) {
+          <span class="tab-count-badge teal">{{ ben.totalBeneficiaries.toLocaleString('id-ID') }}</span>
+        }
+        @if (activeTab() === 'beneficiary') {
+          <span class="active-dot"></span>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="tab-nav-btn"
+        [class.active]="activeTab() === 'ai'"
+        (click)="setTab('ai')">
+        <i class="pi pi-microchip"></i>
+        <span>Deteksi AI (Machine Learning)</span>
+        @if (onnxReport(); as onnx) {
+          <span class="tab-count-badge purple">{{ onnx.criticalCount + onnx.highCount }}</span>
+        }
+        @if (activeTab() === 'ai') {
+          <span class="active-dot"></span>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="tab-nav-btn"
+        [class.active]="activeTab() === 'exclusion'"
+        (click)="setTab('exclusion')">
+        <i class="pi pi-filter-slash"></i>
+        <span>Kesenjangan Bansos (Exclusion Error)</span>
+        <span class="tab-count-badge amber">{{ exclusionErrors().length }}</span>
+        @if (activeTab() === 'exclusion') {
+          <span class="active-dot"></span>
+        }
+      </button>
+    </div>
   </section>
 
-  @if (anomalies().length > 0) {
-    <!-- Sinergi Data Kebencanaan & Anomali Fiskal -->
-    <div class="disaster-risk-banner">
-      <div class="disaster-banner-icon">
-        <i class="pi pi-shield"></i>
-      </div>
-      <div class="disaster-banner-content">
-        <div class="disaster-banner-title">
-          <strong>Interseksi Kerentanan Bencana (IRBI BNPB) & Ketahanan Fiskal</strong>
-          <span class="disaster-tag-alert"><i class="pi pi-exclamation-triangle"></i> {{ highRiskAnomalyStats().count }} dari {{ anomalies().length }} Wilayah Berisiko Tinggi ({{ highRiskAnomalyStats().percentage }}%)</span>
+  <!-- ==================== TAB 1: ANOMALI ANGGARAN DAERAH ==================== -->
+  @if (activeTab() === 'fiscal') {
+    <div class="tab-content-view tab-fade-in">
+      <!-- Banner Penjelasan Tab 1: Anomali Anggaran Daerah -->
+      <div class="tab-explainer-banner banner-rose">
+        <div class="explainer-banner-icon rose">
+          <i class="pi pi-chart-line"></i>
         </div>
-        <p class="disaster-banner-desc">
-          Wilayah dengan anomali alokasi di zona kerentanan bencana tinggi rentan mengalami guncangan ganda (<em>double shock</em>). Disarankan penerapan formula bantalan adaptif (<em>Shock-Responsive Social Protection</em>) pada evaluasi alokasi APBN.
-        </p>
-      </div>
-    </div>
-
-    <section class="panel">
-      <header class="panel-head ribbon-rose">
-        <div class="panel-titles">
-          <span class="badge-accent rose"><i class="pi pi-bolt"></i> HASIL DETEKSI ANOMALI ANGGARAN (RESIDUAL)</span>
-          <div class="heading-row">
-            <h2>Daftar Temuan Prioritas Intervensi</h2>
+        <div class="explainer-banner-content">
+          <div class="explainer-banner-title">
+            <strong>Tentang Modul Anomali Anggaran Daerah (Analisis Residual)</strong>
+            <span class="explainer-tag rose"><i class="pi pi-info-circle"></i> Ekonometrika Residual Fiskal</span>
           </div>
+          <p class="explainer-banner-desc">
+            Modul ini mendeteksi ketidakwajaran pagu bansos daerah dengan membandingkan realisasi belanja aktual terhadap estimasi kebutuhan riil kemiskinan. Menemukan daerah dengan <strong>Alokasi Kurang</strong> yang berisiko memicu defisit perlindungan sosial warga miskin, serta daerah <strong>Alokasi Berlebih</strong> yang berpotensi terjadi pemborosan atau inefisiensi anggaran.
+          </p>
         </div>
-        <div class="head-legend">
-          <span class="status-capsule rose"><i class="pi pi-exclamation-triangle"></i> {{ anomalies().length }} Wilayah Teridentifikasi</span>
-        </div>
-      </header>
-      <div class="table-wrap">
-        <table class="table-residual">
-          <thead>
-            <tr>
-              <th class="col-res-region">Wilayah</th>
-              <th class="col-res-irbi">
-                <div class="th-stat">
-                  <span>Risiko Bencana (IRBI)</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip align-left">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-shield"></i> Risiko Bencana (IRBI BNPB)
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Mengukur tingkat kerawanan wilayah terhadap dampak bencana alam berdasarkan data resmi BNPB.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Dasar Perhitungan:</span>
-                        <small>Kategori <b>Tinggi (skor &ge; 140)</b> menandakan wilayah sangat rawan tertimpa bencana alam, sehingga warga rentan butuh perlindungan sosial adaptif agar tidak jatuh miskin lebih dalam.</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-res-type">
-                <div class="th-stat">
-                  <span>Klasifikasi</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip align-left">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-tag"></i> Arah Anomali Anggaran
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Bentuk ketidakwajaran arah alokasi belanja bansos daerah.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Kategori:</span>
-                        <small><b>Alokasi Kurang:</b> Belanja bansos terlalu kecil dibanding tingkat kemiskinan nyata.<br><b>Alokasi Lebih:</b> Realisasi bansos membengkak melampaui kebutuhan wajar.</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-res-severity">
-                <div class="th-stat center">
-                  <span>Tingkat Keparahan</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-exclamation-circle"></i> Tingkat Keparahan Masalah
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Skala urgensi dan besaran dampak anomali terhadap efektivitas belanja negara.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Kategori:</span>
-                        <small><b>Kritis:</b> Penyimpangan ekstrim yang wajib segera diaudit.<br><b>Tinggi:</b> Deviasi anggaran signifikan.<br><b>Sedang:</b> Memerlukan pemantauan berkala.</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-res-zscore">
-                <div class="th-stat center">
-                  <span>Tingkat Deviasi (Z-Score)</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-chart-bar"></i> Tingkat Deviasi Belanja
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Mengukur seberapa jauh realisasi anggaran belanja bansos daerah menyimpang dari pola normal daerah lain yang sejenis.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Dasar Perhitungan:</span>
-                        <small>Nilai di atas <b>+2&sigma;</b> menandakan indikasi belanja bansos berlebih/boros, sedangkan di bawah <b>-2&sigma;</b> menandakan alokasi bansos masih sangat kurang dari kebutuhan riil daerah.</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-res-var">
-                <div class="th-stat right">
-                  <span>Nilai Berisiko</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip align-right">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-wallet"></i> Perkiraan Anggaran Berisiko
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Taksiran nominal rupiah anggaran yang berpotensi tidak efisien, salah sasaran, atau tidak mencukupi kebutuhan riil.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Dasar Perhitungan:</span>
-                        <small>Dihitung dari selisih antara realisasi belanja aktual dengan batas toleransi kewajaran kebutuhan daerah.</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-res-desc">Uraian Masalah & Implikasi Anggaran</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of anomalies(); track item.id) {
-              <tr>
-                <td class="col-res-region">
-                  <strong>{{ resolveRegion(item.region) }}</strong>
-                  <small>Tingkat Keyakinan {{ item.confidenceScore.toFixed(0) }}%</small>
-                </td>
-                <td class="col-res-irbi">
-                  <span class="irbi-badge" [style.color]="getDisasterRisk(item.region).color" [style.background]="getDisasterRisk(item.region).bg">
-                    <i class="pi pi-shield"></i> {{ getDisasterRisk(item.region).percent }} · {{ getDisasterRisk(item.region).category }}
-                  </span>
-                </td>
-                <td class="col-res-type">
-                  <span [class]="item.type === 'Under-allocation' ? 'type under' : 'type over'">
-                    {{ translateType(item.type) }}
-                  </span>
-                </td>
-                <td class="col-res-severity">
-                  <span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">
-                    {{ translateSeverity(item.severity) }}
-                  </span>
-                </td>
-                <td class="col-res-zscore mono"><strong>{{ item.zScore.toFixed(2) }}σ</strong></td>
-                <td class="col-res-var mono font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.valueAtRisk).full">{{ formatCurrency(item.valueAtRisk).compact }}</td>
-                <td class="col-res-desc explanation">{{ formatFiscalExplanation(item) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
       </div>
-    </section>
-  } @else {
-    <section class="state"><i class="pi pi-check-circle" aria-hidden="true"></i><p>Tidak ada anomali fiskal pada dataset aktif.</p></section>
-  }
 
-  @if (beneficiarySummary(); as beneficiaries) {
-    <section class="beneficiary-section">
-      <header class="panel-head ribbon-teal">
-        <div class="panel-titles">
-          <span class="badge-accent teal"><i class="pi pi-users"></i> AUDIT INTEGRITAS KEPESERTAAN MIKRO</span>
-          <div class="heading-row">
-            <h2>Indikator Risiko Data Penerima Bantuan (P3KE/DTKS)</h2>
-          </div>
-        </div>
-        <div class="head-legend">
-          <span class="status-capsule teal"><i class="pi pi-database"></i> {{ beneficiaries.totalBeneficiaries.toLocaleString('id-ID') }} Rekor Data Mikro</span>
-        </div>
-      </header>
-      <div class="executive-kpi-grid" aria-label="Indikator risiko data penerima bantuan">
-        <!-- Card 1: ASN/TNI/Polri Aktif -->
+      <!-- 4 Kartu KPI Fiskal (Khusus Tab 1) -->
+      <section class="executive-kpi-grid" aria-label="Ringkasan anomali fiskal">
+        <!-- KPI 1: Temuan Terdeteksi -->
         <article class="kpi-card kpi-rose">
           <div class="kpi-top">
-            <span class="kpi-title">ASN / TNI / POLRI AKTIF</span>
-            <div class="kpi-icon"><i class="pi pi-briefcase"></i></div>
+            <span class="kpi-title">Temuan Terdeteksi</span>
+            <div class="kpi-icon"><i class="pi pi-exclamation-triangle"></i></div>
           </div>
-          <div class="kpi-num">{{ beneficiaries.activePublicServantCount.toLocaleString('id-ID') }} <small class="text-rose">Jiwa</small></div>
+          <div class="kpi-num">{{ data.totalCount }} <small class="text-rose">Wilayah</small></div>
           <div class="kpi-progress">
-            <div class="kpi-bar-fill rose" [style.width.%]="(beneficiaries.activePublicServantCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+            <div class="kpi-bar-fill rose" style="width: 100%"></div>
           </div>
           <div class="kpi-tag-sub rose">
-            <i class="pi pi-exclamation-triangle"></i> Pelanggaran Kriteria
+            <i class="pi pi-exclamation-triangle"></i> Perlu Audit Otoritas
           </div>
           <div class="kpi-sub">
-            <span>Aparatur negara terdaftar aktif dalam basis bansos</span>
+            <span>Deviasi Formula Kebutuhan Riil APBN</span>
           </div>
         </article>
-
-        <!-- Card 2: NIK Duplikat -->
+        
+        <!-- KPI 2: Alokasi Kurang -->
         <article class="kpi-card kpi-amber">
           <div class="kpi-top">
-            <span class="kpi-title">IDENTITAS NIK DUPLIKAT</span>
-            <div class="kpi-icon"><i class="pi pi-copy"></i></div>
+            <span class="kpi-title">Alokasi Kurang</span>
+            <div class="kpi-icon"><i class="pi pi-arrow-down-right"></i></div>
           </div>
-          <div class="kpi-num">{{ beneficiaries.duplicateIdentityCount.toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-num">{{ data.underAllocationCount }} <small>Wilayah</small></div>
           <div class="kpi-progress">
-            <div class="kpi-bar-fill amber" [style.width.%]="(beneficiaries.duplicateIdentityCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+            <div class="kpi-bar-fill amber" [style.width.%]="(data.underAllocationCount / (data.totalCount || 1)) * 100"></div>
           </div>
           <div class="kpi-tag-sub amber">
-            <i class="pi pi-exclamation-circle"></i> Penyaluran Ganda
+            <i class="pi pi-arrow-down-right"></i> Alokasi di Bawah Kebutuhan
           </div>
           <div class="kpi-sub">
-            <span>Anomali nomor kependudukan terduplikasi</span>
+            <span>Defisit Belanja Daerah vs Kemiskinan Ekstrem</span>
           </div>
         </article>
-
-        <!-- Card 3: Penerima Meninggal -->
-        <article class="kpi-card kpi-indigo">
+        
+        <!-- KPI 3: Alokasi Berlebih -->
+        <article class="kpi-card kpi-blue">
           <div class="kpi-top">
-            <span class="kpi-title">PENERIMA TELAH MENINGGAL</span>
-            <div class="kpi-icon"><i class="pi pi-heart"></i></div>
+            <span class="kpi-title">Alokasi Berlebih</span>
+            <div class="kpi-icon"><i class="pi pi-arrow-up-right"></i></div>
           </div>
-          <div class="kpi-num">{{ beneficiaries.deceasedCount.toLocaleString('id-ID') }} <small>Jiwa</small></div>
+          <div class="kpi-num">{{ data.overAllocationCount }} <small>Wilayah</small></div>
           <div class="kpi-progress">
-            <div class="kpi-bar-fill indigo" [style.width.%]="(beneficiaries.deceasedCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+            <div class="kpi-bar-fill blue" [style.width.%]="(data.overAllocationCount / (data.totalCount || 1)) * 100"></div>
           </div>
-          <div class="kpi-tag-sub indigo">
-            <i class="pi pi-refresh"></i> Pembaruan Dukcapil
+          <div class="kpi-tag-sub blue">
+            <i class="pi pi-arrow-up-right"></i> Alokasi Melebihi Plafon
           </div>
           <div class="kpi-sub">
-            <span>Perlu penghentian bantuan (graduasi) & rekonsiliasi data kematian</span>
+            <span>Potensi Relokasi Efisiensi Belanja Daerah</span>
           </div>
         </article>
-
-        <!-- Card 4: Aset Ekonomis -->
-        <article class="kpi-card kpi-purple">
+        
+        <!-- KPI 4: Total Nilai Berisiko -->
+        <article class="kpi-card kpi-teal" [title]="'Nominal Lengkap: ' + formatCurrency(data.totalValueAtRisk).full">
           <div class="kpi-top">
-            <span class="kpi-title">KEPEMILIKAN ASET EKONOMIS</span>
-            <div class="kpi-icon"><i class="pi pi-car"></i></div>
+            <span class="kpi-title">Total Nilai Berisiko</span>
+            <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
           </div>
-          <div class="kpi-num">{{ beneficiaries.economicAssetCount.toLocaleString('id-ID') }} <small>Kasus</small></div>
+          <div class="kpi-num">{{ formatCurrency(data.totalValueAtRisk).compact }}</div>
           <div class="kpi-progress">
-            <div class="kpi-bar-fill purple" [style.width.%]="(beneficiaries.economicAssetCount / (beneficiaries.totalBeneficiaries || 1)) * 500"></div>
+            <div class="kpi-bar-fill teal" style="width: 100%"></div>
           </div>
-          <div class="kpi-tag-sub purple">
-            <i class="pi pi-shield"></i> Inklusi Tidak Tepat
+          <div class="kpi-tag-sub teal">
+            <i class="pi pi-check"></i> Potensi Inefisiensi Belanja
           </div>
           <div class="kpi-sub">
-            <span>Ketidaksesuaian tingkat kesejahteraan desil ekonomi</span>
+            <span>Estimasi Nilai Berisiko (VaR) APBN</span>
           </div>
         </article>
-      </div>
-    </section>
-  }
-
-  @if (onnxReport(); as onnx) {
-    <section class="panel">
-      <header class="panel-head ribbon-purple">
-        <div class="panel-titles">
-          <span class="badge-accent purple"><i class="pi pi-microchip"></i> INFERENSI KECERDASAN BUATAN (AI)</span>
-          <div class="heading-row">
-            <h2>Deteksi Anomali Anggaran Terpadu (AI)</h2>
+      </section>
+      @if (anomalies().length > 0) {
+        <!-- Sinergi Data Kebencanaan & Anomali Fiskal -->
+        <div class="disaster-risk-banner">
+          <div class="disaster-banner-icon">
+            <i class="pi pi-shield"></i>
+          </div>
+          <div class="disaster-banner-content">
+            <div class="disaster-banner-title">
+              <strong>Interseksi Kerentanan Bencana (IRBI BNPB) & Ketahanan Fiskal</strong>
+              <span class="disaster-tag-alert"><i class="pi pi-exclamation-triangle"></i> {{ highRiskAnomalyStats().count }} dari {{ anomalies().length }} Wilayah Berisiko Tinggi ({{ highRiskAnomalyStats().percentage }}%)</span>
+            </div>
+            <p class="disaster-banner-desc">
+              Wilayah dengan anomali alokasi di zona kerentanan bencana tinggi rentan mengalami guncangan ganda (<em>double shock</em>). Disarankan penerapan formula bantalan adaptif (<em>Shock-Responsive Social Protection</em>) pada evaluasi alokasi APBN.
+            </p>
           </div>
         </div>
-        <div class="head-legend">
-          <span class="status-capsule purple"><i class="pi pi-shield"></i> {{ onnx.criticalCount }} Kritis · {{ onnx.highCount }} Tinggi</span>
-        </div>
-      </header>
-      <div class="table-wrap">
-        <table class="table-ai">
-          <thead>
-            <tr>
-              <th class="col-ai-region">Wilayah</th>
-              <th class="col-ai-score">
-                <div class="th-stat center">
-                  <span>Skor Anomali Gabungan</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-microchip"></i> Skor Anomali Gabungan (AI)
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Skor ketidakwajaran pola anggaran hasil pemeriksaan kecerdasan buatan (AI).</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Dasar Perhitungan:</span>
-                        <small>AI memeriksa sekaligus 4 indikator: rasio belanja bansos terhadap pendapatan daerah, angka kemiskinan, keparahan kemiskinan, dan kestabilan belanja. Skor di atas <b>2,0</b> menandakan pola anggaran daerah sangat mencurigakan.</small>
+
+        <section class="panel">
+          <header class="panel-head ribbon-rose">
+            <div class="panel-titles">
+              <span class="badge-accent rose"><i class="pi pi-bolt"></i> HASIL DETEKSI ANOMALI ANGGARAN (RESIDUAL)</span>
+              <div class="heading-row">
+                <h2>Daftar Temuan Prioritas Intervensi</h2>
+              </div>
+            </div>
+            <div class="head-legend">
+              <span class="status-capsule rose"><i class="pi pi-exclamation-triangle"></i> {{ anomalies().length }} Wilayah Teridentifikasi</span>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="table-residual">
+              <thead>
+                <tr>
+                  <th class="col-res-region">Wilayah</th>
+                  <th class="col-res-irbi">
+                    <div class="th-stat">
+                      <span>Risiko Bencana (IRBI)</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip align-left">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-shield"></i> Risiko Bencana (IRBI BNPB)
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Mengukur tingkat kerawanan wilayah terhadap dampak bencana alam berdasarkan data resmi BNPB.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Kategori <b>Tinggi (skor &ge; 140)</b> menandakan wilayah sangat rawan tertimpa bencana alam, sehingga warga rentan butuh perlindungan sosial adaptif agar tidak jatuh miskin lebih dalam.</small>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-ai-confidence">
-                <div class="th-stat center">
-                  <span>Keyakinan AI</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-percentage"></i> Tingkat Keyakinan AI
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Tingkat kepastian sistem AI bahwa temuan anomali ini benar-benar tidak wajar, bukan kesalahan data sesaat.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Dasar Perhitungan:</span>
-                        <small>Persentase keyakinan model (skala 0–100%). Angka di atas <b>80%</b> berarti AI sangat yakin anomali ini valid dan mendesak ditindaklanjuti.</small>
+                  </th>
+                  <th class="col-res-type">
+                    <div class="th-stat">
+                      <span>Klasifikasi</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip align-left">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-tag"></i> Arah Anomali Anggaran
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Bentuk ketidakwajaran arah alokasi belanja bansos daerah.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Kategori:</span>
+                            <small><b>Alokasi Kurang:</b> Belanja bansos terlalu kecil dibanding tingkat kemiskinan nyata.<br><b>Alokasi Lebih:</b> Realisasi bansos membengkak melampaui kebutuhan wajar.</small>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-ai-severity">
-                <div class="th-stat center">
-                  <span>Tingkat Keparahan</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-exclamation-circle"></i> Tingkat Keparahan AI
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Skala urgensi temuan kecerdasan buatan.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Kategori:</span>
-                        <small><b>Kritis:</b> Ketidaksinkronan data ekstrim antara kemiskinan dan realisasi bansos.<br><b>Tinggi/Sedang:</b> Fluktuasi belanja yang memerlukan verifikasi berkala.</small>
+                  </th>
+                  <th class="col-res-severity">
+                    <div class="th-stat center">
+                      <span>Tingkat Keparahan</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-exclamation-circle"></i> Tingkat Keparahan Masalah
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Skala urgensi dan besaran dampak anomali terhadap efektivitas belanja negara.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Kategori:</span>
+                            <small><b>Kritis:</b> Penyimpangan ekstrim yang wajib segera diaudit.<br><b>Tinggi:</b> Deviasi anggaran signifikan.<br><b>Sedang:</b> Memerlukan pemantauan berkala.</small>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-ai-desc">Indikasi Ketidakwajaran oleh AI</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of onnx.results.slice(0, 10); track item.regionId) {
-              <tr>
-                <td class="col-ai-region"><strong>{{ resolveRegion(item.regionName) }}</strong></td>
-                <td class="col-ai-score mono font-bold">
-                  <span class="score-pill">{{ item.anomalyScore.toFixed(2) }}</span>
-                </td>
-                <td class="col-ai-confidence mono">
-                  <span class="confidence-badge">{{ item.confidenceScore.toFixed(0) }}%</span>
-                </td>
-                <td class="col-ai-severity"><span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ translateSeverity(item.severity) }}</span></td>
-                <td class="col-ai-desc explanation">{{ formatOnnxExplanation(item) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </section>
+                  </th>
+                  <th class="col-res-zscore">
+                    <div class="th-stat center">
+                      <span>Tingkat Deviasi (Z-Score)</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-chart-bar"></i> Tingkat Deviasi Belanja
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Mengukur seberapa jauh realisasi anggaran belanja bansos daerah menyimpang dari pola normal daerah lain yang sejenis.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Nilai di atas <b>+2&sigma;</b> menandakan indikasi belanja bansos berlebih/boros, sedangkan di bawah <b>-2&sigma;</b> menandakan alokasi bansos masih sangat kurang dari kebutuhan riil daerah.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-res-var">
+                    <div class="th-stat right">
+                      <span>Nilai Berisiko</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip align-right">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-wallet"></i> Perkiraan Anggaran Berisiko
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Taksiran nominal rupiah anggaran yang berpotensi tidak efisien, salah sasaran, atau tidak mencukupi kebutuhan riil.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Dihitung dari selisih antara realisasi belanja aktual dengan batas toleransi kewajaran kebutuhan daerah.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-res-desc">Uraian Masalah & Implikasi Anggaran</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of anomalies(); track item.id) {
+                  <tr>
+                    <td class="col-res-region">
+                      <strong>{{ resolveRegion(item.region) }}</strong>
+                      <small>Tingkat Keyakinan {{ item.confidenceScore.toFixed(0) }}%</small>
+                    </td>
+                    <td class="col-res-irbi">
+                      <span class="irbi-badge" [style.color]="getDisasterRisk(item.region).color" [style.background]="getDisasterRisk(item.region).bg">
+                        <i class="pi pi-shield"></i> {{ getDisasterRisk(item.region).percent }} · {{ getDisasterRisk(item.region).category }}
+                      </span>
+                    </td>
+                    <td class="col-res-type">
+                      <span [class]="item.type === 'Under-allocation' ? 'type under' : 'type over'">
+                        {{ translateType(item.type) }}
+                      </span>
+                    </td>
+                    <td class="col-res-severity">
+                      <span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">
+                        {{ translateSeverity(item.severity) }}
+                      </span>
+                    </td>
+                    <td class="col-res-zscore mono"><strong>{{ item.zScore.toFixed(2) }}σ</strong></td>
+                    <td class="col-res-var mono font-bold" [title]="'Nominal Lengkap: ' + formatCurrency(item.valueAtRisk).full">{{ formatCurrency(item.valueAtRisk).compact }}</td>
+                    <td class="col-res-desc explanation">{{ formatFiscalExplanation(item) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      } @else {
+        <section class="state"><i class="pi pi-check-circle" aria-hidden="true"></i><p>Tidak ada anomali fiskal pada dataset aktif.</p></section>
+      }
+    </div>
   }
 
-  @if (beneficiaryFindings().length > 0) {
-    <section class="panel">
-      <header class="panel-head ribbon-blue">
-        <div class="panel-titles">
-          <span class="badge-accent blue"><i class="pi pi-compass"></i> PRIORITAS VERIFIKASI LAPANGAN</span>
-          <div class="heading-row">
-            <h2>Temuan Kepesertaan per Wilayah</h2>
+  <!-- ==================== TAB 2: INTEGRITAS DATA MIKRO (P3KE/DTKS) ==================== -->
+  @if (activeTab() === 'beneficiary') {
+    <div class="tab-content-view tab-fade-in">
+      <!-- Banner Penjelasan Tab 2: Integritas Data Mikro -->
+      <div class="tab-explainer-banner banner-teal">
+        <div class="explainer-banner-icon teal">
+          <i class="pi pi-users"></i>
+        </div>
+        <div class="explainer-banner-content">
+          <div class="explainer-banner-title">
+            <strong>Tentang Modul Integritas Kepesertaan Mikro (P3KE / DTKS)</strong>
+            <span class="explainer-tag teal"><i class="pi pi-check-circle"></i> Audit Validitas Kependudukan</span>
           </div>
+          <p class="explainer-banner-desc">
+            Modul ini mengaudit kelayakan data penerima bansos perorangan dan keluarga dari pemadanan silang Dukcapil dan BKN. Memverifikasi 4 indikator pelanggaran: <strong>ASN/TNI/Polri aktif</strong>, <strong>nomor NIK duplikat/ganda</strong>, <strong>penerima telah meninggal dunia</strong>, dan <strong>kepemilikan aset ekonomi mewah</strong> agar bantuan tepat sasaran kepada keluarga yang benar-benar membutuhkan.
+          </p>
         </div>
-        <div class="head-legend">
-          <span class="status-capsule blue"><i class="pi pi-list"></i> {{ beneficiaryFindings().length }} Agregasi Temuan</span>
-        </div>
-      </header>
-      <div class="table-wrap">
-        <table class="table-findings">
-          <thead>
-            <tr>
-              <th class="col-find-region">Wilayah</th>
-              <th class="col-find-risk">
-                <div class="th-stat">
-                  <span>Indikator Risiko</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip align-left">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-filter"></i> Kategori Pelanggaran
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Jenis ketidaksesuaian kriteria penerima bantuan sosial.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Contoh:</span>
-                        <small>Aparatur negara (ASN/TNI/Polri), NIK duplikat, penerima meninggal dunia, atau kepemilikan aset ekonomi di atas batas desil miskin.</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-find-count">
-                <div class="th-stat right">
-                  <span>Jumlah Kasus</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip align-right">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-users"></i> Total Temuan Masalah
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Total warga penerima bansos di daerah ini yang terindikasi melanggar kriteria kelayakan.</p>
-                      <div class="stat-tooltip-calc">
-                        <span class="calc-label">Dasar Perhitungan:</span>
-                        <small>Hasil pencocokan NIK penerima dengan data Dukcapil dan BKN (seperti PNS/TNI/Polri aktif, NIK ganda, orang yang sudah meninggal, atau memiliki aset ekonomi mewah).</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-find-severity">
-                <div class="th-stat center">
-                  <span>Tingkat Keparahan</span>
-                  <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
-                  <div class="stat-tooltip">
-                    <div class="stat-tooltip-head">
-                      <i class="pi pi-exclamation-triangle"></i> Urgensi Penertiban Data
-                    </div>
-                    <div class="stat-tooltip-body">
-                      <p>Prioritas penertiban data agar anggaran bansos tepat sasaran.</p>
-                    </div>
-                  </div>
-                </div>
-              </th>
-              <th class="col-find-desc">Uraian Pelanggaran & Tindak Lanjut</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of beneficiaryFindings().slice(0, 20); track item.region + item.type) {
-              <tr>
-                <td class="col-find-region">
-                  <strong>{{ resolveRegion(item.region) }}</strong>
-                  <div class="wilayah-meta">
-                    <small>Keyakinan {{ item.confidenceScore.toFixed(0) }}%</small>
-                    <span class="irbi-badge-sm" [style.color]="getDisasterRisk(item.region).color" [style.background]="getDisasterRisk(item.region).bg" [title]="'Risiko Bencana IRBI BNPB: ' + getDisasterRisk(item.region).percent + ' (' + getDisasterRisk(item.region).category + ')'">
-                      <i class="pi pi-shield"></i> IRBI {{ getDisasterRisk(item.region).category }}
-                    </span>
-                  </div>
-                </td>
-                <td class="col-find-risk">{{ item.type }}</td>
-                <td class="col-find-count mono font-bold">{{ item.count.toLocaleString('id-ID') }}</td>
-                <td class="col-find-severity"><span class="severity" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ translateSeverity(item.severity) }}</span></td>
-                <td class="col-find-desc explanation">{{ formatBeneficiaryExplanation(item) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
       </div>
-    </section>
-  }
 
-  @if (exclusionErrors().length > 0) {
-    <section class="exclusion">
-      <header class="panel-head ribbon-amber">
-        <div class="panel-titles">
-          <span class="badge-accent amber"><i class="pi pi-exclamation-circle"></i> DETEKSI KELUARGA LAYAK TERLEWAT (EXCLUSION ERROR)</span>
-          <div class="heading-row">
-            <h2>Wilayah dengan Kesenjangan Cakupan Bantuan Sosial</h2>
+      @if (beneficiaryFindings().length > 0) {
+        <section class="panel">
+          <header class="panel-head ribbon-teal">
+            <div class="panel-titles">
+              <span class="badge-accent teal"><i class="pi pi-users"></i> AUDIT INTEGRITAS KEPESERTAAN MIKRO (P3KE/DTKS)</span>
+              <div class="heading-row">
+                <h2>Temuan Kepesertaan per Wilayah</h2>
+              </div>
+            </div>
+            <div class="head-legend">
+              @if (beneficiarySummary(); as ben) {
+                <span class="status-capsule teal" style="margin-right: 8px;"><i class="pi pi-database"></i> {{ ben.totalBeneficiaries.toLocaleString('id-ID') }} Basis Mikro</span>
+              }
+              <span class="status-capsule blue"><i class="pi pi-list"></i> {{ filteredBeneficiaryFindings().length }} Wilayah ({{ totalFilteredCases().toLocaleString('id-ID') }} Kasus)</span>
+            </div>
+          </header>
+
+          <!-- Interactive Category Filter Pill Bar -->
+          <div class="filter-pill-bar" aria-label="Filter kategori pelanggaran kepesertaan">
+            <div class="filter-label">
+              <i class="pi pi-filter"></i>
+              <span>Filter Pelanggaran:</span>
+            </div>
+            <div class="filter-pills">
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="beneficiaryFilter() === 'all'"
+                (click)="setBeneficiaryFilter('all')">
+                <span>Semua Kategori</span>
+                <span class="pill-badge">{{ countFilterCategory('all') }} Kasus</span>
+              </button>
+
+              <button
+                type="button"
+                class="filter-pill pill-purple"
+                [class.active]="beneficiaryFilter() === 'asset'"
+                (click)="setBeneficiaryFilter('asset')">
+                <i class="pi pi-car"></i>
+                <span>Aset Ekonomi</span>
+                <span class="pill-badge purple">{{ countFilterCategory('asset') }} Kasus</span>
+              </button>
+
+              <button
+                type="button"
+                class="filter-pill pill-rose"
+                [class.active]="beneficiaryFilter() === 'asn'"
+                (click)="setBeneficiaryFilter('asn')">
+                <i class="pi pi-briefcase"></i>
+                <span>ASN / TNI / Polri</span>
+                <span class="pill-badge rose">{{ countFilterCategory('asn') }} Kasus</span>
+              </button>
+
+              <button
+                type="button"
+                class="filter-pill pill-amber"
+                [class.active]="beneficiaryFilter() === 'duplicate'"
+                (click)="setBeneficiaryFilter('duplicate')">
+                <i class="pi pi-copy"></i>
+                <span>NIK Duplikat</span>
+                <span class="pill-badge amber">{{ countFilterCategory('duplicate') }} Kasus</span>
+              </button>
+
+              <button
+                type="button"
+                class="filter-pill pill-indigo"
+                [class.active]="beneficiaryFilter() === 'deceased'"
+                (click)="setBeneficiaryFilter('deceased')">
+                <i class="pi pi-heart"></i>
+                <span>Meninggal</span>
+                <span class="pill-badge indigo">{{ countFilterCategory('deceased') }} Kasus</span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="head-legend">
-          <span class="status-capsule amber"><i class="pi pi-exclamation-triangle"></i> {{ exclusionErrors().length }} Wilayah Rentan</span>
-        </div>
-      </header>
-      <div class="gap-list">
-        @for (item of exclusionErrors().slice(0, 8); track item.region; let idx = $index) {
-          <div class="gap-row">
-            <div class="gap-col-rank">
-              <span class="rank-pill">{{ idx + 1 }}</span>
-            </div>
-            <div class="gap-col-info">
-              <div class="gap-region-name">{{ resolveRegion(item.region) }}</div>
-              <div class="gap-count-desc">
-                <i class="pi pi-users"></i>
-                <strong>{{ item.gap.toLocaleString('id-ID') }}</strong> keluarga rentan belum terjangkau bansos
+
+          <div class="table-wrap">
+            <table class="table-findings">
+              <thead>
+                <tr>
+                  <th class="col-find-region">Wilayah</th>
+                  <th class="col-find-risk">
+                    <div class="th-stat">
+                      <span>Indikator Risiko</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip align-left">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-filter"></i> Kategori Pelanggaran
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Jenis ketidaksesuaian kriteria penerima bantuan sosial.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Contoh:</span>
+                            <small>Aparatur negara (ASN/TNI/Polri), NIK duplikat, penerima meninggal dunia, atau kepemilikan aset ekonomi di atas batas desil miskin.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-find-count">
+                    <div class="th-stat right">
+                      <span>Jumlah Kasus</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip align-right">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-users"></i> Total Temuan Masalah
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Total warga penerima bansos di daerah ini yang terindikasi melanggar kriteria kelayakan.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Hasil pencocokan NIK penerima dengan data Dukcapil dan BKN (seperti PNS/TNI/Polri aktif, NIK ganda, orang yang sudah meninggal, atau memiliki aset ekonomi mewah).</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-find-severity">
+                    <div class="th-stat center">
+                      <span>Tingkat Keparahan</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-exclamation-triangle"></i> Urgensi Penertiban Data
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Prioritas penertiban data agar anggaran bansos tepat sasaran.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-find-desc">Uraian Pelanggaran & Tindak Lanjut</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of paginatedBeneficiaryFindings(); track item.region + item.type) {
+                  <tr>
+                    <td class="col-find-region">
+                      <strong>{{ resolveRegion(item.region) }}</strong>
+                      <div class="wilayah-meta">
+                        <small>Keyakinan {{ item.confidenceScore.toFixed(0) }}%</small>
+                        <span class="irbi-badge-sm" [style.color]="getDisasterRisk(item.region).color" [style.background]="getDisasterRisk(item.region).bg" [title]="'Risiko Bencana IRBI BNPB: ' + getDisasterRisk(item.region).percent + ' (' + getDisasterRisk(item.region).category + ')'">
+                          <i class="pi pi-shield"></i> IRBI {{ getDisasterRisk(item.region).category }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="col-find-risk">{{ item.type }}</td>
+                    <td class="col-find-count mono font-bold">{{ item.count.toLocaleString('id-ID') }}</td>
+                    <td class="col-find-severity"><span class="severity" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ translateSeverity(item.severity) }}</span></td>
+                    <td class="col-find-desc explanation">{{ formatBeneficiaryExplanation(item) }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="table-empty-td">
+                      <div class="table-empty-state">
+                        <i class="pi pi-info-circle"></i>
+                        <span>Tidak ada temuan kepesertaan untuk kategori filter ini.</span>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Interactive Table Pagination Bar (10, 25, 50 baris) -->
+          <footer class="table-pagination-bar" aria-label="Navigasi halaman temuan kepesertaan">
+            <div class="pagination-left">
+              <!-- Page Size Selector -->
+              <div class="page-size-selector">
+                <span class="page-size-label">Baris:</span>
+                <div class="page-size-pills">
+                  @for (opt of pageSizeOptions; track opt) {
+                    <button
+                      type="button"
+                      class="page-size-btn"
+                      [class.active]="pageSize() === opt"
+                      (click)="setPageSize(opt)">
+                      {{ opt }}
+                    </button>
+                  }
+                </div>
               </div>
-            </div>
-            <div class="gap-col-bar">
-              <div class="gap-bar-label">
-                <span>Tingkat Kesenjangan</span>
-                <span class="gap-percent font-bold">{{ (item.gapRate * 100).toFixed(1) }}%</span>
-              </div>
-              <div class="gap-progress-track">
-                <div class="gap-progress-fill" [style.width.%]="item.gapRate * 100"></div>
-              </div>
-            </div>
-            <div class="gap-col-badge">
-              <span class="gap-alert-tag">
-                <i class="pi pi-exclamation-circle"></i> {{ (item.gapRate * 100).toFixed(1) }}% Kesenjangan
+
+              <!-- Range Info -->
+              <span class="pagination-info">
+                Menampilkan <strong>{{ startIndex() }}-{{ endIndex() }}</strong> dari <strong>{{ filteredBeneficiaryFindings().length }}</strong> wilayah (Total <strong>{{ totalFilteredCases().toLocaleString('id-ID') }} Kasus</strong>)
               </span>
             </div>
+
+            <div class="pagination-right">
+              @if (totalPages() > 1) {
+                <div class="pagination-controls">
+                  <!-- First Page -->
+                  <button
+                    type="button"
+                    class="page-btn page-arrow"
+                    [disabled]="currentPage() === 1"
+                    (click)="setPage(1)"
+                    title="Halaman Pertama">
+                    <i class="pi pi-angle-double-left"></i>
+                  </button>
+
+                  <!-- Prev Page -->
+                  <button
+                    type="button"
+                    class="page-btn page-arrow"
+                    [disabled]="currentPage() === 1"
+                    (click)="prevPage()"
+                    title="Halaman Sebelumnya">
+                    <i class="pi pi-angle-left"></i>
+                  </button>
+
+                  <!-- Page Numbers -->
+                  @for (p of pagesList(); track $index) {
+                    @if (p === '...') {
+                      <span class="page-ellipsis">…</span>
+                    } @else {
+                      <button
+                        type="button"
+                        class="page-btn page-num"
+                        [class.active]="currentPage() === p"
+                        (click)="setPage(p)">
+                        {{ p }}
+                      </button>
+                    }
+                  }
+
+                  <!-- Next Page -->
+                  <button
+                    type="button"
+                    class="page-btn page-arrow"
+                    [disabled]="currentPage() === totalPages()"
+                    (click)="nextPage()"
+                    title="Halaman Berikutnya">
+                    <i class="pi pi-angle-right"></i>
+                  </button>
+
+                  <!-- Last Page -->
+                  <button
+                    type="button"
+                    class="page-btn page-arrow"
+                    [disabled]="currentPage() === totalPages()"
+                    (click)="setPage(totalPages())"
+                    title="Halaman Terakhir">
+                    <i class="pi pi-angle-double-right"></i>
+                  </button>
+                </div>
+              }
+            </div>
+          </footer>
+        </section>
+      }
+    </div>
+  }
+
+  <!-- ==================== TAB 3: DETEKSI ANOMALI AI (MACHINE LEARNING) ==================== -->
+  @if (activeTab() === 'ai') {
+    <div class="tab-content-view tab-fade-in">
+      <!-- Banner Penjelasan Tab 3: Deteksi AI -->
+      <div class="tab-explainer-banner banner-purple">
+        <div class="explainer-banner-icon purple">
+          <i class="pi pi-microchip"></i>
+        </div>
+        <div class="explainer-banner-content">
+          <div class="explainer-banner-title">
+            <strong>Tentang Modul Deteksi Anomali AI (Machine Learning Engine)</strong>
+            <span class="explainer-tag purple"><i class="pi pi-sparkles"></i> Inferensi ONNX Multidimensi</span>
           </div>
-        }
+          <p class="explainer-banner-desc">
+            Modul ini memanfaatkan model <strong>Kecerdasan Buatan (Machine Learning)</strong> untuk mendeteksi pola ketidakwajaran belanja bansos yang tersembunyi. Berbeda dari rumus statistik linear biasa, AI menganalisis interaksi multidimensi antara tingkat kemiskinan, indeks kedalaman (P1), indeks keparahan (P2), dan alokasi anggaran guna mengenali anomali kompleks secara otomatis.
+          </p>
+        </div>
       </div>
-    </section>
+
+      @if (onnxReport(); as onnx) {
+        <section class="panel">
+          <header class="panel-head ribbon-purple">
+            <div class="panel-titles">
+              <span class="badge-accent purple"><i class="pi pi-microchip"></i> INFERENSI KECERDASAN BUATAN (AI)</span>
+              <div class="heading-row">
+                <h2>Deteksi Anomali Anggaran Terpadu (AI)</h2>
+              </div>
+            </div>
+            <div class="head-legend">
+              <span class="status-capsule purple"><i class="pi pi-shield"></i> {{ onnx.criticalCount }} Kritis · {{ onnx.highCount }} Tinggi</span>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="table-ai">
+              <thead>
+                <tr>
+                  <th class="col-ai-region">Wilayah</th>
+                  <th class="col-ai-score">
+                    <div class="th-stat center">
+                      <span>Skor Anomali Gabungan</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-microchip"></i> Skor Anomali Gabungan (AI)
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Skor ketidakwajaran pola anggaran hasil pemeriksaan kecerdasan buatan (AI).</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>AI memeriksa sekaligus 4 indikator: rasio belanja bansos terhadap pendapatan daerah, angka kemiskinan, keparahan kemiskinan, dan kestabilan belanja. Skor di atas <b>2,0</b> menandakan pola anggaran daerah sangat mencurigakan.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-ai-confidence">
+                    <div class="th-stat center">
+                      <span>Keyakinan AI</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-percentage"></i> Tingkat Keyakinan AI
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Tingkat kepastian sistem AI bahwa temuan anomali ini benar-benar tidak wajar, bukan kesalahan data sesaat.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Dasar Perhitungan:</span>
+                            <small>Persentase keyakinan model (skala 0–100%). Angka di atas <b>80%</b> berarti AI sangat yakin anomali ini valid dan mendesak ditindaklanjuti.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-ai-severity">
+                    <div class="th-stat center">
+                      <span>Tingkat Keparahan</span>
+                      <i class="pi pi-info-circle th-info-icon" aria-hidden="true"></i>
+                      <div class="stat-tooltip">
+                        <div class="stat-tooltip-head">
+                          <i class="pi pi-exclamation-circle"></i> Tingkat Keparahan AI
+                        </div>
+                        <div class="stat-tooltip-body">
+                          <p>Skala urgensi temuan kecerdasan buatan.</p>
+                          <div class="stat-tooltip-calc">
+                            <span class="calc-label">Kategori:</span>
+                            <small><b>Kritis:</b> Ketidaksinkronan data ekstrim antara kemiskinan dan realisasi bansos.<br><b>Tinggi/Sedang:</b> Fluktuasi belanja yang memerlukan verifikasi berkala.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="col-ai-desc">Indikasi Ketidakwajaran oleh AI</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of onnx.results.slice(0, 10); track item.regionId) {
+                  <tr>
+                    <td class="col-ai-region"><strong>{{ resolveRegion(item.regionName) }}</strong></td>
+                    <td class="col-ai-score mono font-bold">
+                      <span class="score-pill">{{ item.anomalyScore.toFixed(2) }}</span>
+                    </td>
+                    <td class="col-ai-confidence mono">
+                      <span class="confidence-badge">{{ item.confidenceScore.toFixed(0) }}%</span>
+                    </td>
+                    <td class="col-ai-severity"><span class="severity" [class.critical]="item.severity === 'Critical'" [class.high]="item.severity === 'High'" [class.medium]="item.severity === 'Medium'">{{ translateSeverity(item.severity) }}</span></td>
+                    <td class="col-ai-desc explanation">{{ formatOnnxExplanation(item) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+  }
+
+  <!-- ==================== TAB 4: KESENJANGAN BANTUAN (EXCLUSION ERROR) ==================== -->
+  @if (activeTab() === 'exclusion') {
+    <div class="tab-content-view tab-fade-in">
+      <!-- Banner Penjelasan Tab 4: Kesenjangan Bantuan (Exclusion Error) -->
+      <div class="tab-explainer-banner banner-amber">
+        <div class="explainer-banner-icon amber">
+          <i class="pi pi-filter-slash"></i>
+        </div>
+        <div class="explainer-banner-content">
+          <div class="explainer-banner-title">
+            <strong>Tentang Modul Kesenjangan Bantuan (Exclusion Error)</strong>
+            <span class="explainer-tag amber"><i class="pi pi-info-circle"></i> Perlindungan Keluarga Rentan</span>
+          </div>
+          <p class="explainer-banner-desc">
+            Modul ini mendeteksi wilayah di mana estimasi jumlah <strong>keluarga miskin yang layak menerima bansos lebih besar daripada kuota penerima yang terdaftar</strong> (warga rentan terlewat dari jangkauan program). Menjadi dasar prioritas penambahan afirmasi kuota bantuan sosial ke daerah defisit agar tidak ada keluarga miskin ekstrem yang tertinggal.
+          </p>
+        </div>
+      </div>
+
+      @if (exclusionErrors().length > 0) {
+        <section class="panel">
+          <header class="panel-head ribbon-amber">
+            <div class="panel-titles">
+              <span class="badge-accent amber"><i class="pi pi-exclamation-circle"></i> DETEKSI KELUARGA LAYAK TERLEWAT (EXCLUSION ERROR)</span>
+              <div class="heading-row">
+                <h2>Wilayah dengan Kesenjangan Cakupan Bantuan Sosial</h2>
+              </div>
+            </div>
+            <div class="head-legend">
+              <span class="status-capsule amber"><i class="pi pi-exclamation-triangle"></i> {{ exclusionErrors().length }} Wilayah Rentan Teridentifikasi</span>
+            </div>
+          </header>
+          <div class="gap-list">
+            @for (item of exclusionErrors().slice(0, 15); track item.region; let idx = $index) {
+              <div class="gap-row">
+                <div class="gap-col-rank">
+                  <span class="rank-pill" [class.top-rank]="idx < 3">{{ idx + 1 }}</span>
+                </div>
+                <div class="gap-col-info">
+                  <div class="gap-region-name">{{ resolveRegion(item.region) }}</div>
+                  <div class="gap-count-desc">
+                    <i class="pi pi-users"></i>
+                    <strong>{{ item.gap.toLocaleString('id-ID') }}</strong> keluarga rentan belum terjangkau bansos
+                  </div>
+                </div>
+                <div class="gap-col-bar">
+                  <div class="gap-bar-label">
+                    <span>Kesenjangan Jangkauan</span>
+                    <span class="gap-percent font-bold">{{ (item.gapRate * 100).toFixed(1) }}%</span>
+                  </div>
+                  <div class="gap-progress-track">
+                    <div class="gap-progress-fill" [style.width.%]="item.gapRate * 100"></div>
+                  </div>
+                </div>
+                <div class="gap-col-badge">
+                  <span class="gap-alert-tag">
+                    <i class="pi pi-exclamation-circle"></i> {{ (item.gapRate * 100).toFixed(1) }}% Kesenjangan
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      } @else {
+        <section class="panel empty-state-panel">
+          <div class="empty-state-content">
+            <div class="empty-icon-wrap">
+              <i class="pi pi-shield-check"></i>
+            </div>
+            <h3>Belum Terdeteksi Kesenjangan Cakupan Signifikan</h3>
+            <p>Data penerima bantuan terdaftar telah mencakup estimasi keluarga rentan di seluruh wilayah evaluasi, atau data sedang dalam proses sinkronisasi.</p>
+          </div>
+        </section>
+      }
+    </div>
   }
 }
