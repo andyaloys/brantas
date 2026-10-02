@@ -394,6 +394,108 @@ body.theme-light .btn-kiosk-trigger:hover,
   box-shadow: 0 2px 8px rgba(13, 148, 136, 0.18) !important;
 }
 
+/* Executive User Profile Button in Light Mode */
+body.theme-light .user-profile-btn,
+[data-theme='light'] .user-profile-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(13, 148, 136, 0.22) !important;
+  color: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+body.theme-light .user-profile-btn:hover,
+[data-theme='light'] .user-profile-btn:hover,
+body.theme-light .user-profile-btn.active,
+[data-theme='light'] .user-profile-btn.active {
+  background: #f0fdfa !important;
+  border-color: #0d9488 !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.18) !important;
+}
+
+body.theme-light .user-profile-btn .user-name-text,
+[data-theme='light'] .user-profile-btn .user-name-text {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .user-profile-btn .user-role-badge,
+[data-theme='light'] .user-profile-btn .user-role-badge {
+  color: #0d9488 !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .user-profile-btn .profile-chevron,
+[data-theme='light'] .user-profile-btn .profile-chevron {
+  color: #64748b !important;
+}
+
+body.theme-light .user-profile-btn:hover .profile-chevron,
+[data-theme='light'] .user-profile-btn:hover .profile-chevron {
+  color: #0d9488 !important;
+}
+
+body.theme-light .user-profile-btn .user-avatar-mini,
+[data-theme='light'] .user-profile-btn .user-avatar-mini {
+  background: linear-gradient(135deg, #0d9488 0%, #115e59 100%) !important;
+  border: 1px solid #99f6e4 !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 4px rgba(13, 148, 136, 0.25) !important;
+}
+
+/* User Profile Dropdown Popover in Light Mode */
+body.theme-light .user-dropdown-popover,
+[data-theme='light'] .user-dropdown-popover {
+  background: #ffffff !important;
+  border: 1px solid rgba(13, 148, 136, 0.22) !important;
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 4px 14px rgba(13, 148, 136, 0.08) !important;
+}
+
+body.theme-light .user-dropdown-name,
+[data-theme='light'] .user-dropdown-name {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+body.theme-light .user-role-pill,
+[data-theme='light'] .user-role-pill {
+  color: #0d9488 !important;
+  background: #f0fdfa !important;
+  border: 1px solid #ccfbf1 !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .user-dropdown-section,
+[data-theme='light'] .user-dropdown-section {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.theme-light .session-label,
+[data-theme='light'] .session-label {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+body.theme-light .user-dropdown-divider,
+[data-theme='light'] .user-dropdown-divider {
+  background: #f1f5f9 !important;
+}
+
+body.theme-light .btn-dropdown-logout,
+[data-theme='light'] .btn-dropdown-logout {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  color: #dc2626 !important;
+}
+
+body.theme-light .btn-dropdown-logout:hover,
+[data-theme='light'] .btn-dropdown-logout:hover {
+  background: #fee2e2 !important;
+  border-color: #f87171 !important;
+  color: #b91c1c !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15) !important;
+}
+
 /* Dashboard Tab Bar */
 body.theme-light .dashboard-tab-bar,
 [data-theme='light'] .dashboard-tab-bar {

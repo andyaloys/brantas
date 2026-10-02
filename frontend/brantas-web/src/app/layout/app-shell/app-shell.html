@@ -143,7 +143,7 @@
               </div>
               <div class="user-meta">
                 <span class="user-name-text">{{ auth.currentUser()?.name || 'Administrator' }}</span>
-                <span class="user-role-badge">JURI / ADMIN</span>
+                <span class="user-role-badge">{{ userRoleDisplay() }}</span>
               </div>
               <i class="pi pi-chevron-down profile-chevron" [class.rotated]="isProfileMenuOpen()"></i>
             </button>
@@ -156,8 +156,7 @@
                   </div>
                   <div class="user-dropdown-info">
                     <div class="user-dropdown-name">{{ auth.currentUser()?.name || 'Administrator' }}</div>
-                    <div class="user-dropdown-email">{{ auth.currentUser()?.username || 'admin' }}&#64;lan.go.id</div>
-                    <span class="user-role-pill">JURI / ADMIN</span>
+                    <span class="user-role-pill">{{ userRoleDisplay() }}</span>
                   </div>
                 </div>
 
@@ -167,9 +166,7 @@
                       <span class="pulse-emerald"></span>
                       <span class="session-label">Sesi Terautentikasi</span>
                     </div>
-                    <span class="session-time-badge">Maks. 60 Menit</span>
                   </div>
-                  <div class="session-hint">Sesi akan otomatis berakhir jika browser ditutup atau tidak ada aktivitas.</div>
                 </div>
 
                 <div class="user-dropdown-divider"></div>
@@ -181,7 +178,7 @@
                     (click)="handleLogout()"
                     title="Keluar dari Portal Eksekutif">
                     <i class="pi pi-sign-out"></i>
-                    <span>Keluar dari Sistem</span>
+                    <span>Keluar</span>
                   </button>
                 </div>
               </div>

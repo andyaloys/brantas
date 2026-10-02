@@ -69,6 +69,15 @@ export class AppShellComponent {
   // State untuk dropdown menu profil pengguna di header
   protected readonly isProfileMenuOpen = signal(false);
 
+  protected readonly userRoleDisplay = computed(() => {
+    const user = this.auth.currentUser();
+    if (!user) return 'ADMINISTRATOR';
+    if (user.username === 'demo' || user.name?.toLowerCase().includes('demo')) {
+      return 'Akun Demo';
+    }
+    return user.role || 'JURI / ADMIN';
+  });
+
   protected toggleProfileMenu(event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();

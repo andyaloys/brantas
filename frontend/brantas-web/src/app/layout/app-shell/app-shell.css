@@ -495,20 +495,24 @@
 .user-profile-btn {
   padding: 0 12px 0 6px;
   gap: 9px;
+  background: #ffffff;
+  border: 1px solid rgba(13, 148, 136, 0.22);
+  color: #1e293b;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
 .user-avatar-mini {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d9488 0%, #042f2e 100%);
-  border: 1px solid rgba(45, 212, 191, 0.45);
+  background: linear-gradient(135deg, #0d9488 0%, #115e59 100%);
+  border: 1px solid #99f6e4;
   display: grid;
   place-items: center;
   color: #ffffff;
   font-size: 11px;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.35);
+  box-shadow: 0 1px 4px rgba(13, 148, 136, 0.25);
 }
 
 .user-meta {
@@ -521,41 +525,90 @@
 .user-name-text {
   font-size: 11.5px;
   font-weight: 700;
-  color: #f8fafc;
+  color: #0f172a;
   letter-spacing: 0.01em;
 }
 
 .user-role-badge {
   font-size: 9px;
-  font-weight: 800;
-  color: #2dd4bf;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: #0d9488;
+  letter-spacing: 0.04em;
 }
 
 .profile-chevron {
   font-size: 10px;
-  color: #94a3b8;
+  color: #64748b;
   margin-left: 2px;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
 }
 
 .profile-chevron.rotated {
   transform: rotate(180deg);
+  color: #0d9488;
+}
+
+.user-profile-btn:hover,
+.user-profile-btn.active {
+  background: #f0fdfa;
+  border-color: #0d9488;
+  color: #0d9488;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.18);
+}
+
+.user-profile-btn:hover .profile-chevron {
+  color: #0d9488;
+}
+
+/* Dark Mode Overrides for Profile Button */
+:host-context([data-theme='dark']) .user-profile-btn,
+:host-context(.theme-dark) .user-profile-btn {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(45, 212, 191, 0.22);
+  color: #e2e8f0;
+}
+
+:host-context([data-theme='dark']) .user-name-text,
+:host-context(.theme-dark) .user-name-text {
+  color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .user-role-badge,
+:host-context(.theme-dark) .user-role-badge {
   color: #2dd4bf;
 }
 
-/* Dropdown Popover Card */
+:host-context([data-theme='dark']) .profile-chevron,
+:host-context(.theme-dark) .profile-chevron {
+  color: #94a3b8;
+}
+
+:host-context([data-theme='dark']) .user-profile-btn:hover,
+:host-context(.theme-dark) .user-profile-btn:hover,
+:host-context([data-theme='dark']) .user-profile-btn.active,
+:host-context(.theme-dark) .user-profile-btn.active {
+  background: rgba(20, 184, 166, 0.14);
+  border-color: rgba(45, 212, 191, 0.5);
+  color: #ffffff;
+}
+
+:host-context([data-theme='dark']) .user-profile-btn:hover .profile-chevron,
+:host-context(.theme-dark) .user-profile-btn:hover .profile-chevron {
+  color: #5eead4;
+}
+
+/* Dropdown Popover Card - Default Light Executive Surface */
 .user-dropdown-popover {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 280px;
-  background: #0b1120;
-  border: 1px solid rgba(45, 212, 191, 0.3);
-  border-radius: var(--radius-md);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(20, 184, 166, 0.15);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  width: 250px;
+  background: #ffffff;
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  border-radius: 16px;
+  box-shadow: 
+    0 16px 36px -4px rgba(15, 23, 42, 0.12),
+    0 4px 12px rgba(13, 148, 136, 0.08);
   padding: 16px;
   z-index: 1000;
   animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -585,101 +638,78 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d9488 0%, #042f2e 100%);
-  border: 2px solid rgba(45, 212, 191, 0.45);
+  background: linear-gradient(135deg, #0d9488 0%, #115e59 100%);
+  border: 2px solid #ccfbf1;
   display: grid;
   place-items: center;
   color: #ffffff;
   font-size: 18px;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.22);
 }
 
 .user-dropdown-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 
 .user-dropdown-name {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 800;
-  color: #f8fafc;
+  color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.user-dropdown-email {
-  font-size: 11px;
-  color: #94a3b8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .user-role-pill {
   display: inline-block;
   align-self: flex-start;
-  margin-top: 2px;
-  font-size: 9.5px;
-  font-weight: 800;
-  color: #2dd4bf;
-  background: rgba(45, 212, 191, 0.12);
-  border: 1px solid rgba(45, 212, 191, 0.25);
+  font-size: 10px;
+  font-weight: 700;
+  color: #0d9488;
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
   padding: 2px 8px;
   border-radius: var(--radius-full);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
 }
 
 .user-dropdown-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 2px 0;
+  background: #f1f5f9;
+  margin: 0;
 }
 
 .user-dropdown-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #f8fafc;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
 }
 
 .session-status-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .session-dot-wrap {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 .session-label {
   font-size: 11.5px;
-  font-weight: 700;
-  color: #e2e8f0;
-}
-
-.session-time-badge {
-  font-size: 10px;
-  font-weight: 700;
-  color: #2dd4bf;
-  background: rgba(45, 212, 191, 0.12);
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
-.session-hint {
-  font-size: 10px;
-  color: #94a3b8;
-  line-height: 1.35;
+  font-weight: 600;
+  color: #334155;
 }
 
 .user-dropdown-actions {
@@ -694,10 +724,10 @@
   gap: 8px;
   width: 100%;
   padding: 9px 16px;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: var(--radius-sm);
-  color: #fca5a5;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #dc2626;
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
@@ -705,15 +735,66 @@
 }
 
 .btn-dropdown-logout:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: #ef4444;
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #b91c1c;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
   transform: translateY(-1px);
 }
 
 .btn-dropdown-logout i {
   font-size: 13px;
+}
+
+/* Dark Mode Overrides for Profile Popover */
+:host-context([data-theme='dark']) .user-dropdown-popover,
+:host-context(.theme-dark) .user-dropdown-popover {
+  background: #0b1120;
+  border-color: rgba(45, 212, 191, 0.3);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(20, 184, 166, 0.15);
+}
+
+:host-context([data-theme='dark']) .user-dropdown-name,
+:host-context(.theme-dark) .user-dropdown-name {
+  color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .user-role-pill,
+:host-context(.theme-dark) .user-role-pill {
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.12);
+  border-color: rgba(45, 212, 191, 0.25);
+}
+
+:host-context([data-theme='dark']) .user-dropdown-divider,
+:host-context(.theme-dark) .user-dropdown-divider {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:host-context([data-theme='dark']) .user-dropdown-section,
+:host-context(.theme-dark) .user-dropdown-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+:host-context([data-theme='dark']) .session-label,
+:host-context(.theme-dark) .session-label {
+  color: #e2e8f0;
+}
+
+:host-context([data-theme='dark']) .btn-dropdown-logout,
+:host-context(.theme-dark) .btn-dropdown-logout {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+:host-context([data-theme='dark']) .btn-dropdown-logout:hover,
+:host-context(.theme-dark) .btn-dropdown-logout:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
 }
 
 /* Light Theme Harmonization for Topbar & Profile Dropdown */
@@ -761,61 +842,7 @@
   color: #0d9488;
 }
 
-[data-theme='light'] .user-dropdown-popover {
-  background: #ffffff;
-  border: 1px solid rgba(13, 148, 136, 0.25);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
-}
 
-[data-theme='light'] .user-dropdown-name {
-  color: #0f172a;
-}
-
-[data-theme='light'] .user-dropdown-email {
-  color: #64748b;
-}
-
-[data-theme='light'] .user-role-pill {
-  color: #0d9488;
-  background: #f0fdfa;
-  border-color: #99f6e4;
-}
-
-[data-theme='light'] .user-dropdown-divider {
-  background: #f1f5f9;
-}
-
-[data-theme='light'] .user-dropdown-section {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-}
-
-[data-theme='light'] .session-label {
-  color: #0f172a;
-}
-
-[data-theme='light'] .session-time-badge {
-  color: #0d9488;
-  background: #f0fdfa;
-  border: 1px solid #ccfbf1;
-}
-
-[data-theme='light'] .session-hint {
-  color: #64748b;
-}
-
-[data-theme='light'] .btn-dropdown-logout {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
-}
-
-[data-theme='light'] .btn-dropdown-logout:hover {
-  background: #dc2626;
-  border-color: #dc2626;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
-}
 
 
 /* Dedicated Kiosk / War Room Topbar */
