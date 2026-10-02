@@ -17,14 +17,18 @@ export class LandingPageComponent {
   readonly isAuthenticated = this.authService.isAuthenticated;
 
   navigateTo(path: string = '/beranda'): void {
-    // Mode Demo: Otomatis masuk sebagai Dewan Juri / Eksekutif tanpa form login
-    if (!this.isAuthenticated()) {
-      this.authService.loginDemo();
+    if (this.isAuthenticated()) {
+      this.router.navigate([path]);
+    } else {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: path } });
     }
-    this.router.navigate([path]);
   }
 
   navigateToPortal(): void {
-    this.navigateTo('/beranda');
+    if (this.isAuthenticated()) {
+      this.router.navigate(['/beranda']);
+    } else {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/beranda' } });
+    }
   }
 }
