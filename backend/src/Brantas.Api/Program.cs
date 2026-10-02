@@ -121,6 +121,14 @@ app.MapPost("/api/v1/auth/login", async (HttpContext context, AuthLoginRequest r
         department = "Tim Teknis & Pengembangan BRANTAS";
         avatarIcon = "pi pi-code";
     }
+    else if (username == "demo" && (password == "Demo123!" || password == "demo" || password == ""))
+    {
+        isValid = true;
+        role = "Akun Demo";
+        name = "Demo";
+        department = "Simulasi Evaluasi LAN Datathon 2026";
+        avatarIcon = "pi pi-bolt";
+    }
 
     var nowWib = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7));
 
