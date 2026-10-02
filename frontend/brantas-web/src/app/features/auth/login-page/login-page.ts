@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -61,13 +61,32 @@ export class LoginPageComponent implements OnInit {
       this.isSubmitting.set(false);
 
       if (result.success) {
-        this.router.navigate(['/beranda']);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/beranda';
+        this.router.navigateByUrl(returnUrl);
       } else {
         this.errorMessage.set(result.message || 'Kredensial tidak valid.');
       }
     } catch {
       this.isSubmitting.set(false);
       this.errorMessage.set('Terjadi kesalahan saat memverifikasi kredensial.');
+    }
+  }
+
+  /**
+   * Akses langsung ke sistem tanpa memasukkan username dan password dengan akun 'Demo'
+   */
+  protected async onStartDemo(): Promise<void> {
+    this.errorMessage.set(null);
+    this.isSubmitting.set(true);
+
+    try {
+      await this.authService.loginDemo();
+      this.isSubmitting.set(false);
+      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/beranda';
+      this.router.navigateByUrl(returnUrl);
+    } catch {
+      this.isSubmitting.set(false);
+      this.errorMessage.set('Terjadi kesalahan saat memulai sesi demo.');
     }
   }
 }

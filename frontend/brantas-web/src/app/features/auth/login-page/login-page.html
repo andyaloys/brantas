@@ -1,11 +1,123 @@
 <div class="login-container">
-  <!-- Subtle Ambient Decor in Light Theme -->
-  <div class="login-bg-glow glow-1"></div>
-  <div class="login-bg-glow glow-2"></div>
-  <div class="login-grid-pattern"></div>
+  <!-- Dynamic Geospatial Background matching Landing Page -->
+  <div class="grid-overlay"></div>
+  <div class="map-overlay">
+    <svg viewBox="0 0 1440 850" fill="none" xmlns="http://www.w3.org/2000/svg" class="map-svg" preserveAspectRatio="xMidYMid slice">
+      <!-- Geospatial Coordinate Graticules (Latitude & Longitude) -->
+      <g stroke="#34d399" stroke-width="0.75" opacity="0.18">
+        <line x1="0" y1="180" x2="1440" y2="180" stroke-dasharray="4,8" />
+        <line x1="0" y1="310" x2="1440" y2="310" stroke-dasharray="4,8" />
+        <line x1="0" y1="440" x2="1440" y2="440" stroke-dasharray="6,6" stroke-width="1.2" opacity="0.3" />
+        <line x1="0" y1="570" x2="1440" y2="570" stroke-dasharray="4,8" />
+        <line x1="0" y1="700" x2="1440" y2="700" stroke-dasharray="4,8" />
+
+        <path d="M220,50 Q240,440 220,800" stroke-dasharray="3,6" />
+        <path d="M420,50 Q460,440 420,800" stroke-dasharray="3,6" />
+        <path d="M640,50 Q680,440 640,800" stroke-dasharray="3,6" />
+        <path d="M860,50 Q900,440 860,800" stroke-dasharray="3,6" />
+        <path d="M1080,50 Q1120,440 1080,800" stroke-dasharray="3,6" stroke-width="1.1" opacity="0.28" />
+        <path d="M1280,50 Q1310,440 1280,800" stroke-dasharray="3,6" />
+      </g>
+
+      <!-- Graticule Reference Markers -->
+      <text x="30" y="435" fill="#34d399" font-size="9" font-family="monospace" letter-spacing="1" opacity="0.35">LAT 00° 00' EQUATOR</text>
+      <text x="30" y="305" fill="#34d399" font-size="8" font-family="monospace" letter-spacing="1" opacity="0.25">LAT 23° 26' N TROPIC OF CANCER</text>
+      <text x="30" y="565" fill="#34d399" font-size="8" font-family="monospace" letter-spacing="1" opacity="0.25">LAT 23° 26' S TROPIC OF CAPRICORN</text>
+      <text x="1085" y="100" fill="#6ee7b7" font-size="8.5" font-family="monospace" letter-spacing="1" opacity="0.4">MERIDIAN 106°E (INDONESIA)</text>
+
+      <!-- CONTINENT OUTLINES: WORLD MAP GEOMETRY -->
+      <path d="M110,190 C150,150 210,140 280,155 C340,140 400,170 430,210 C420,250 380,260 340,250 C300,270 270,310 230,290 C180,300 140,260 110,190 Z" 
+            stroke="#34d399" stroke-width="1.3" fill="rgba(52, 211, 153, 0.04)" opacity="0.45" />
+      <path d="M420,110 C460,95 490,115 475,160 C440,170 420,140 420,110 Z" 
+            stroke="#34d399" stroke-width="1.1" fill="rgba(52, 211, 153, 0.03)" opacity="0.4" />
+      <path d="M180,290 C230,280 310,270 370,300 C400,330 385,380 345,390 C325,410 295,420 275,470 C255,480 235,420 205,380 C175,350 165,310 180,290 Z" 
+            stroke="#34d399" stroke-width="1.3" fill="rgba(52, 211, 153, 0.04)" opacity="0.45" />
+      <path d="M275,470 C295,480 315,520 325,540 C310,555 290,520 275,470 Z" 
+            stroke="#34d399" stroke-width="1.1" opacity="0.4" />
+
+      <path d="M315,540 C360,525 420,555 440,610 C455,670 415,750 370,810 C335,845 320,815 315,755 C305,695 285,630 290,580 C295,550 310,545 315,540 Z" 
+            stroke="#34d399" stroke-width="1.3" fill="rgba(52, 211, 153, 0.04)" opacity="0.48" />
+
+      <path d="M640,150 C670,130 690,160 680,220 C660,230 640,210 640,150 Z" 
+            stroke="#34d399" stroke-width="1.1" fill="rgba(52, 211, 153, 0.03)" opacity="0.42" />
+      <path d="M580,230 C600,220 610,240 600,265 C585,270 575,250 580,230 Z" 
+            stroke="#34d399" stroke-width="1.1" opacity="0.4" />
+      <path d="M570,280 C630,260 690,270 720,310 C700,340 650,355 610,340 C575,345 560,320 570,280 Z" 
+            stroke="#34d399" stroke-width="1.2" fill="rgba(52, 211, 153, 0.04)" opacity="0.45" />
+      <path d="M555,330 C585,325 595,355 580,375 C560,380 550,355 555,330 Z" 
+            stroke="#34d399" stroke-width="1.1" opacity="0.4" />
+
+      <path d="M570,390 C650,375 730,385 770,430 C810,480 830,550 810,630 C780,710 730,780 680,810 C640,815 620,750 605,675 C580,605 535,550 540,470 C545,420 560,400 570,390 Z" 
+            stroke="#34d399" stroke-width="1.3" fill="rgba(52, 211, 153, 0.04)" opacity="0.48" />
+      <path d="M810,690 C825,675 835,705 825,750 C810,755 805,720 810,690 Z" 
+            stroke="#34d399" stroke-width="1" opacity="0.4" />
+
+      <path d="M720,210 C840,180 990,170 1170,200 C1280,220 1320,270 1280,315 C1200,320 1140,280 1060,290 C960,300 880,270 800,280 C745,290 715,250 720,210 Z" 
+            stroke="#34d399" stroke-width="1.3" fill="rgba(52, 211, 153, 0.04)" opacity="0.45" />
+      <path d="M740,385 C785,395 810,435 800,490 C765,505 740,465 735,420 Z" 
+            stroke="#34d399" stroke-width="1.1" fill="rgba(52, 211, 153, 0.03)" opacity="0.4" />
+      <path d="M875,410 C925,420 950,460 935,535 C910,570 890,525 870,470 C865,435 870,420 875,410 Z" 
+            stroke="#34d399" stroke-width="1.2" fill="rgba(52, 211, 153, 0.04)" opacity="0.45" />
+      <path d="M950,340 C1030,330 1110,350 1130,420 C1110,470 1050,490 1000,460 C945,450 935,390 950,340 Z" 
+            stroke="#34d399" stroke-width="1.2" fill="rgba(52, 211, 153, 0.04)" opacity="0.45" />
+      <path d="M1220,310 C1240,330 1250,380 1230,420 C1210,410 1215,350 1220,310 Z" 
+            stroke="#34d399" stroke-width="1.1" opacity="0.42" />
+      <path d="M1005,470 C1045,475 1065,520 1045,565 C1025,585 1005,535 1005,470 Z" 
+            stroke="#34d399" stroke-width="1.2" opacity="0.45" />
+
+      <!-- INDONESIA (Primary Focal Archipelago - Detailed & Glowing) -->
+      <path d="M990,575 C1020,605 1050,645 1020,665 C1000,640 980,600 990,575 Z" 
+            stroke="#34d399" stroke-width="1.6" fill="rgba(52, 211, 153, 0.12)" opacity="0.75" />
+      <path d="M1050,665 C1100,670 1150,680 1150,692 C1100,692 1050,680 1050,665 Z" 
+            stroke="#34d399" stroke-width="1.6" fill="rgba(52, 211, 153, 0.12)" opacity="0.75" />
+      <path d="M1065,580 C1110,570 1130,610 1100,640 C1060,635 1055,600 1065,580 Z" 
+            stroke="#10b981" stroke-width="1.6" fill="rgba(16, 185, 129, 0.12)" opacity="0.75" />
+      <path d="M1145,590 C1165,575 1175,605 1160,635 C1175,655 1150,665 1140,630 Z" 
+            stroke="#34d399" stroke-width="1.6" fill="rgba(52, 211, 153, 0.12)" opacity="0.75" />
+      <path d="M1215,620 C1280,610 1305,640 1260,665 C1220,660 1205,640 1215,620 Z" 
+            stroke="#34d399" stroke-width="1.6" fill="rgba(52, 211, 153, 0.12)" opacity="0.75" />
+      <circle cx="1160" cy="685" r="2.5" fill="#6ee7b7" opacity="0.8" />
+      <circle cx="1178" cy="688" r="2.5" fill="#6ee7b7" opacity="0.8" />
+      <circle cx="1195" cy="630" r="3" fill="#6ee7b7" opacity="0.8" />
+
+      <path d="M1135,705 C1225,690 1295,720 1305,800 C1275,855 1185,850 1125,810 C1105,760 1115,720 1135,705 Z" 
+            stroke="#34d399" stroke-width="1.3" fill="rgba(52, 211, 153, 0.04)" opacity="0.45" />
+      <path d="M1335,810 C1350,800 1355,840 1340,870 Z" 
+            stroke="#34d399" stroke-width="1.1" opacity="0.4" />
+
+      <!-- GEODESIC ARCS & NODES -->
+      <path d="M1065,665 Q1180,480 1225,350" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4,6" opacity="0.45" />
+      <path d="M1065,665 Q850,380 600,265" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4,6" opacity="0.4" />
+      <path d="M1065,665 Q680,240 370,300" stroke="#34d399" stroke-width="1" stroke-dasharray="3,5" opacity="0.35" />
+      <path d="M1065,665 Q1190,740 1270,800" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4,6" opacity="0.4" />
+      <path d="M1065,665 Q930,520 780,430" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4,6" opacity="0.4" />
+
+      <circle cx="1065" cy="665" r="9" stroke="#34d399" stroke-width="1" opacity="0.3" />
+      <circle cx="1065" cy="665" r="5" fill="#10b981" opacity="0.75" />
+      <circle cx="1065" cy="665" r="2.5" fill="#ffffff" />
+      <circle cx="1225" cy="350" r="3.5" fill="#34d399" opacity="0.6" />
+      <circle cx="600" cy="265" r="3.5" fill="#34d399" opacity="0.6" />
+      <circle cx="370" cy="300" r="3.5" fill="#34d399" opacity="0.6" />
+      <circle cx="1270" cy="800" r="3.5" fill="#34d399" opacity="0.6" />
+      <circle cx="780" cy="430" r="3.5" fill="#34d399" opacity="0.6" />
+    </svg>
+  </div>
+
+  <!-- Ambient Glowing AI Orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
+  <!-- Top Navigation back link -->
+  <header class="login-topbar">
+    <a routerLink="/" class="btn-back-home">
+      <i class="pi pi-arrow-left"></i>
+      <span>Kembali ke Beranda</span>
+    </a>
+  </header>
 
   <main class="login-card-wrapper" role="main">
-    <!-- Main Clean Light Glass Card -->
+    <!-- Main High-Contrast Glass Card -->
     <div class="login-card">
       <div class="login-header">
         <div class="emblem-wrapper">
@@ -88,6 +200,20 @@
             <i class="pi pi-arrow-right"></i>
           }
         </button>
+
+        <!-- Tombol Mulai Demo di kanan bawah tombol Login -->
+        <div class="demo-access-bar">
+          <button
+            type="button"
+            class="btn-demo-quick"
+            (click)="onStartDemo()"
+            [disabled]="isSubmitting()"
+            title="Akses langsung dengan akun Demo">
+            <i class="pi pi-bolt"></i>
+            <span>Mulai Demo</span>
+            <i class="pi pi-arrow-right"></i>
+          </button>
+        </div>
       </form>
 
       <!-- Security Notice -->

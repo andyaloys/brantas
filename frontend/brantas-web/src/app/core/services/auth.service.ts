@@ -58,6 +58,16 @@ export class AuthService {
         department: 'Tim Teknis & Pengembangan BRANTAS',
         avatarIcon: 'pi pi-code'
       }
+    },
+    demo: {
+      pass: 'Demo123!',
+      profile: {
+        username: 'demo',
+        name: 'Demo',
+        role: 'Akun Demo',
+        department: 'Simulasi Evaluasi LAN Datathon 2026',
+        avatarIcon: 'pi pi-bolt'
+      }
     }
   };
 
@@ -77,10 +87,28 @@ export class AuthService {
   }
 
   /**
-   * Bypass login otomatis untuk kebutuhan Demo Dewan Juri / Presentasi
+   * Masuk otomatis menggunakan akun Demo (Dewan Juri / Evaluasi)
    */
-  loginDemo(): void {
-    const demoProfile: UserProfile = AuthService.USERS['admin'].profile;
+  async loginDemo(): Promise<void> {
+    const demoProfile: UserProfile = AuthService.USERS['demo']?.profile || {
+      username: 'demo',
+      name: 'Demo',
+      role: 'Akun Demo',
+      department: 'Simulasi Evaluasi LAN Datathon 2026',
+      avatarIcon: 'pi pi-bolt'
+    };
+
+    try {
+      await firstValueFrom(
+        this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, {
+          username: 'demo',
+          password: 'Demo123!'
+        })
+      );
+    } catch (e) {
+      console.warn('Backend auth endpoint offline, menggunakan verifikasi sesi demo lokal:', e);
+    }
+
     this.saveSessionToStorage(demoProfile);
     this.sessionState.set(demoProfile);
   }
