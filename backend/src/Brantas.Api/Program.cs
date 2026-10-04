@@ -828,6 +828,7 @@ app.MapGet("/api/v1/spatial/regions.csv", async (BrantasDbContext database, Canc
 app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext database, IMemoryCache cache, CancellationToken cancellationToken) =>
 {
     var version = await database.DatasetVersions
+        .AsNoTracking()
         .Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed)
         .OrderByDescending(item => item.IngestedAt)
         .FirstOrDefaultAsync(cancellationToken);
@@ -842,7 +843,7 @@ app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext data
         return Results.Ok(cached);
     }
 
-    var records = database.BeneficiaryRecords.Where(item => item.DatasetVersionId == version.Id);
+    var records = database.BeneficiaryRecords.AsNoTracking().Where(item => item.DatasetVersionId == version.Id);
     var duplicateGroupSizes = await records
         .GroupBy(item => item.NikHash)
         .Select(group => group.Count())
@@ -870,7 +871,7 @@ app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext data
         duplicateIdentityCount = duplicateGroupSizes.Sum(count => count - 1)
     };
 
-    cache.Set(cacheKey, summary, TimeSpan.FromMinutes(60));
+    cache.Set(cacheKey, summary, TimeSpan.FromHours(24));
     return Results.Ok(summary);
 })
     .WithName("GetBeneficiaryAnomalySummary")
@@ -880,7 +881,11 @@ app.MapGet("/api/v1/beneficiaries/anomaly-summary", async (BrantasDbContext data
 
 app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext database, IMemoryCache cache, CancellationToken cancellationToken) =>
 {
-    var version = await database.DatasetVersions.Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed).OrderByDescending(item => item.IngestedAt).FirstOrDefaultAsync(cancellationToken);
+    var version = await database.DatasetVersions
+        .AsNoTracking()
+        .Where(item => item.Status == Brantas.Domain.Entities.DatasetStatus.Completed)
+        .OrderByDescending(item => item.IngestedAt)
+        .FirstOrDefaultAsync(cancellationToken);
     if (version is null) return Results.NotFound(new { title = "Data belum tersedia", detail = "Jalankan pipeline data sintetis terlebih dahulu." });
 
     var cacheKey = $"BeneficiaryAnomalyFindings_{version.Id}";
@@ -889,7 +894,9 @@ app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext dat
         return Results.Ok(cached);
     }
 
-    var findings = await database.BeneficiaryRecords.Where(item => item.DatasetVersionId == version.Id)
+    var findings = await database.BeneficiaryRecords
+        .AsNoTracking()
+        .Where(item => item.DatasetVersionId == version.Id)
         .GroupBy(item => new { item.RegionId, Region = item.Region!.Name })
         .Select(group => new
         {
@@ -901,15 +908,16 @@ app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext dat
         })
         .ToListAsync(cancellationToken);
 
-    var duplicateHashes = await database.BeneficiaryRecords
-        .Where(item => item.DatasetVersionId == version.Id)
-        .GroupBy(item => item.NikHash)
+    var duplicateQuery = database.BeneficiaryRecords
+        .AsNoTracking()
+        .Where(inner => inner.DatasetVersionId == version.Id)
+        .GroupBy(inner => inner.NikHash)
         .Where(group => group.Count() > 1)
-        .Select(group => group.Key)
-        .ToListAsync(cancellationToken);
+        .Select(group => group.Key);
 
     var duplicateByRegion = await database.BeneficiaryRecords
-        .Where(item => item.DatasetVersionId == version.Id && duplicateHashes.Contains(item.NikHash))
+        .AsNoTracking()
+        .Where(item => item.DatasetVersionId == version.Id && duplicateQuery.Contains(item.NikHash))
         .GroupBy(item => new { item.RegionId, Region = item.Region!.Name })
         .Select(group => new
         {
@@ -939,7 +947,7 @@ app.MapGet("/api/v1/beneficiaries/anomaly-findings", async (BrantasDbContext dat
     .OrderByDescending(item => item.count)
     .ToList();
 
-    cache.Set(cacheKey, result, TimeSpan.FromMinutes(60));
+    cache.Set(cacheKey, result, TimeSpan.FromHours(24));
     return Results.Ok(result);
 })
     .WithName("GetBeneficiaryAnomalyFindings")
