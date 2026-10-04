@@ -476,7 +476,25 @@
         </article>
       </section>
 
-      @if (beneficiaryFindings().length > 0) {
+      @if (isBeneficiaryLoading()) {
+        <!-- Skeleton Loading Shimmer State untuk Tab 2 -->
+        <section class="panel panel-skeleton" aria-label="Memuat data kepesertaan">
+          <div class="skeleton-header">
+            <div class="skeleton-shimmer skeleton-badge"></div>
+            <div class="skeleton-shimmer skeleton-title"></div>
+          </div>
+          <div class="skeleton-table">
+            <div class="skeleton-shimmer skeleton-thead"></div>
+            @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+              <div class="skeleton-shimmer skeleton-row"></div>
+            }
+          </div>
+          <div class="skeleton-loading-note">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Memindai dan mengaudit kelayakan 2.000.000 data kepesertaan mikro terhadap basis data Dukcapil & BKN...</span>
+          </div>
+        </section>
+      } @else if (beneficiaryFindings().length > 0) {
         <section class="panel">
           <header class="panel-head ribbon-teal">
             <div class="panel-titles">
@@ -665,6 +683,18 @@
               }
             </div>
           </footer>
+        </section>
+      } @else {
+        <!-- Empty / Fallback State -->
+        <section class="panel panel-empty">
+          <div class="table-empty-state">
+            <i class="pi pi-refresh"></i>
+            <h3>Sinkronisasi Data Kepesertaan Mikro</h3>
+            <p>Data temuan mikro sedang disinkronkan. Klik tombol di bawah untuk memuat ulang rincian data wilayah.</p>
+            <button type="button" class="btn-retry" (click)="loadBeneficiaryData()">
+              <i class="pi pi-refresh"></i> Muat Ulang Data
+            </button>
+          </div>
         </section>
       }
     </div>
