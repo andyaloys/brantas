@@ -174,6 +174,7 @@ export class GisChoroplethAdapter {
   private regencyLayerMap = new Map<string, any>();
   private allFeatures: any[] = [];
   private onSelectRegionCallback?: (region: SpatialRegionProperties) => void;
+  private activeHoverPoly: any = null;
 
   render(
     container: HTMLElement,
@@ -228,6 +229,43 @@ export class GisChoroplethAdapter {
           });
         });
       }
+
+      // 9. Enforce Single Tooltip Rule & Cleanup on Map Events
+      this.map.on('tooltipopen', (e: any) => {
+        if (this.geoJsonLayer) {
+          this.geoJsonLayer.eachLayer((l: any) => {
+            if (l.getTooltip?.() !== e.tooltip && l.isTooltipOpen?.()) {
+              l.closeTooltip();
+            }
+          });
+        }
+        const mapContainer = this.map?.getContainer();
+        if (mapContainer) {
+          const tooltips = mapContainer.querySelectorAll('.leaflet-tooltip-pane .leaflet-tooltip');
+          if (tooltips.length > 1) {
+            for (let i = 0; i < tooltips.length - 1; i++) {
+              tooltips[i].remove();
+            }
+          }
+        }
+      });
+
+      this.map.on('mouseout movestart zoomstart', () => {
+        this.closeAllOtherTooltips();
+        if (this.activeHoverPoly) {
+          const p = this.activeHoverPoly.feature?.properties;
+          if (p) {
+            this.activeHoverPoly.setStyle({
+              fillColor: this.getColorForProps(p),
+              fillOpacity: 0.58,
+              color: '#ffffff',
+              weight: 0.85,
+              opacity: 0.95
+            });
+          }
+          this.activeHoverPoly = null;
+        }
+      });
 
       // Initial view centered on Indonesia & apply initial label visibility (zoom < 7 -> province only)
       this.fitIndonesiaBounds();
@@ -377,6 +415,7 @@ export class GisChoroplethAdapter {
     this.provLabelsLayer = null;
     this.kabLabelsLayer = null;
     this.regencyLayerMap.clear();
+    this.activeHoverPoly = null;
   }
 
   private updateLabelsVisibility(): void {
@@ -573,6 +612,28 @@ export class GisChoroplethAdapter {
         layer.on({
           mouseover: (e) => {
             const poly = e.target;
+
+            // Jika ada poligon sebelumnya yang hover-nya aktif, bersihkan dan tutup tooltipnya
+            if (this.activeHoverPoly && this.activeHoverPoly !== poly) {
+              const prevP = this.activeHoverPoly.feature?.properties;
+              if (prevP) {
+                this.activeHoverPoly.setStyle({
+                  fillColor: this.getColorForProps(prevP),
+                  fillOpacity: 0.58,
+                  color: '#ffffff',
+                  weight: 0.85,
+                  opacity: 0.95
+                });
+              }
+              if (this.activeHoverPoly.isTooltipOpen?.()) {
+                this.activeHoverPoly.closeTooltip();
+              }
+            }
+            this.activeHoverPoly = poly;
+
+            // Tutup seluruh tooltip lain yang masih menggantung
+            this.closeAllOtherTooltips(poly);
+
             poly.setStyle({
               weight: 2.0,
               color: '#0f172a',
@@ -591,6 +652,12 @@ export class GisChoroplethAdapter {
               weight: 0.85,
               opacity: 0.95
             });
+            if (poly.isTooltipOpen?.()) {
+              poly.closeTooltip();
+            }
+            if (this.activeHoverPoly === poly) {
+              this.activeHoverPoly = null;
+            }
           },
           click: () => {
             this.zone.run(() => {
@@ -635,6 +702,30 @@ export class GisChoroplethAdapter {
           markerEl.style.display = '';
         }
       });
+    }
+  }
+
+  private closeAllOtherTooltips(exceptPoly?: any): void {
+    if (this.geoJsonLayer) {
+      this.geoJsonLayer.eachLayer((l: any) => {
+        if (l !== exceptPoly && l.isTooltipOpen?.()) {
+          l.closeTooltip();
+        }
+      });
+    }
+
+    const mapContainer = this.map?.getContainer();
+    if (mapContainer) {
+      const tooltipElements = mapContainer.querySelectorAll('.leaflet-tooltip-pane .leaflet-tooltip');
+      if (exceptPoly) {
+        if (tooltipElements.length > 1) {
+          for (let i = 0; i < tooltipElements.length - 1; i++) {
+            tooltipElements[i].remove();
+          }
+        }
+      } else {
+        tooltipElements.forEach((el) => el.remove());
+      }
     }
   }
 

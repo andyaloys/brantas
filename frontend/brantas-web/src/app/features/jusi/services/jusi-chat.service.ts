@@ -211,8 +211,17 @@ export class JusiChatService {
     this.isLoading.set(true);
     this.saveSessionsToStorage();
 
+    // Ekstrak riwayat obrolan sebelumnya dari sesi aktif (maksimal 8 pesan terakhir)
+    const historyPayload = active.messages
+      .filter((m) => !m.isError && !m.id.startsWith('welcome-') && m.text?.trim())
+      .slice(-8)
+      .map((m) => ({
+        role: m.sender === 'user' ? ('user' as const) : ('assistant' as const),
+        content: m.text
+      }));
+
     try {
-      const res: JusiResponse = await firstValueFrom(this.jusiData.ask(q));
+      const res: JusiResponse = await firstValueFrom(this.jusiData.ask(q, historyPayload));
       const aiMsg: ChatMessage = {
         id: 'ai-' + Date.now(),
         sender: 'assistant',
